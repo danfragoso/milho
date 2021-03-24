@@ -59,3 +59,15 @@ func numberSub(numbers []int64) (*Result, error) {
 		Value: strconv.FormatInt(acc, 10),
 	}, nil
 }
+
+func numberMul(numbers []int64) (*Result, error) {
+	var acc int64 = 1
+	for _, n := range numbers {
+		acc *= n
+	}
+
+	return &Result{
+		Type:  Number,
+		Value: strconv.FormatInt(acc, 10),
+	}, nil
+}

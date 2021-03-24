@@ -49,7 +49,7 @@ func eval(ast *parser.Node) (*Result, error) {
 
 func evalFunction(identifier string, params []*Result) (*Result, error) {
 	switch identifier {
-	case "+", "-":
+	case "+", "-", "*":
 		nParams, err := numberPrepareParams(params)
 		if err != nil {
 			return nil, err
@@ -58,9 +58,10 @@ func evalFunction(identifier string, params []*Result) (*Result, error) {
 		switch identifier {
 		case "+":
 			return numberSum(nParams)
-
 		case "-":
 			return numberSub(nParams)
+		case "*":
+			return numberMul(nParams)
 		}
 	}
 
