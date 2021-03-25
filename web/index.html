@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌽</title>
+    <style>
+        .main {
+            max-width: 600px;
+            margin: 0 auto;
+            font-family: sans-serif;
+        }
+
+        .prompt {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .corn {
+            padding: 10px;
+        }
+
+        input {
+            width: 100%;
+        }
+
+        #rBox {
+            max-height: 200px;
+            overflow-y: scroll;
+            word-wrap: break-word;
+        }
+        
+        .b {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            background-color: #eee;
+            scrollbar-width: none;
+        }
+
+        .b::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <h1>🌽 Milho REPL</h1>
+        <div id="rBox"></div>
+        <div class="prompt">
+            <div class="corn">🌽</div>
+            <input id="input" type="text">
+        </div>
+    </div>
+    <script src="./js/wasm_exec.js"></script>
+    <script>
+        const go = new Go();
+        (async _ => {
+            const milho = await fetch('./wasm/milho.wasm')
+            const buffer = await milho.arrayBuffer()
+            const result = await WebAssembly.instantiate(buffer, go.importObject)
+
+            await go.run(result.instance)
+        })()
+
+        const rBox = document.querySelector("#rBox");
+        let n = 0;
+        document.querySelector("#input")
+        document.addEventListener('keyup', e => {
+            if (e.keyCode === 13 && e.target.value != "") {
+                rBox.innerHTML+= `🌽 ${e.target.value}`;
+                
+                const response = eval(e.target.value); n++;
+
+                rBox.innerHTML+= `<p class="b"><b>[${n}]</b> ${response}</p>`;
+                rBox.scrollTop = rBox.scrollHeight;
+                e.target.value = "";
+            }
+        })
+    </script>
+</body>
+</html>

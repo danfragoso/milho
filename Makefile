@@ -6,6 +6,9 @@ run:
 build:
 	@go build -o milho ./repl/*.go
 
+wasm:
+	@GOOS=js GOARCH=wasm go build -o web/wasm/milho.wasm web/go/milho.go
+
 test: test_tokenizer test_parser test_interpreter test_milho
 
 test_tokenizer:
