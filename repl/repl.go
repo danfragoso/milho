@@ -31,5 +31,5 @@ func main() {
 }
 
 func prompt() {
-	fmt.Printf("🌽 ➔ ")
+	fmt.Printf("🌽 > ")
 }
