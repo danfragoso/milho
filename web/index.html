@@ -22,7 +22,7 @@
             padding: 10px;
         }
 
-        input {
+        input[type=text] {
             width: 100%;
         }
 
@@ -43,6 +43,10 @@
         .b::-webkit-scrollbar {
             display: none;
         }
+
+        .options {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -52,6 +56,12 @@
         <div class="prompt">
             <div class="corn">🌽</div>
             <input id="input" type="text">
+        </div>
+        <div class="options">
+            <label id="showAST">
+                Show AST
+                <input type="checkbox">
+            </label>
         </div>
     </div>
     <script src="./js/wasm_exec.js"></script>
@@ -65,16 +75,23 @@
             await go.run(result.instance)
         })()
 
-        const rBox = document.querySelector("#rBox");
         let n = 0;
+
+        const rBox = document.querySelector("#rBox");
+        const astInput = document.querySelector("#showAST input");
+
         document.querySelector("#input")
         document.addEventListener('keyup', e => {
             if (e.keyCode === 13 && e.target.value != "") {
                 rBox.innerHTML+= `🌽 ${e.target.value}`;
                 
                 const response = eval(e.target.value); n++;
+                let astEl = "";
+                if (astInput.checked) {
+                    astEl+= `<pre>${ast(e.target.value)}</pre>`;
+                };
 
-                rBox.innerHTML+= `<p class="b"><b>[${n}]</b> ${response}</p>`;
+                rBox.innerHTML+= `<div class="b"><b>[${n}]</b> ${response} ${astEl}</div>`;
                 rBox.scrollTop = rBox.scrollHeight;
                 e.target.value = "";
             }
