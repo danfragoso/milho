@@ -5,13 +5,16 @@ import "fmt"
 type NodeType int
 
 func (n NodeType) String() string {
-	return [...]string{"Nil", "Number", "Function"}[n]
+	return [...]string{"Nil", "Number", "Function", "Macro", "Identifier", "List"}[n]
 }
 
 const (
 	Nil NodeType = iota
 	Number
 	Function
+	Macro
+	Identifier
+	List
 )
 
 type Node struct {
