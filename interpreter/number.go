@@ -85,18 +85,17 @@ func numberMul(numbers []int64) (*Result, error) {
 func numberDiv(numbers []int64) (*Result, error) {
 	if len(numbers) == 0 {
 		return nil, errors.New("Wrong number of args '0' passed to Number:[-] function")
+	} else if numbers[0] == 0 {
+		return nil, errors.New("Divide by zero error")
 	}
 
-	var acc int64 = 1
-	if len(numbers) > 1 {
-		acc = numbers[0]
-		for _, n := range numbers[1:] {
-			if n == 0 {
-				return nil, errors.New("Divide by zero error")
-			}
-
-			acc /= n
+	acc := numbers[0]
+	for _, n := range numbers[1:] {
+		if n == 0 {
+			return nil, errors.New("Divide by zero error")
 		}
+
+		acc /= n
 	}
 
 	return &Result{
