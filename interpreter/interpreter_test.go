@@ -55,6 +55,52 @@ func Test_sub(t *testing.T) {
 			t.Errorf("Wrong response value, expected -3 got %s", res.Value)
 		}
 	}
+
+	tokens, err = tokenizer.Tokenize("(- 3)")
+	if err != nil {
+		t.Error(err)
+	}
+
+	ast, err = parser.Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	res, err = Run(ast)
+	if err != nil {
+		t.Error("\n", err)
+	} else {
+		if res.Type != Number {
+			t.Errorf("Wrong response type, expected Number got %s", res.Type)
+		}
+
+		if res.Value != "-3" {
+			t.Errorf("Wrong response value, expected -3 got %s", res.Value)
+		}
+	}
+
+	tokens, err = tokenizer.Tokenize("(- 10 3)")
+	if err != nil {
+		t.Error(err)
+	}
+
+	ast, err = parser.Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	res, err = Run(ast)
+	if err != nil {
+		t.Error("\n", err)
+	} else {
+		if res.Type != Number {
+			t.Errorf("Wrong response type, expected Number got %s", res.Type)
+		}
+
+		if res.Value != "7" {
+			t.Errorf("Wrong response value, expected 7 got %s", res.Value)
+		}
+	}
 }
 
 func Test_mul(t *testing.T) {
