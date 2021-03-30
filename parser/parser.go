@@ -50,7 +50,7 @@ func Parse(tokens []*tokenizer.Token) (*Node, error) {
 				currentNode = currentNode.Parent
 			}
 
-		case tokenizer.Symbol:
+		case tokenizer.Reserved:
 			if currentNode == nil {
 				return nil, fmt.Errorf("unexpected token '%s'", currentToken.Value)
 			} else {
@@ -59,9 +59,32 @@ func Parse(tokens []*tokenizer.Token) (*Node, error) {
 					if isMacro(currentToken.Value) {
 						currentNode.Type = Macro
 					} else {
-						currentNode.Type = Function
+						currentNode.Type = Boolean
 					}
 
+					currentNode.Identifier = currentToken.Value
+
+				default:
+					childNode := createEmptyNode()
+					childNode.Parent = currentNode
+					childNode.Type = Boolean
+					childNode.Identifier = currentToken.Value
+
+					if currentNode == nil {
+						currentNode = childNode
+					} else {
+						currentNode.Nodes = append(currentNode.Nodes, childNode)
+					}
+				}
+			}
+
+		case tokenizer.Symbol:
+			if currentNode == nil {
+				return nil, fmt.Errorf("unexpected token '%s'", currentToken.Value)
+			} else {
+				switch currentNode.Type {
+				case Nil:
+					currentNode.Type = Function
 					currentNode.Identifier = currentToken.Value
 
 				default:
@@ -76,7 +99,6 @@ func Parse(tokens []*tokenizer.Token) (*Node, error) {
 						currentNode.Nodes = append(currentNode.Nodes, childNode)
 					}
 				}
-
 			}
 
 		case tokenizer.Number:
@@ -107,5 +129,10 @@ func createListNode() *Node {
 }
 
 func isMacro(macroCandidate string) bool {
-	return macroCandidate == "defn"
+	switch macroCandidate {
+	case "defn", "def":
+		return true
+	}
+
+	return false
 }

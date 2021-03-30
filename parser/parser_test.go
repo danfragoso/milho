@@ -182,3 +182,37 @@ func Test_nested(t *testing.T) {
 		}
 	}
 }
+
+func Test_boolean(t *testing.T) {
+	tokens, err := tokenizer.Tokenize(`
+		(defn dumb-negate [a] 
+			(if (= a True) False True))
+	`)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	tree, err := Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	expectedNodes := []*Node{
+		{Type: Macro, Identifier: "defn"}, {Type: Identifier, Identifier: "dumb-negate"}, {Type: List},
+		{Type: Identifier, Identifier: "a"}, {Type: Function, Identifier: "if"},
+		{Type: Function, Identifier: "="}, {Type: Identifier, Identifier: "a"},
+		{Type: Boolean, Identifier: "True"}, {Type: Boolean, Identifier: "False"},
+		{Type: Boolean, Identifier: "True"},
+	}
+
+	for idx, node := range treeAsList(tree) {
+		if expectedNodes[idx].Type != node.Type {
+			t.Errorf("Expected node %d type to be %s, got %s", idx, expectedNodes[idx].Type, node.Type)
+		}
+
+		if expectedNodes[idx].Identifier != node.Identifier {
+			t.Errorf("Expected node %d identifier to be '%s', got '%s'", idx, expectedNodes[idx].Identifier, node.Identifier)
+		}
+	}
+}

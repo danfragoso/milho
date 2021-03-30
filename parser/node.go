@@ -5,12 +5,13 @@ import "fmt"
 type NodeType int
 
 func (n NodeType) String() string {
-	return [...]string{"Nil", "Number", "Function", "Macro", "Identifier", "List"}[n]
+	return [...]string{"Nil", "Number", "Boolean", "Function", "Macro", "Identifier", "List"}[n]
 }
 
 const (
 	Nil NodeType = iota
 	Number
+	Boolean
 	Function
 	Macro
 	Identifier
