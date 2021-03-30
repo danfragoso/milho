@@ -5,7 +5,7 @@ import "fmt"
 type TokenType int
 
 func (t TokenType) String() string {
-	return [...]string{"Invalid", "Whitespace", "Number", "Symbol", "OpenParenthesis", "CloseParenthesis", "OpenBracket", "CloseBracket"}[t]
+	return [...]string{"Invalid", "Whitespace", "Number", "Symbol", "Reserved", "OpenParenthesis", "CloseParenthesis", "OpenBracket", "CloseBracket"}[t]
 }
 
 const (
@@ -14,6 +14,7 @@ const (
 
 	Number
 	Symbol
+	Reserved
 
 	OParen
 	CParen
@@ -50,6 +51,10 @@ func resolveTokenType(rawToken string) TokenType {
 		return OBrack
 	case ']':
 		return CBrack
+	}
+
+	if isReserved(rawToken) {
+		return Reserved
 	}
 
 	for _, char := range rawToken {
