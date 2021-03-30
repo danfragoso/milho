@@ -66,3 +66,23 @@ func Test_parens(t *testing.T) {
 		}
 	}
 }
+
+func Test_brackets(t *testing.T) {
+	tokens, err := Tokenize("(defn sum [a b] (+ a b))")
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		expectedTokens := []TokenType{
+			OParen, Symbol, Symbol, OBrack, Symbol, Symbol,
+			CBrack, OParen, Symbol, Symbol, Symbol, CParen,
+			CParen,
+		}
+
+		for idx, tok := range expectedTokens {
+			if tokens[idx].Type != tok {
+				t.Errorf("Wrong token type, expected %s got %s", tok, tokens[idx].Type)
+			}
+		}
+	}
+}

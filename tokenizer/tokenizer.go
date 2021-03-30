@@ -12,13 +12,13 @@ func Tokenize(rawString string) ([]*Token, error) {
 	var tokens []*Token
 
 	for currentChar != NULL_CHAR {
-		if isParenthesis(currentChar) {
+		if isDelimiter(currentChar) {
 			tokenBuffer = string(currentChar)
 		} else {
 			for !isWhiteSpace(currentChar) {
 				tokenBuffer += string(currentChar)
 
-				if isParenthesis(s.PeekNextChar()) {
+				if isDelimiter(s.PeekNextChar()) {
 					break
 				}
 

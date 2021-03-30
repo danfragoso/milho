@@ -5,7 +5,7 @@ import "fmt"
 type TokenType int
 
 func (t TokenType) String() string {
-	return [...]string{"Invalid", "Whitespace", "Number", "Symbol", "OpenParentheses", "CloseParentheses"}[t]
+	return [...]string{"Invalid", "Whitespace", "Number", "Symbol", "OpenParenthesis", "CloseParenthesis", "OpenBracket", "CloseBracket"}[t]
 }
 
 const (
@@ -17,6 +17,9 @@ const (
 
 	OParen
 	CParen
+
+	OBrack
+	CBrack
 )
 
 type Token struct {
@@ -43,6 +46,10 @@ func resolveTokenType(rawToken string) TokenType {
 		return OParen
 	case ')':
 		return CParen
+	case '[':
+		return OBrack
+	case ']':
+		return CBrack
 	}
 
 	for _, char := range rawToken {
