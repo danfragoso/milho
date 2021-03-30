@@ -38,10 +38,6 @@ func numberPrepareParams(params []*Result) ([]int64, error) {
 }
 
 func numberSum(numbers []int64) (*Result, error) {
-	if len(numbers) == 0 {
-		return nil, errors.New("Wrong number of args '0' passed to Number:[+] function")
-	}
-
 	var acc int64
 	for _, n := range numbers {
 		acc += n
@@ -75,10 +71,6 @@ func numberSub(numbers []int64) (*Result, error) {
 }
 
 func numberMul(numbers []int64) (*Result, error) {
-	if len(numbers) == 0 {
-		return nil, errors.New("Wrong number of args '0' passed to Number:[*] function")
-	}
-
 	var acc int64 = 1
 	for _, n := range numbers {
 		acc *= n
