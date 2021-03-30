@@ -1,11 +1,19 @@
 package parser
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/danfragoso/milho/tokenizer"
 )
+
+func treeAsList(self *Node) []*Node {
+	nodeList := []*Node{self}
+	for _, child := range self.Nodes {
+		nodeList = append(nodeList, treeAsList(child)...)
+	}
+
+	return nodeList
+}
 
 func Test_number(t *testing.T) {
 	tokens, err := tokenizer.Tokenize("2")
@@ -66,7 +74,20 @@ func Test_list(t *testing.T) {
 		t.Error(err)
 	}
 
-	fmt.Println(tree)
+	expectedNodes := []*Node{
+		{Type: List}, {Type: Number, Identifier: "2"},
+		{Type: Number, Identifier: "3"}, {Type: Number, Identifier: "4"},
+	}
+
+	for idx, node := range treeAsList(tree) {
+		if expectedNodes[idx].Type != node.Type {
+			t.Errorf("Expected node %d type to be %s, got %s", idx, expectedNodes[idx].Type, node.Type)
+		}
+
+		if expectedNodes[idx].Identifier != node.Identifier {
+			t.Errorf("Expected node %d identifier to be '%s', got '%s'", idx, expectedNodes[idx].Identifier, node.Identifier)
+		}
+	}
 }
 
 func Test_list_param(t *testing.T) {
@@ -80,7 +101,20 @@ func Test_list_param(t *testing.T) {
 		t.Error(err)
 	}
 
-	fmt.Println(tree)
+	expectedNodes := []*Node{
+		{Type: Function, Identifier: "++"}, {Type: List}, {Type: Number, Identifier: "2"},
+		{Type: List}, {Type: Number, Identifier: "3"}, {Type: Number, Identifier: "4"},
+	}
+
+	for idx, node := range treeAsList(tree) {
+		if expectedNodes[idx].Type != node.Type {
+			t.Errorf("Expected node %d type to be %s, got %s", idx, expectedNodes[idx].Type, node.Type)
+		}
+
+		if expectedNodes[idx].Identifier != node.Identifier {
+			t.Errorf("Expected node %d identifier to be '%s', got '%s'", idx, expectedNodes[idx].Identifier, node.Identifier)
+		}
+	}
 }
 
 func Test_defn(t *testing.T) {
@@ -94,12 +128,27 @@ func Test_defn(t *testing.T) {
 		t.Error(err)
 	}
 
-	fmt.Println(tree)
+	expectedNodes := []*Node{
+		{Type: Macro, Identifier: "defn"}, {Type: Identifier, Identifier: "sum"}, {Type: List},
+		{Type: Identifier, Identifier: "a"}, {Type: Identifier, Identifier: "b"},
+		{Type: Function, Identifier: "+"}, {Type: Identifier, Identifier: "a"},
+		{Type: Identifier, Identifier: "b"},
+	}
+
+	for idx, node := range treeAsList(tree) {
+		if expectedNodes[idx].Type != node.Type {
+			t.Errorf("Expected node %d type to be %s, got %s", idx, expectedNodes[idx].Type, node.Type)
+		}
+
+		if expectedNodes[idx].Identifier != node.Identifier {
+			t.Errorf("Expected node %d identifier to be '%s', got '%s'", idx, expectedNodes[idx].Identifier, node.Identifier)
+		}
+	}
 }
 
 func Test_nested(t *testing.T) {
 	tokens, err := tokenizer.Tokenize(`
-		(defn add-one-if-gt-zero [a] 
+		(defn inc-if-gt-zero [a] 
 			(if (> a 0) 
 				(+ a 1) (+ a 0)))
 	`)
@@ -113,5 +162,23 @@ func Test_nested(t *testing.T) {
 		t.Error(err)
 	}
 
-	fmt.Println(tree)
+	expectedNodes := []*Node{
+		{Type: Macro, Identifier: "defn"}, {Type: Identifier, Identifier: "inc-if-gt-zero"}, {Type: List},
+		{Type: Identifier, Identifier: "a"}, {Type: Function, Identifier: "if"},
+		{Type: Function, Identifier: ">"}, {Type: Identifier, Identifier: "a"},
+		{Type: Number, Identifier: "0"}, {Type: Function, Identifier: "+"},
+		{Type: Identifier, Identifier: "a"}, {Type: Number, Identifier: "1"},
+		{Type: Function, Identifier: "+"}, {Type: Identifier, Identifier: "a"},
+		{Type: Number, Identifier: "0"},
+	}
+
+	for idx, node := range treeAsList(tree) {
+		if expectedNodes[idx].Type != node.Type {
+			t.Errorf("Expected node %d type to be %s, got %s", idx, expectedNodes[idx].Type, node.Type)
+		}
+
+		if expectedNodes[idx].Identifier != node.Identifier {
+			t.Errorf("Expected node %d identifier to be '%s', got '%s'", idx, expectedNodes[idx].Identifier, node.Identifier)
+		}
+	}
 }
