@@ -5,12 +5,17 @@ import "fmt"
 type ResultType int
 
 func (r ResultType) String() string {
-	return [...]string{"Nil", "Number"}[r]
+	return [...]string{"Nil", "Number", "Boolean", "Function", "Macro", "Identifier", "List"}[r]
 }
 
 const (
 	Nil ResultType = iota
 	Number
+	Boolean
+	Function
+	Macro
+	Identifier
+	List
 )
 
 type Result struct {
@@ -19,5 +24,5 @@ type Result struct {
 }
 
 func (r *Result) String() string {
-	return fmt.Sprintf("\n{Type: %s; Value: '%s'}", r.Type, r.Value)
+	return fmt.Sprintf("\n{Type: %s; Value: '%s'}", r.Type.String(), r.Value)
 }

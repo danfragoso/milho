@@ -16,8 +16,6 @@ func Run(ast *parser.Node) (*Result, error) {
 }
 
 func eval(ast *parser.Node) (*Result, error) {
-	res := &Result{}
-
 	var results []*Result
 	for _, childNode := range ast.Nodes {
 		childResult, err := eval(childNode)
@@ -37,18 +35,19 @@ func eval(ast *parser.Node) (*Result, error) {
 
 		return result, nil
 
-	case parser.Number:
+	default:
 		return &Result{
-			Type:  Number,
+			Type:  ResultType(ast.Type),
 			Value: ast.Identifier,
 		}, nil
 	}
-
-	return res, nil
 }
 
 func evalFunction(identifier string, params []*Result) (*Result, error) {
 	switch identifier {
+	case "=":
+		return eq(params)
+
 	case "+", "-", "*", "/":
 		nParams, err := numberPrepareParams(params)
 		if err != nil {

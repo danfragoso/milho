@@ -190,3 +190,43 @@ func Test_div(t *testing.T) {
 		}
 	}
 }
+
+func Test_eq(t *testing.T) {
+	tokens, err := tokenizer.Tokenize("(= 20 2)")
+	if err != nil {
+		t.Error(err)
+	}
+
+	ast, err := parser.Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	res, err := Run(ast)
+	if err != nil {
+		t.Error("\n", err)
+	} else {
+		if res.Type != Boolean {
+			t.Errorf("Wrong response type, expected Number got %s", res.Type)
+		}
+
+		if res.Value != "False" {
+			t.Errorf("Wrong response value, expected  got %s", res.Value)
+		}
+	}
+
+	tokens, err = tokenizer.Tokenize("(= 20 20 20 defn)")
+	if err != nil {
+		t.Error(err)
+	}
+
+	ast, err = parser.Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = Run(ast)
+	if err == nil {
+		t.Error("Expected error")
+	}
+}
