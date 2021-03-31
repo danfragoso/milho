@@ -36,3 +36,22 @@ func eq(params []*Result) (*Result, error) {
 		Value: finalResult,
 	}, nil
 }
+
+func neq(params []*Result) (*Result, error) {
+	r, e := eq(params)
+	if e != nil {
+		return r, e
+	}
+
+	return invertResult(r), nil
+}
+
+func invertResult(r *Result) *Result {
+	if r.Value == "True" {
+		r.Value = "False"
+	} else {
+		r.Value = "True"
+	}
+
+	return r
+}

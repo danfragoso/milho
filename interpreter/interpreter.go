@@ -47,6 +47,8 @@ func evalFunction(identifier string, params []*Result) (*Result, error) {
 	switch identifier {
 	case "=":
 		return eq(params)
+	case "/=":
+		return neq(params)
 
 	case "+", "-", "*", "/":
 		nParams, err := numberPrepareParams(params)
