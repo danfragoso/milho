@@ -19,7 +19,7 @@ func main() {
 	for scanner.Scan() {
 		cmd := scanner.Text()
 		if strings.TrimSpace(cmd) != "" {
-			fmt.Print(milho.Run(cmd))
+			fmt.Print("🍿 " + milho.Run(cmd))
 			prompt()
 		}
 	}
