@@ -20,21 +20,19 @@ func eq(params []*Result) (*Result, error) {
 	}
 
 	lastParam := params[0]
+	finalResult := "True"
 	for _, param := range params[1:] {
 		if notComparable(lastParam.Type) || notComparable(param.Type) {
 			return nil, fmt.Errorf("Unresolved value '%s' of type %s is not comparable", param.Value, param.Type)
 		}
 
 		if lastParam.Type != param.Type || lastParam.Value != param.Value {
-			return &Result{
-				Type:  Boolean,
-				Value: "False",
-			}, nil
+			finalResult = "False"
 		}
 	}
 
 	return &Result{
 		Type:  Boolean,
-		Value: "True",
+		Value: finalResult,
 	}, nil
 }
