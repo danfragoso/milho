@@ -18,7 +18,9 @@ func Test_add(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err := Run(ast)
+	results, err := Run(ast)
+	res := results[0]
+
 	if err != nil {
 		t.Error("\n", err)
 	} else {
@@ -43,7 +45,8 @@ func Test_sub(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err := Run(ast)
+	results, err := Run(ast)
+	res := results[0]
 	if err != nil {
 		t.Error("\n", err)
 	} else {
@@ -66,7 +69,8 @@ func Test_sub(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err = Run(ast)
+	results, err = Run(ast)
+	res = results[0]
 	if err != nil {
 		t.Error("\n", err)
 	} else {
@@ -89,7 +93,8 @@ func Test_sub(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err = Run(ast)
+	results, err = Run(ast)
+	res = results[0]
 	if err != nil {
 		t.Error("\n", err)
 	} else {
@@ -114,7 +119,8 @@ func Test_mul(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err := Run(ast)
+	results, err := Run(ast)
+	res := results[0]
 	if err != nil {
 		t.Error("\n", err)
 	} else {
@@ -137,7 +143,8 @@ func Test_mul(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err = Run(ast)
+	results, err = Run(ast)
+	res = results[0]
 	if err != nil {
 		t.Error("\n", err)
 	} else {
@@ -177,7 +184,8 @@ func Test_div(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err := Run(ast)
+	results, err := Run(ast)
+	res := results[0]
 	if err != nil {
 		t.Error("\n", err)
 	} else {
@@ -202,7 +210,8 @@ func Test_eq(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err := Run(ast)
+	results, err := Run(ast)
+	res := results[0]
 	if err != nil {
 		t.Error("\n", err)
 	} else {
@@ -240,7 +249,8 @@ func Test_eq(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err = Run(ast)
+	results, err = Run(ast)
+	res = results[0]
 	if err != nil {
 		t.Error("\n", err)
 	} else {

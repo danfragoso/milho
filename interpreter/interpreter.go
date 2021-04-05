@@ -6,13 +6,18 @@ import (
 	"github.com/danfragoso/milho/parser"
 )
 
-func Run(ast *parser.Node) (Result, error) {
-	res, err := eval(ast)
-	if err != nil {
-		return res, err
+func Run(nodes []*parser.Node) ([]Result, error) {
+	var results []Result
+	for _, node := range nodes {
+		res, err := eval(node)
+		if err != nil {
+			return nil, err
+		}
+
+		results = append(results, res)
 	}
 
-	return res, nil
+	return results, nil
 }
 
 func eval(ast *parser.Node) (Result, error) {
