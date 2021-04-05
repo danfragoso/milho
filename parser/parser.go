@@ -6,11 +6,12 @@ import (
 	"github.com/danfragoso/milho/tokenizer"
 )
 
-func Parse(tokens []*tokenizer.Token) (*Node, error) {
+func Parse(tokens []*tokenizer.Token) ([]*Node, error) {
 	tokenList := CreateTokenList(tokens)
 	currentToken := tokenList.FirstToken()
 
 	var currentNode *Node
+	var nodes []*Node
 
 	for currentToken != nil {
 		switch currentToken.Type {
@@ -28,6 +29,7 @@ func Parse(tokens []*tokenizer.Token) (*Node, error) {
 		case tokenizer.OBrack:
 			if currentNode == nil {
 				currentNode = createListNode()
+				nodes = append(nodes, currentNode)
 			} else {
 				childNode := createListNode()
 				childNode.Parent = currentNode
@@ -39,8 +41,13 @@ func Parse(tokens []*tokenizer.Token) (*Node, error) {
 		case tokenizer.CParen:
 			if currentNode == nil {
 				return nil, fmt.Errorf("unexpected token '('")
-			} else if currentNode.Parent != nil {
+			}
+
+			if currentNode.Parent != nil {
 				currentNode = currentNode.Parent
+			} else {
+				nodes = append(nodes, currentNode)
+				currentNode = nil
 			}
 
 		case tokenizer.CBrack:
@@ -113,6 +120,7 @@ func Parse(tokens []*tokenizer.Token) (*Node, error) {
 
 			if currentNode == nil {
 				currentNode = childNode
+				nodes = append(nodes, currentNode)
 			} else {
 				currentNode.Nodes = append(currentNode.Nodes, childNode)
 			}
@@ -121,7 +129,7 @@ func Parse(tokens []*tokenizer.Token) (*Node, error) {
 		currentToken = tokenList.NextToken()
 	}
 
-	return currentNode, nil
+	return nodes, nil
 }
 
 func createEmptyNode() *Node {

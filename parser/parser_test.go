@@ -21,10 +21,12 @@ func Test_number(t *testing.T) {
 		t.Error(err)
 	}
 
-	tree, err := Parse(tokens)
+	nodes, err := Parse(tokens)
 	if err != nil {
 		t.Error(err)
 	}
+
+	tree := nodes[0]
 
 	if tree.Type != Number {
 		t.Errorf("Expected node type to be Number, got %s", tree.Type)
@@ -41,10 +43,12 @@ func Test_parens(t *testing.T) {
 		t.Error(err)
 	}
 
-	tree, err := Parse(tokens)
+	nodes, err := Parse(tokens)
 	if err != nil {
 		t.Error(err)
 	}
+
+	tree := nodes[0]
 
 	if tree.Type != Function {
 		t.Errorf("Expected function node type, got %s", tree.Type)
@@ -69,10 +73,12 @@ func Test_list(t *testing.T) {
 		t.Error(err)
 	}
 
-	tree, err := Parse(tokens)
+	nodes, err := Parse(tokens)
 	if err != nil {
 		t.Error(err)
 	}
+
+	tree := nodes[0]
 
 	expectedNodes := []*Node{
 		{Type: List}, {Type: Number, Identifier: "2"},
@@ -91,15 +97,17 @@ func Test_list(t *testing.T) {
 }
 
 func Test_list_param(t *testing.T) {
-	tokens, err := tokenizer.Tokenize("(++ [2] [3 4]")
+	tokens, err := tokenizer.Tokenize("(++ [2] [3 4])")
 	if err != nil {
 		t.Error(err)
 	}
 
-	tree, err := Parse(tokens)
+	nodes, err := Parse(tokens)
 	if err != nil {
 		t.Error(err)
 	}
+
+	tree := nodes[0]
 
 	expectedNodes := []*Node{
 		{Type: Function, Identifier: "++"}, {Type: List}, {Type: Number, Identifier: "2"},
@@ -118,15 +126,17 @@ func Test_list_param(t *testing.T) {
 }
 
 func Test_defn(t *testing.T) {
-	tokens, err := tokenizer.Tokenize("(defn sum [a b] (+ a b)")
+	tokens, err := tokenizer.Tokenize("(defn sum [a b] (+ a b))")
 	if err != nil {
 		t.Error(err)
 	}
 
-	tree, err := Parse(tokens)
+	nodes, err := Parse(tokens)
 	if err != nil {
 		t.Error(err)
 	}
+
+	tree := nodes[0]
 
 	expectedNodes := []*Node{
 		{Type: Macro, Identifier: "defn"}, {Type: Identifier, Identifier: "sum"}, {Type: List},
@@ -157,10 +167,12 @@ func Test_nested(t *testing.T) {
 		t.Error(err)
 	}
 
-	tree, err := Parse(tokens)
+	nodes, err := Parse(tokens)
 	if err != nil {
 		t.Error(err)
 	}
+
+	tree := nodes[0]
 
 	expectedNodes := []*Node{
 		{Type: Macro, Identifier: "defn"}, {Type: Identifier, Identifier: "inc-if-gt-zero"}, {Type: List},
@@ -193,10 +205,12 @@ func Test_boolean(t *testing.T) {
 		t.Error(err)
 	}
 
-	tree, err := Parse(tokens)
+	nodes, err := Parse(tokens)
 	if err != nil {
 		t.Error(err)
 	}
+
+	tree := nodes[0]
 
 	expectedNodes := []*Node{
 		{Type: Macro, Identifier: "defn"}, {Type: Identifier, Identifier: "dumb-negate"}, {Type: List},
@@ -213,6 +227,51 @@ func Test_boolean(t *testing.T) {
 
 		if expectedNodes[idx].Identifier != node.Identifier {
 			t.Errorf("Expected node %d identifier to be '%s', got '%s'", idx, expectedNodes[idx].Identifier, node.Identifier)
+		}
+	}
+}
+
+func Test_session_def(t *testing.T) {
+	tokens, err := tokenizer.Tokenize(`
+		(def numb 1000)
+		(* 2 numb)
+	`)
+	if err != nil {
+		t.Error(err)
+	}
+
+	nodes, err := Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	expectedNodes1 := []*Node{
+		{Type: Macro, Identifier: "def"}, {Type: Identifier, Identifier: "numb"},
+		{Type: Number, Identifier: "1000"},
+	}
+
+	for idx, node := range treeAsList(nodes[0]) {
+		if expectedNodes1[idx].Type != node.Type {
+			t.Errorf("Expected node %d type to be %s, got %s", idx, expectedNodes1[idx].Type, node.Type)
+		}
+
+		if expectedNodes1[idx].Identifier != node.Identifier {
+			t.Errorf("Expected node %d identifier to be '%s', got '%s'", idx, expectedNodes1[idx].Identifier, node.Identifier)
+		}
+	}
+
+	expectedNodes2 := []*Node{
+		{Type: Function, Identifier: "*"}, {Type: Number, Identifier: "2"},
+		{Type: Identifier, Identifier: "numb"},
+	}
+
+	for idx, node := range treeAsList(nodes[1]) {
+		if expectedNodes2[idx].Type != node.Type {
+			t.Errorf("Expected node %d type to be %s, got %s", idx, expectedNodes2[idx].Type, node.Type)
+		}
+
+		if expectedNodes2[idx].Identifier != node.Identifier {
+			t.Errorf("Expected node %d identifier to be '%s', got '%s'", idx, expectedNodes2[idx].Identifier, node.Identifier)
 		}
 	}
 }
