@@ -9,6 +9,7 @@ import (
 )
 
 func Run(src string) string {
+	var ret string
 	tokens, err := tokenizer.Tokenize(src)
 	if err != nil {
 		return fmt.Sprintf("Tokenization error: %s\n", err)
@@ -19,15 +20,14 @@ func Run(src string) string {
 		return fmt.Sprintf("Parsing error: %s\n", err)
 	}
 
-	res, err := interpreter.Run(ast)
-	if err != nil {
-		return fmt.Sprintf("Evaluation error: %s\n", err)
-	} else {
-		strResult := "Nil"
-		if res.Type() != interpreter.Nil {
-			strResult = res.Value()
+	results, err := interpreter.Run(ast)
+	for _, result := range results {
+		if err != nil {
+			ret += fmt.Sprintf("Evaluation error: %s\n", err)
+		} else {
+			ret += "\n" + result.Value()
 		}
-
-		return fmt.Sprintln(strResult)
 	}
+
+	return ret
 }
