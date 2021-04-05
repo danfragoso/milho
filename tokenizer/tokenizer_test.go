@@ -104,3 +104,56 @@ func Test_bool(t *testing.T) {
 		}
 	}
 }
+
+func Test_session_def(t *testing.T) {
+	tokens, err := Tokenize(`
+		(def numb 1000)
+		(* 2 numb)
+	`)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		expectedTokens := []TokenType{
+			OParen, Reserved, Symbol, Number, CParen,
+			OParen, Symbol, Number, Symbol, CParen,
+		}
+
+		for idx, tok := range expectedTokens {
+			if tokens[idx].Type != tok {
+				t.Errorf("Wrong token type, expected %s got %s", tok, tokens[idx].Type)
+			}
+		}
+	}
+}
+
+func Test_session_fn(t *testing.T) {
+	tokens, err := Tokenize(`
+		(defn fib-nth [n]
+			(if (< n 2) n
+			(+ (fib-nth (- n 1)) (fib-nth (- n 2)))))
+
+		(fib-nth 10)
+	`)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		expectedTokens := []TokenType{
+			OParen, Reserved, Symbol, OBrack, Symbol,
+			CBrack, OParen, Symbol, OParen, Symbol,
+			Symbol, Number, CParen, Symbol, OParen,
+			Symbol, OParen, Symbol, OParen, Symbol,
+			Symbol, Number, CParen, CParen, OParen,
+			Symbol, OParen, Symbol, Symbol, Number,
+			CParen, CParen, CParen, CParen, CParen,
+			OParen, Symbol, Number, CParen,
+		}
+
+		for idx, tok := range expectedTokens {
+			if tokens[idx].Type != tok {
+				t.Errorf("Wrong token type, expected %s got %s", tok, tokens[idx].Type)
+			}
+		}
+	}
+}
