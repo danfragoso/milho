@@ -6,7 +6,7 @@ import (
 	"github.com/danfragoso/milho/parser"
 )
 
-func Run(ast *parser.Node) (*Result, error) {
+func Run(ast *parser.Node) (Result, error) {
 	res, err := eval(ast)
 	if err != nil {
 		return res, err
@@ -15,8 +15,8 @@ func Run(ast *parser.Node) (*Result, error) {
 	return res, nil
 }
 
-func eval(ast *parser.Node) (*Result, error) {
-	var results []*Result
+func eval(ast *parser.Node) (Result, error) {
+	var results []Result
 	for _, childNode := range ast.Nodes {
 		childResult, err := eval(childNode)
 		if err != nil {
@@ -36,14 +36,24 @@ func eval(ast *parser.Node) (*Result, error) {
 		return result, nil
 
 	default:
-		return &Result{
-			Type:  ResultType(ast.Type),
-			Value: ast.Identifier,
-		}, nil
+		return createTypedResult(ResultType(ast.Type), ast.Identifier)
 	}
 }
 
-func evalFunction(identifier string, params []*Result) (*Result, error) {
+func createTypedResult(t ResultType, v string) (Result, error) {
+	switch t {
+	case Number:
+		return createNumberResult(v)
+	case Boolean:
+		return createBooleanResult(v)
+	case Nil:
+		return createNilResult()
+	}
+
+	return nil, fmt.Errorf("found unresolved %s '%s'", t, v)
+}
+
+func evalFunction(identifier string, params []Result) (Result, error) {
 	switch identifier {
 	case "=":
 		return eq(params)

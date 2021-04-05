@@ -24,8 +24,8 @@ func Run(src string) string {
 		return fmt.Sprintf("Evaluation error: %s\n", err)
 	} else {
 		strResult := "Nil"
-		if res.Type != interpreter.Nil {
-			strResult = res.Value
+		if res.Type() != interpreter.Nil {
+			strResult = res.Value()
 		}
 
 		return fmt.Sprintln(strResult)
