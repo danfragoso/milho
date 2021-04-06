@@ -7,8 +7,18 @@ import (
 )
 
 func Run(nodes []*parser.Node) ([]Result, error) {
-	//sess, err := createSession(nodes)
-	//fmt.Println(sess, err)
+	// var session *Session
+	// if len(nodes) == 0 {
+	// return nil, fmt.Errorf()
+	// }
+	//
+	// for _, node := range nodes {
+	// if session == nil {
+	// session, err = createSession(node)
+	// } else {
+	// updateSession(node)
+	// }
+	// }
 
 	var results []Result
 	for _, node := range nodes {
