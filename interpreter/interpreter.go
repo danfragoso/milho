@@ -7,6 +7,9 @@ import (
 )
 
 func Run(nodes []*parser.Node) ([]Result, error) {
+	//sess, err := createSession(nodes)
+	//fmt.Println(sess, err)
+
 	var results []Result
 	for _, node := range nodes {
 		res, err := eval(node)

@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/danfragoso/milho/parser"
@@ -263,4 +264,23 @@ func Test_eq(t *testing.T) {
 		}
 	}
 
+}
+
+func Test_def(t *testing.T) {
+	tokens, err := tokenizer.Tokenize(`
+		(def acc 10)
+		(+ acc 1)
+	`)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	ast, err := parser.Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	results, err := Run(ast)
+	fmt.Println(results, err)
 }
