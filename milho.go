@@ -22,11 +22,11 @@ func Run(src string) string {
 
 	results, err := interpreter.Run(ast)
 	for _, result := range results {
-		if err != nil {
-			ret += fmt.Sprintf("Evaluation error: %s\n", err)
-		} else {
-			ret += "\n" + result.Value()
-		}
+		ret += "\n" + result.Value()
+	}
+
+	if err != nil {
+		ret += fmt.Sprintf("\nEvaluation error: %s", err)
 	}
 
 	return ret
