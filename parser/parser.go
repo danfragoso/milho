@@ -91,7 +91,13 @@ func Parse(tokens []*tokenizer.Token) ([]*Node, error) {
 
 		case tokenizer.Symbol:
 			if currentNode == nil {
-				return nil, fmt.Errorf("unexpected token '%s'", currentToken.Value)
+				childNode := createEmptyNode()
+				childNode.Parent = currentNode
+				childNode.Type = Identifier
+				childNode.Identifier = currentToken.Value
+
+				currentNode = childNode
+				nodes = append(nodes, currentNode)
 			} else {
 				switch currentNode.Type {
 				case Nil:
