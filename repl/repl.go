@@ -16,10 +16,11 @@ func main() {
 
 	prompt()
 
+	sess := milho.CreateSession()
 	for scanner.Scan() {
 		cmd := scanner.Text()
 		if strings.TrimSpace(cmd) != "" {
-			results := milho.Run(cmd)
+			results := milho.RunSession(cmd, sess)
 
 			for _, result := range strings.Split(results, "\n") {
 				r := strings.TrimSpace(result)
