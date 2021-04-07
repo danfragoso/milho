@@ -8,7 +8,7 @@ import (
 type ResultType int
 
 func (r ResultType) String() string {
-	return [...]string{"Nil", "Number", "Boolean", "Function", "Macro", "Identifier", "List"}[r]
+	return [...]string{"Nil", "Number", "Boolean", "Function", "Macro", "Identifier", "List", "Obj"}[r]
 }
 
 const (
@@ -19,6 +19,7 @@ const (
 	Macro
 	Identifier
 	List
+	Obj
 )
 
 type Result interface {
@@ -117,4 +118,43 @@ func (r *NilResult) Type() ResultType {
 
 func (r *NilResult) String() string {
 	return fmt.Sprintf("\n{Type: Nil; Value: Nil}")
+}
+
+// Nil Result
+
+func createObjectResult(obj Object) (*ObjectResult, error) {
+	return &ObjectResult{
+		obj,
+	}, nil
+}
+
+type ObjectResult struct {
+	obj Object
+}
+
+func (r *ObjectResult) Value() string {
+	return "#" + r.obj.Type().String() + ":" +
+		r.obj.Result().Type().String() + "[" +
+		r.obj.Result().Value() + "]"
+}
+
+func (r *ObjectResult) Type() ResultType {
+	return Obj
+}
+
+func (r *ObjectResult) String() string {
+	return r.Value()
+}
+
+func createTypedResult(t ResultType, v string) (Result, error) {
+	switch t {
+	case Number:
+		return createNumberResult(v)
+	case Boolean:
+		return createBooleanResult(v)
+	case Nil:
+		return createNilResult()
+	}
+
+	return nil, fmt.Errorf("found unresolved %s '%s'", t, v)
 }

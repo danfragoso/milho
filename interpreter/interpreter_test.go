@@ -1,7 +1,6 @@
 package interpreter
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/danfragoso/milho/parser"
@@ -282,5 +281,17 @@ func Test_def(t *testing.T) {
 	}
 
 	results, err := Run(ast)
-	fmt.Println(results, err)
+	if err != nil {
+		t.Error(err)
+	}
+
+	expectedResults := []Result{
+		&ObjectResult{}, &NumberResult{resultType: Number},
+	}
+
+	for i, result := range results {
+		if expectedResults[i].Type() != result.Type() {
+			t.Errorf("Wrong result type found, expected %s got %s", expectedResults[i].Type().String(), result.Type().String())
+		}
+	}
 }

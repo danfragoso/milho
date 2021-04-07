@@ -17,7 +17,7 @@ func createSession(node *parser.Node) (*Session, error) {
 		Tree: node,
 	}
 
-	err := expandMacros(sess)
+	err := expandMacros(node, sess)
 	if err != nil {
 		return nil, err
 	}
@@ -25,9 +25,54 @@ func createSession(node *parser.Node) (*Session, error) {
 	return sess, nil
 }
 
-func expandMacros(session *Session) error {
+func updateSession(session *Session, node *parser.Node) error {
+	session.Tree = node
+	err := expandMacros(node, session)
+	if err != nil {
+		return err
+	}
 
 	return nil
+}
+
+func expandMacros(node *parser.Node, session *Session) error {
+	if node.Type != parser.Macro {
+		for _, child := range node.Nodes {
+			err := expandMacros(child, session)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		switch node.Identifier {
+		case "def":
+			obj, err := expandDefMacro(node)
+			if err != nil {
+				return err
+			}
+
+			session.Objects = addObjectToSession(session.Objects, obj)
+		}
+	}
+
+	return nil
+}
+
+func addObjectToSession(objects []Object, obj Object) []Object {
+	objIdx := -1
+	for i, object := range objects {
+		if object.Identifier() == obj.Identifier() {
+			objIdx = i
+		}
+	}
+
+	if objIdx == -1 {
+		objects = append(objects, obj)
+	} else {
+		objects[objIdx] = obj
+	}
+
+	return objects
 }
 
 func expandDefMacro(node *parser.Node) (Object, error) {
@@ -47,6 +92,6 @@ func expandDefMacro(node *parser.Node) (Object, error) {
 	return &VariableObj{
 		objectType: VariableObject,
 		identifier: node.Nodes[0].Identifier,
-		value:      r,
+		result:     r,
 	}, nil
 }

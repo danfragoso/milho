@@ -14,13 +14,14 @@ func (r ObjectType) String() string {
 type Object interface {
 	Type() ObjectType
 	Identifier() string
+	Result() Result
 }
 
 // Variable Object
 type VariableObj struct {
 	objectType ObjectType
 	identifier string
-	value      Result
+	result     Result
 }
 
 func (v *VariableObj) Type() ObjectType {
@@ -29,6 +30,10 @@ func (v *VariableObj) Type() ObjectType {
 
 func (v *VariableObj) Identifier() string {
 	return v.identifier
+}
+
+func (v *VariableObj) Result() Result {
+	return v.result
 }
 
 // Function Object
