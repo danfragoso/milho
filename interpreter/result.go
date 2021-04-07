@@ -3,12 +3,14 @@ package interpreter
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/danfragoso/milho/parser"
 )
 
 type ResultType int
 
 func (r ResultType) String() string {
-	return [...]string{"Nil", "Number", "Boolean", "Function", "Macro", "Identifier", "List", "Obj"}[r]
+	return [...]string{"Nil", "Number", "Boolean", "Function", "Macro", "Identifier", "List", "Obj", "Pending"}[r]
 }
 
 const (
@@ -20,6 +22,7 @@ const (
 	Identifier
 	List
 	Obj
+	Pending
 )
 
 type Result interface {
@@ -133,9 +136,11 @@ type ObjectResult struct {
 }
 
 func (r *ObjectResult) Value() string {
-	return "#" + r.obj.Type().String() + ":" +
-		r.obj.Result().Type().String() + "[" +
-		r.obj.Result().Value() + "]"
+	return r.obj.Identifier() + "#" +
+		r.obj.Type().String() + ":" +
+		r.obj.Result().Type().String() +
+		"[" + r.obj.Result().Value() + "]"
+
 }
 
 func (r *ObjectResult) Type() ResultType {
@@ -144,6 +149,29 @@ func (r *ObjectResult) Type() ResultType {
 
 func (r *ObjectResult) String() string {
 	return r.Value()
+}
+
+// Pending Result
+type PendingResult struct {
+	Tree *parser.Node
+}
+
+func (r *PendingResult) Value() string {
+	return ""
+}
+
+func (r *PendingResult) Type() ResultType {
+	return Pending
+}
+
+func (r *PendingResult) String() string {
+	return fmt.Sprintf("\n{Type: Pending; Value: '%s'}", r.Tree)
+}
+
+func createPendingResult(node *parser.Node) (Result, error) {
+	return &PendingResult{
+		Tree: node,
+	}, nil
 }
 
 func createTypedResult(t ResultType, v string) (Result, error) {

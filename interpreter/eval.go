@@ -39,7 +39,7 @@ func eval(ast *parser.Node, sess *Session) (Result, error) {
 		return result, nil
 
 	case parser.Identifier:
-		result, err := evalIdentifier(ast.Identifier, sess.Objects)
+		result, err := evalIdentifier(ast.Identifier, sess)
 		if err != nil {
 			return nil, err
 		}
@@ -51,10 +51,16 @@ func eval(ast *parser.Node, sess *Session) (Result, error) {
 	}
 }
 
-func evalIdentifier(identifier string, objs []Object) (Result, error) {
-	for _, obj := range objs {
+func evalIdentifier(identifier string, sess *Session) (Result, error) {
+	for _, obj := range sess.Objects {
 		if obj.Identifier() == identifier {
-			return obj.Result(), nil
+			if obj.Result().Type() != Pending {
+				return obj.Result(), nil
+			}
+
+			pendingResult := obj.Result().(*PendingResult).Tree
+			pendingResult.Parent = nil
+			return eval(pendingResult, sess)
 		}
 	}
 

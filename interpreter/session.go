@@ -84,7 +84,15 @@ func expandDefMacro(node *parser.Node) (Object, error) {
 		return nil, fmt.Errorf("Wrong type for def macro first argument, it must be an Identifier")
 	}
 
-	r, err := createTypedResult(ResultType(node.Nodes[1].Type), node.Nodes[1].Identifier)
+	var r Result
+	var err error
+
+	if node.Nodes[1].Type != parser.Function {
+		r, err = createTypedResult(ResultType(node.Nodes[1].Type), node.Nodes[1].Identifier)
+	} else {
+		r, err = createPendingResult(node.Nodes[1])
+	}
+
 	if err != nil {
 		return nil, err
 	}
