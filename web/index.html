@@ -27,8 +27,8 @@
         }
 
         #rBox {
-            max-height: 200px;
-            overflow-y: scroll;
+            height: 200px;
+            overflow-y: auto;
             word-wrap: break-word;
         }
         
@@ -47,15 +47,23 @@
         .options {
             text-align: center;
         }
+
+        .repl {
+            background: #fbfbfb;
+            padding: 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="main">
         <h1>🌽 Milho REPL</h1>
-        <div id="rBox"></div>
-        <div class="prompt">
-            <div class="corn">🌽</div>
-            <input id="input" type="text">
+        <div class="repl">
+            <div id="rBox"></div>
+            <div class="prompt">
+                <div class="corn">🌽</div>
+                <input id="input" type="text">
+            </div>
         </div>
         <div class="options">
             <label id="showAST">
@@ -66,6 +74,18 @@
     </div>
     <script src="./js/wasm_exec.js"></script>
     <script>
+        let n = 0;
+        let replSession = null;
+        
+        const versionPooling = setInterval(vp, 100);
+        function vp() {
+            if (typeof replVersion !== 'undefined') {
+                rBox.innerHTML+= `<div style="margin-bottom: 20px; font-weight: bold;">Milho REPL (WebAssembly Version) 🌽 v.${replVersion} <br> © Danilo Fragoso &lt;danilo.fragoso@gmail.com&gt; - 2021</div>`
+                
+                clearInterval(versionPooling);
+            };
+        };
+
         const go = new Go();
         (async _ => {
             const milho = await fetch('./wasm/milho.wasm')
@@ -75,23 +95,25 @@
             await go.run(result.instance)
         })()
 
-        let n = 0;
-
         const rBox = document.querySelector("#rBox");
         const astInput = document.querySelector("#showAST input");
 
         document.querySelector("#input")
         document.addEventListener('keyup', e => {
             if (e.keyCode === 13 && e.target.value != "") {
-                rBox.innerHTML+= `🌽 ${e.target.value}`;
+                if (replSession == null) {
+                    replSession = createREPLSession();
+                };
                 
+                rBox.innerHTML+= `🌽 ${e.target.value}`;
+
                 const response = eval(e.target.value); n++;
                 let astEl = "";
                 if (astInput.checked) {
                     astEl+= `<pre>${ast(e.target.value)}</pre>`;
                 };
 
-                rBox.innerHTML+= `<div class="b"><b>[${n}]</b> ${response} ${astEl}</div>`;
+                rBox.innerHTML+= `<div class="b"><b>[${n}] 🍿</b> <pre>${response}</pre> ${astEl}</div>`;
                 rBox.scrollTop = rBox.scrollHeight;
                 e.target.value = "";
             }
