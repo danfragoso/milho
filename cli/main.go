@@ -9,10 +9,8 @@ import (
 )
 
 func main() {
-	fileArg := os.Args[1]
-
-	if fileArg != "" {
-		file, err := ioutil.ReadFile(fileArg)
+	if len(os.Args) > 1 && os.Args[1] != "" {
+		file, err := ioutil.ReadFile(os.Args[1])
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
