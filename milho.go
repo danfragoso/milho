@@ -62,6 +62,21 @@ func RunSession(src string, sess *interpreter.Session) string {
 	return ret
 }
 
+func RunRaw(src string) ([]interpreter.Result, error) {
+	sess := CreateSession()
+	tokens, err := tokenizer.Tokenize(src)
+	if err != nil {
+		return nil, fmt.Errorf("Tokenization error: %s\n", err)
+	}
+
+	ast, err := parser.Parse(tokens)
+	if err != nil {
+		return nil, fmt.Errorf("Parsing error: %s\n", err)
+	}
+
+	return interpreter.RunFromSession(ast, sess)
+}
+
 func CreateSession() *interpreter.Session {
 	return &interpreter.Session{}
 }

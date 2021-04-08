@@ -4,10 +4,10 @@ ldflags := -ldflags "-X 'github.com/danfragoso/milho.version=$(git_revision)'"
 all: test
 
 run: 
-	@go run $(ldflags) ./repl/*.go
+	@go run $(ldflags) ./cli/*.go $(f)
 
 build:
-	@go build $(ldflags) -o milho ./repl/*.go
+	@go build $(ldflags) -o milho ./cli/*.go
 
 wasm:
 	@GOOS=js GOARCH=wasm go build $(ldflags) -o web/wasm/milho.wasm web/go/milho.go
