@@ -1,4 +1,4 @@
-git_revision := $(shell git log -1 --pretty="%h")
+git_revision != git log -1 --pretty="%h"
 ldflags := -ldflags "-X 'github.com/danfragoso/milho.version=$(git_revision)'"
 
 all: test
