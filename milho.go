@@ -8,6 +8,12 @@ import (
 	"github.com/danfragoso/milho/tokenizer"
 )
 
+var version string
+
+func Version() string {
+	return version
+}
+
 func Run(src string) string {
 	var ret string
 	tokens, err := tokenizer.Tokenize(src)
