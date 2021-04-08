@@ -11,7 +11,7 @@ import (
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Println("Milho REPL 🌽")
+	fmt.Printf("Milho REPL 🌽 v.%s\n", milho.Version())
 	fmt.Printf("© Danilo Fragoso <danilo.fragoso@gmail.com> - 2021\n")
 
 	prompt()
