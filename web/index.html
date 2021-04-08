@@ -45,6 +45,7 @@
         }
 
         .options {
+            margin-top: 5px;
             text-align: center;
         }
 
@@ -52,12 +53,25 @@
             background: #fbfbfb;
             padding: 10px;
             border-radius: 5px;
+            border: solid 1px #ddd;
+        }
+
+        pre {
+            white-space: pre-wrap; 
+            word-wrap: break-word;
         }
     </style>
 </head>
 <body>
     <div class="main">
-        <h1>🌽 Milho REPL</h1>
+        <h1>🌽 Milho</h1>
+        <div>
+            <h3>What is this?</h3>
+            <p>Milho is a lisp-ish language created by <a href="https://github.com/celsobonutti">@celsobonutti</a> and me (<a href="https://github.com/danfragoso">@danfragoso</a>)</p>
+            <p>There are two main implementations, one written in <a href="https://github.com/danfragoso/milho">go</a> (which is this one) and one written in <a href="https://github.com/celsobonutti/milho">rust</a></p>
+            <p>The language specification can be found <a href="https://github.com/danfragoso/milho/blob/master/lang.md">here</a></p>
+            <h4>You can try milho on the REPL below</h4>
+        </div>
         <div class="repl">
             <div id="rBox"></div>
             <div class="prompt">
