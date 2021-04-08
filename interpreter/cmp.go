@@ -16,7 +16,7 @@ func notComparable(resultType ResultType) bool {
 
 func eq(params []Result) (Result, error) {
 	if len(params) == 0 {
-		return nil, errors.New("Wrong number of args '0' passed to Cmp:[=] function")
+		return nil, errors.New("Wrong number of args '0' passed to cmp:[=] function")
 	}
 
 	lastParam := params[0]
@@ -62,4 +62,23 @@ func invertResult(r Result) Result {
 	}
 
 	return r
+}
+
+func cmp_if(params []Result) (Result, error) {
+	if len(params) < 2 {
+		return nil, fmt.Errorf("Too few args '%d' passed to cmp:[if] function", len(params))
+	} else if len(params) > 3 {
+		return nil, fmt.Errorf("Too many args '%d' passed to cmp:[if] function", len(params))
+	}
+
+	if params[0].Type() == Boolean &&
+		params[0].Value() == "False" {
+		if len(params) == 3 {
+			return params[2], nil
+		}
+
+		return createNilResult()
+	}
+
+	return params[1], nil
 }

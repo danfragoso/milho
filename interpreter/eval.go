@@ -83,6 +83,8 @@ func evalMacro(node *parser.Node, objs []Object) (Result, error) {
 
 func evalFunction(identifier string, params []Result) (Result, error) {
 	switch identifier {
+	case "if":
+		return cmp_if(params)
 	case "print", "pr":
 		return pr(params)
 	case "println", "prn":
