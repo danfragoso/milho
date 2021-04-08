@@ -83,6 +83,10 @@ func evalMacro(node *parser.Node, objs []Object) (Result, error) {
 
 func evalFunction(identifier string, params []Result) (Result, error) {
 	switch identifier {
+	case "print", "pr":
+		return pr(params)
+	case "println", "prn":
+		return prn(params)
 	case "=":
 		return eq(params)
 	case "/=":
