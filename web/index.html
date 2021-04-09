@@ -102,6 +102,8 @@
         let replSession = null;
         let history = [];
         let histIdx = 0;
+
+        let STDOUT = undefined;
         
         const versionPooling = setInterval(vp, 100);
         function vp() {
@@ -155,12 +157,19 @@
                         rBox.innerHTML+= `🌽 ${e.target.value}`;
 
                         const response = eval(e.target.value); n++;
+
+                        let consoleOut = "";
+                        if (typeof STDOUT !== "undefined") {
+                            consoleOut+= `<pre>${STDOUT}</pre>`;
+                            STDOUT = undefined
+                        };
+
                         let astEl = "";
                         if (astInput.checked) {
                             astEl+= `<pre>${ast(e.target.value)}</pre>`;
                         };
 
-                        rBox.innerHTML+= `<div class="b"><b>[${n}] 🍿</b> <pre>${response}</pre> ${astEl}</div>`;
+                        rBox.innerHTML+= `<div class="b"><b>[${n}] 🍿</b> ${consoleOut} <pre>${response}</pre> ${astEl}</div>`;
                         rBox.scrollTop = rBox.scrollHeight;
                         e.target.value = "";
                     };
