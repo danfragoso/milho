@@ -46,7 +46,17 @@
 
         .options {
             margin-top: 5px;
-            text-align: center;
+            display: flex;
+        }
+
+        label {
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px;
+            margin-left: 0px;
+            cursor: pointer;
+            background: #efefef;
+            border: solid 1px #ddd;
         }
 
         .repl {
@@ -90,6 +100,8 @@
     <script>
         let n = 0;
         let replSession = null;
+        let history = [];
+        let histIdx = 0;
         
         const versionPooling = setInterval(vp, 100);
         function vp() {
@@ -112,24 +124,50 @@
         const rBox = document.querySelector("#rBox");
         const astInput = document.querySelector("#showAST input");
 
-        document.querySelector("#input")
-        document.addEventListener('keyup', e => {
-            if (e.keyCode === 13 && e.target.value != "") {
-                if (replSession == null) {
-                    replSession = createREPLSession();
-                };
-                
-                rBox.innerHTML+= `🌽 ${e.target.value}`;
+        const input = document.querySelector("#input")
+        input.addEventListener('keyup', e => {
+            switch (e.keyCode) {
+                case 38:
+                    if (histIdx > 0) {
+                        histIdx--;
+                    };
 
-                const response = eval(e.target.value); n++;
-                let astEl = "";
-                if (astInput.checked) {
-                    astEl+= `<pre>${ast(e.target.value)}</pre>`;
-                };
+                    e.target.value = history[histIdx] ? history[histIdx] : "";
+                    break;
 
-                rBox.innerHTML+= `<div class="b"><b>[${n}] 🍿</b> <pre>${response}</pre> ${astEl}</div>`;
-                rBox.scrollTop = rBox.scrollHeight;
-                e.target.value = "";
+                case 40:
+                    if (histIdx < history.length) {
+                        histIdx++;
+                    };
+
+                    e.target.value = history[histIdx] ? history[histIdx] : "";
+                    break;
+
+                case 13:
+                    if (e.target.value != "") {
+                        history.push(e.target.value);
+                        histIdx = history.length;
+
+                        if (replSession == null) {
+                            replSession = createREPLSession();
+                        };
+
+                        rBox.innerHTML+= `🌽 ${e.target.value}`;
+
+                        const response = eval(e.target.value); n++;
+                        let astEl = "";
+                        if (astInput.checked) {
+                            astEl+= `<pre>${ast(e.target.value)}</pre>`;
+                        };
+
+                        rBox.innerHTML+= `<div class="b"><b>[${n}] 🍿</b> <pre>${response}</pre> ${astEl}</div>`;
+                        rBox.scrollTop = rBox.scrollHeight;
+                        e.target.value = "";
+                    };
+                    break;
+
+                default:
+                    break;
             }
         })
     </script>
