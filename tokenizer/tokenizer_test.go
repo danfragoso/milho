@@ -67,15 +67,15 @@ func Test_parens(t *testing.T) {
 	}
 }
 
-func Test_brackets(t *testing.T) {
-	tokens, err := Tokenize("(defn sum [a b] (+ a b))")
+func Test_list(t *testing.T) {
+	tokens, err := Tokenize("(defn sum (a b) (+ a b))")
 
 	if err != nil {
 		t.Error(err)
 	} else {
 		expectedTokens := []TokenType{
-			OParen, Reserved, Symbol, OBrack, Symbol, Symbol,
-			CBrack, OParen, Symbol, Symbol, Symbol, CParen,
+			OParen, Reserved, Symbol, OParen, Symbol, Symbol,
+			CParen, OParen, Symbol, Symbol, Symbol, CParen,
 			CParen,
 		}
 
@@ -129,7 +129,7 @@ func Test_session_def(t *testing.T) {
 
 func Test_session_fn(t *testing.T) {
 	tokens, err := Tokenize(`
-		(defn fib-nth [n]
+		(defn fib-nth (n)
 			(if (< n 2) n
 			(+ (fib-nth (- n 1)) (fib-nth (- n 2)))))
 
@@ -140,8 +140,8 @@ func Test_session_fn(t *testing.T) {
 		t.Error(err)
 	} else {
 		expectedTokens := []TokenType{
-			OParen, Reserved, Symbol, OBrack, Symbol,
-			CBrack, OParen, Symbol, OParen, Symbol,
+			OParen, Reserved, Symbol, OParen, Symbol,
+			CParen, OParen, Symbol, OParen, Symbol,
 			Symbol, Number, CParen, Symbol, OParen,
 			Symbol, OParen, Symbol, OParen, Symbol,
 			Symbol, Number, CParen, CParen, OParen,
