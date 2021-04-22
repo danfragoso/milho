@@ -5,7 +5,7 @@ import "fmt"
 type NodeType int
 
 func (n NodeType) String() string {
-	return [...]string{"Nil", "Number", "Boolean", "List", "Macro", "Identifier"}[n]
+	return [...]string{"Nil", "Number", "Boolean", "List", "Identifier"}[n]
 }
 
 const (
@@ -13,7 +13,6 @@ const (
 	Number
 	Boolean
 	List
-	Macro
 	Identifier
 )
 
@@ -37,10 +36,15 @@ func (n *Node) String() string {
 
 func (n *Node) Sprint(tab string, last bool) string {
 	var str string
+
+	str += fmt.Sprintf("\n%s+- ", tab)
 	if n.notToeval {
-		str = fmt.Sprintf("\n%s+- %s:['%s]", tab, n.Type, n.Identifier)
-	} else {
-		str = fmt.Sprintf("\n%s+- %s:[%s]", tab, n.Type, n.Identifier)
+		str += "'"
+	}
+
+	str += n.Type.String()
+	if n.Identifier != "" {
+		str += fmt.Sprintf("#[%s]", n.Identifier)
 	}
 
 	if last {

@@ -31,6 +31,7 @@ func Test_number(t *testing.T) {
 	}
 
 	tree := nodes[0]
+	fmt.Println(tree)
 
 	if tree.Type != Number {
 		t.Errorf("Expected node type to be Number, got %s", tree.Type)
@@ -55,6 +56,7 @@ func Test_parens(t *testing.T) {
 	}
 
 	tree := nodes[0]
+	fmt.Println(tree)
 
 	if tree.Type != List {
 		t.Errorf("Expected List node type, got %s", tree.Type)
@@ -88,6 +90,7 @@ func Test_list(t *testing.T) {
 	}
 
 	tree := nodes[0]
+	fmt.Println(tree)
 
 	expectedNodes := []*Node{
 		{Type: List}, {Type: Number, Identifier: "2"},
@@ -120,6 +123,7 @@ func Test_list_param(t *testing.T) {
 	}
 
 	tree := nodes[0]
+	fmt.Println(tree)
 
 	expectedNodes := []*Node{
 		{Type: List}, {Type: Identifier, Identifier: "append"}, {Type: List}, {Type: Number, Identifier: "2"},
@@ -152,9 +156,10 @@ func Test_defn(t *testing.T) {
 	}
 
 	tree := nodes[0]
+	fmt.Println(tree)
 
 	expectedNodes := []*Node{
-		{Type: List}, {Type: Macro, Identifier: "defn"}, {Type: Identifier, Identifier: "sum"},
+		{Type: List}, {Type: Identifier, Identifier: "defn"}, {Type: Identifier, Identifier: "sum"},
 		{Type: List}, {Type: Identifier, Identifier: "a"}, {Type: Identifier, Identifier: "b"},
 		{Type: List}, {Type: Identifier, Identifier: "+"}, {Type: Identifier, Identifier: "a"},
 		{Type: Identifier, Identifier: "b"},
@@ -190,9 +195,10 @@ func Test_nested(t *testing.T) {
 	}
 
 	tree := nodes[0]
+	fmt.Println(tree)
 
 	expectedNodes := []*Node{
-		{Type: List}, {Type: Macro, Identifier: "defn"}, {Type: Identifier, Identifier: "inc-if-gt-zero"}, {Type: List},
+		{Type: List}, {Type: Identifier, Identifier: "defn"}, {Type: Identifier, Identifier: "inc-if-gt-zero"}, {Type: List},
 		{Type: Identifier, Identifier: "a"}, {Type: List}, {Type: Identifier, Identifier: "if"},
 		{Type: List}, {Type: Identifier, Identifier: ">"}, {Type: Identifier, Identifier: "a"},
 		{Type: Number, Identifier: "0"}, {Type: List}, {Type: Identifier, Identifier: "+"},
@@ -230,9 +236,10 @@ func Test_boolean(t *testing.T) {
 	}
 
 	tree := nodes[0]
+	fmt.Println(tree)
 
 	expectedNodes := []*Node{
-		{Type: List}, {Type: Macro, Identifier: "defn"}, {Type: Identifier, Identifier: "dumb-negate"}, {Type: List},
+		{Type: List}, {Type: Identifier, Identifier: "defn"}, {Type: Identifier, Identifier: "dumb-negate"}, {Type: List},
 		{Type: Identifier, Identifier: "a"}, {Type: List}, {Type: Identifier, Identifier: "if"},
 		{Type: List}, {Type: Identifier, Identifier: "="}, {Type: Identifier, Identifier: "a"},
 		{Type: Boolean, Identifier: "True"}, {Type: Boolean, Identifier: "False"},
@@ -263,12 +270,13 @@ func Test_session_def(t *testing.T) {
 	}
 
 	nodes, err := Parse(tokens)
+	fmt.Println(nodes)
 	if err != nil {
 		t.Error(err)
 	}
 
 	expectedNodes1 := []*Node{
-		{Type: List}, {Type: Macro, Identifier: "def"}, {Type: Identifier, Identifier: "numb"},
+		{Type: List}, {Type: Identifier, Identifier: "def"}, {Type: Identifier, Identifier: "numb"},
 		{Type: Number, Identifier: "1000"},
 	}
 
