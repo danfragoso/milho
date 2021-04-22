@@ -3,7 +3,7 @@ ldflags := -ldflags "-X 'github.com/danfragoso/milho.version=$(git_revision)'"
 
 all: test
 
-run: 
+repl: 
 	@go run $(ldflags) ./cli/*.go $(f)
 
 build:
