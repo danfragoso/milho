@@ -11,7 +11,7 @@ import (
 type ExpressionType int
 
 func (e ExpressionType) String() string {
-	return [...]string{"Nil", "Number", "Boolean", "Symbol", "List"}[e]
+	return [...]string{"Nil", "Number", "Boolean", "Symbol", "String", "List"}[e]
 }
 
 const (
@@ -19,6 +19,7 @@ const (
 	NumberExpr
 	BooleanExpr
 	SymbolExpr
+	StringExpr
 	ListExpr
 )
 
@@ -131,6 +132,25 @@ func (e *SymbolExpression) Value() string {
 	return e.Identifier
 }
 
+// String Expression
+func createStringExpression(value string) (*StringExpression, error) {
+	return &StringExpression{
+		Val: value,
+	}, nil
+}
+
+type StringExpression struct {
+	Val string
+}
+
+func (e *StringExpression) Type() ExpressionType {
+	return StringExpr
+}
+
+func (e *StringExpression) Value() string {
+	return fmt.Sprintf("\"%s\"", e.Val)
+}
+
 // Expression Tree
 func createExpressionTree(node *parser.Node) (Expression, error) {
 	var expressions []Expression
@@ -146,6 +166,9 @@ func createExpressionTree(node *parser.Node) (Expression, error) {
 	switch node.Type {
 	case parser.Identifier:
 		return createSymbolExpression(node.Identifier, nil)
+
+	case parser.String:
+		return createStringExpression(node.Identifier)
 
 	case parser.Boolean:
 		if node.Identifier == "True" {

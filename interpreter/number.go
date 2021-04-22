@@ -8,12 +8,10 @@ func __sum(params []Expression, session *Session) (Expression, error) {
 	var acc int64
 
 	for _, exp := range params {
-		if exp.Type() == SymbolExpr {
-			var err error
-			exp, err = session.FindObject(exp.(*SymbolExpression).Identifier)
-			if err != nil {
-				return nil, err
-			}
+		var err error
+		exp, err = resolveTypedExpression(NumberExpr, exp, session)
+		if err != nil {
+			return nil, err
 		}
 
 		acc += exp.(*NumberExpression).Numerator

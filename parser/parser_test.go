@@ -305,3 +305,68 @@ func Test_session_def(t *testing.T) {
 		}
 	}
 }
+
+func Test_string(t *testing.T) {
+	src := `
+	(def lang "milho")
+	(def food (str lang " cozido na agua"))
+	(prn food)`
+
+	fmt.Println(src)
+	tokens, err := tokenizer.Tokenize(src)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	nodes, err := Parse(tokens)
+	fmt.Println(nodes)
+	if err != nil {
+		t.Error(err)
+	}
+
+	expectedNodes1 := []*Node{
+		{Type: List}, {Type: Identifier, Identifier: "def"}, {Type: Identifier, Identifier: "lang"},
+		{Type: String, Identifier: "milho"},
+	}
+
+	for idx, node := range treeAsList(nodes[0]) {
+		if expectedNodes1[idx].Type != node.Type {
+			t.Errorf("Expected node %d type to be %s, got %s", idx, expectedNodes1[idx].Type, node.Type)
+		}
+
+		if expectedNodes1[idx].Identifier != node.Identifier {
+			t.Errorf("Expected node %d identifier to be '%s', got '%s'", idx, expectedNodes1[idx].Identifier, node.Identifier)
+		}
+	}
+
+	expectedNodes2 := []*Node{
+		{Type: List}, {Type: Identifier, Identifier: "def"}, {Type: Identifier, Identifier: "food"},
+		{Type: List}, {Type: Identifier, Identifier: "str"}, {Type: Identifier, Identifier: "lang"},
+		{Type: String, Identifier: " cozido na agua"},
+	}
+
+	for idx, node := range treeAsList(nodes[1]) {
+		if expectedNodes2[idx].Type != node.Type {
+			t.Errorf("Expected node %d type to be %s, got %s", idx, expectedNodes2[idx].Type, node.Type)
+		}
+
+		if expectedNodes2[idx].Identifier != node.Identifier {
+			t.Errorf("Expected node %d identifier to be '%s', got '%s'", idx, expectedNodes2[idx].Identifier, node.Identifier)
+		}
+	}
+
+	expectedNodes3 := []*Node{
+		{Type: List}, {Type: Identifier, Identifier: "prn"}, {Type: Identifier, Identifier: "food"},
+	}
+
+	for idx, node := range treeAsList(nodes[2]) {
+		if expectedNodes3[idx].Type != node.Type {
+			t.Errorf("Expected node %d type to be %s, got %s", idx, expectedNodes3[idx].Type, node.Type)
+		}
+
+		if expectedNodes3[idx].Identifier != node.Identifier {
+			t.Errorf("Expected node %d identifier to be '%s', got '%s'", idx, expectedNodes3[idx].Identifier, node.Identifier)
+		}
+	}
+}

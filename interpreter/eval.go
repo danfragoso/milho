@@ -77,7 +77,13 @@ func evaluateFunction(identifier string, params []Expression, session *Session) 
 		return __pr(params, session)
 	case "prn":
 		return __prn(params, session)
+	case "print":
+		return __print(params, session)
+	case "println":
+		return __println(params, session)
 
+	case "str":
+		return __str(params, session)
 	}
 
 	return nil, fmt.Errorf("undefined function '%s'", identifier)

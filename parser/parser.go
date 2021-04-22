@@ -41,7 +41,7 @@ func Parse(tokens []*tokenizer.Token) ([]*Node, error) {
 				currentNode = nil
 			}
 
-		case tokenizer.Symbol, tokenizer.Number, tokenizer.Boolean:
+		case tokenizer.Symbol, tokenizer.Number, tokenizer.Boolean, tokenizer.String:
 			childNode := createEmptyNode()
 			if currentNode != nil {
 				childNode.Parent = currentNode
@@ -71,6 +71,8 @@ func resolveNodeType(token *tokenizer.Token) NodeType {
 	case tokenizer.Boolean:
 		return Boolean
 
+	case tokenizer.String:
+		return String
 	}
 
 	return Nil

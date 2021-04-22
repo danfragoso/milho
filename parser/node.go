@@ -5,7 +5,7 @@ import "fmt"
 type NodeType int
 
 func (n NodeType) String() string {
-	return [...]string{"Nil", "Number", "Boolean", "List", "Identifier"}[n]
+	return [...]string{"Nil", "Number", "Boolean", "List", "Identifier", "String"}[n]
 }
 
 const (
@@ -14,6 +14,7 @@ const (
 	Boolean
 	List
 	Identifier
+	String
 )
 
 type Node struct {

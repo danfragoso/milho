@@ -1,6 +1,9 @@
 package tokenizer
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type TokenType int
 
@@ -33,6 +36,8 @@ func generateToken(rawToken string) (*Token, error) {
 	switch tokenType {
 	case Invalid:
 		return nil, fmt.Errorf("invalid token '%s'", rawToken)
+	case String:
+		rawToken = strings.Trim(rawToken, "\"")
 	}
 
 	return &Token{
