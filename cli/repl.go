@@ -12,7 +12,7 @@ import (
 func initREPL() {
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Printf("Milho REPL 🌽 v.%s\n", milho.Version())
-	fmt.Printf("© Danilo Fragoso <danilo.fragoso@gmail.com> - 2021\n")
+	fmt.Printf("Danilo Fragoso <danilo.fragoso@gmail.com> - 2021\n")
 
 	prompt()
 

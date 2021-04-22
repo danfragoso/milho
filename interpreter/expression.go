@@ -60,7 +60,12 @@ func (e *NumberExpression) Type() ExpressionType {
 }
 
 func (e *NumberExpression) Value() string {
-	return strconv.FormatInt(e.Numerator, 10) + "/" + strconv.FormatInt(e.Denominator, 10)
+	r := strconv.FormatInt(e.Numerator, 10)
+	if e.Denominator != 1 {
+		r += "/" + strconv.FormatInt(e.Denominator, 10)
+	}
+
+	return r
 }
 
 // List Expression
