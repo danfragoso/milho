@@ -5,7 +5,7 @@ import "fmt"
 type TokenType int
 
 func (t TokenType) String() string {
-	return [...]string{"Invalid", "Whitespace", "Number", "Symbol", "Boolean", "OpenParenthesis", "CloseParenthesis", "SingleQuote"}[t]
+	return [...]string{"Invalid", "Whitespace", "Number", "Symbol", "Boolean", "String", "OpenParenthesis", "CloseParenthesis", "SingleQuote"}[t]
 }
 
 const (
@@ -15,6 +15,7 @@ const (
 	Number
 	Symbol
 	Boolean
+	String
 
 	OParen
 	CParen
@@ -48,6 +49,8 @@ func resolveTokenType(rawToken string) TokenType {
 		return CParen
 	case '\'':
 		return SQuote
+	case '"':
+		return String
 	}
 
 	if isBoolean(rawToken) {

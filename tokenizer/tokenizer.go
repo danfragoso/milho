@@ -11,11 +11,17 @@ func Tokenize(rawString string) ([]*Token, error) {
 	var tokenBuffer string
 	var tokens []*Token
 
+	var openString bool
+
 	for currentChar != NULL_CHAR {
 		if isParenthesis(currentChar) || isSingleQuote(currentChar) {
 			tokenBuffer = string(currentChar)
 		} else {
-			for !isWhiteSpace(currentChar) {
+			for openString || !isWhiteSpace(currentChar) {
+				if isDoubleQuote(currentChar) {
+					openString = !openString
+				}
+
 				tokenBuffer += string(currentChar)
 
 				if isParenthesis(s.PeekNextChar()) {

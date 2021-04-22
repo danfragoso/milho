@@ -157,3 +157,28 @@ func Test_session_fn(t *testing.T) {
 		}
 	}
 }
+
+func Test_string(t *testing.T) {
+	tokens, err := Tokenize(`
+		(def lang "milho")
+		(def food (str lang " cozido na agua"))
+		(prn food)
+	`)
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		expectedTokens := []TokenType{
+			OParen, Symbol, Symbol, String, CParen,
+			OParen, Symbol, Symbol, OParen, Symbol,
+			Symbol, String, CParen, CParen, OParen,
+			Symbol, Symbol, CParen,
+		}
+
+		for idx, tok := range expectedTokens {
+			if tokens[idx].Type != tok {
+				t.Errorf("Wrong token type, expected %s got %s", tok, tokens[idx].Type)
+			}
+		}
+	}
+}
