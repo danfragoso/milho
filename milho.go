@@ -26,9 +26,9 @@ func Run(src string) string {
 		return fmt.Sprintf("Parsing error: %s\n", err)
 	}
 
-	results, err := interpreter.Run(ast)
-	for _, result := range results {
-		ret += "\n" + result.Value()
+	expressions, err := interpreter.Run(ast)
+	for _, expr := range expressions {
+		ret += "\n" + expr.Value()
 	}
 
 	if err != nil {
@@ -50,9 +50,9 @@ func RunSession(src string, sess *interpreter.Session) string {
 		return fmt.Sprintf("Parsing error: %s\n", err)
 	}
 
-	results, err := interpreter.RunFromSession(ast, sess)
-	for _, result := range results {
-		ret += "\n" + result.Value()
+	expressions, err := interpreter.RunFromSession(ast, sess)
+	for _, expr := range expressions {
+		ret += "\n" + expr.Value()
 	}
 
 	if err != nil {
@@ -62,7 +62,7 @@ func RunSession(src string, sess *interpreter.Session) string {
 	return ret
 }
 
-func RunRaw(src string) ([]interpreter.Result, error) {
+func RunRaw(src string) ([]interpreter.Expression, error) {
 	sess := CreateSession()
 	tokens, err := tokenizer.Tokenize(src)
 	if err != nil {

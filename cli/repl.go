@@ -17,10 +17,13 @@ func initREPL() {
 	prompt()
 
 	sess := milho.CreateSession()
+	cmdBuffer := ""
+
 	for scanner.Scan() {
-		cmd := scanner.Text()
-		if strings.TrimSpace(cmd) != "" {
-			results := milho.RunSession(cmd, sess)
+		cmdBuffer += scanner.Text()
+		if validateBuffer(cmdBuffer) {
+			results := milho.RunSession(cmdBuffer, sess)
+			cmdBuffer = ""
 
 			for _, result := range strings.Split(results, "\n") {
 				r := strings.TrimSpace(result)
@@ -37,6 +40,27 @@ func initREPL() {
 		fmt.Printf("\n\nIO Err: %s", scanner.Err())
 		os.Exit(1)
 	}
+}
+
+func validateBuffer(buffer string) bool {
+	if strings.TrimSpace(buffer) == "" {
+		return false
+	}
+
+	var ODelimiter int64
+	var CDelimiter int64
+
+	for _, r := range buffer {
+		switch r {
+		case '(':
+			ODelimiter++
+
+		case ')':
+			CDelimiter++
+		}
+	}
+
+	return ODelimiter <= CDelimiter
 }
 
 func prompt() {
