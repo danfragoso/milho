@@ -74,7 +74,7 @@ func Test_list(t *testing.T) {
 		t.Error(err)
 	} else {
 		expectedTokens := []TokenType{
-			OParen, Reserved, Symbol, OParen, Symbol, Symbol,
+			OParen, Symbol, Symbol, OParen, Symbol, Symbol,
 			CParen, OParen, Symbol, Symbol, Symbol, CParen,
 			CParen,
 		}
@@ -94,7 +94,7 @@ func Test_bool(t *testing.T) {
 		t.Error(err)
 	} else {
 		expectedTokens := []TokenType{
-			OParen, Symbol, Reserved, Reserved, CParen,
+			OParen, Symbol, Boolean, Boolean, CParen,
 		}
 
 		for idx, tok := range expectedTokens {
@@ -115,7 +115,7 @@ func Test_session_def(t *testing.T) {
 		t.Error(err)
 	} else {
 		expectedTokens := []TokenType{
-			OParen, Reserved, Symbol, Number, CParen,
+			OParen, Symbol, Symbol, Number, CParen,
 			OParen, Symbol, Number, Symbol, CParen,
 		}
 
@@ -140,7 +140,7 @@ func Test_session_fn(t *testing.T) {
 		t.Error(err)
 	} else {
 		expectedTokens := []TokenType{
-			OParen, Reserved, Symbol, OParen, Symbol,
+			OParen, Symbol, Symbol, OParen, Symbol,
 			CParen, OParen, Symbol, OParen, Symbol,
 			Symbol, Number, CParen, Symbol, OParen,
 			Symbol, OParen, Symbol, OParen, Symbol,
