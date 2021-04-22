@@ -12,6 +12,14 @@ func CreateTokenList(tokens []*tokenizer.Token) *TokenList {
 	return &TokenList{Tokens: tokens, Length: len(tokens)}
 }
 
+func (t *TokenList) PreviousToken() *tokenizer.Token {
+	if t.Index-1 < 0 {
+		return nil
+	}
+
+	return t.Tokens[t.Index-1]
+}
+
 func (t *TokenList) FirstToken() *tokenizer.Token {
 	if t.Length > 0 {
 		return t.Tokens[0]

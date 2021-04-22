@@ -2,19 +2,39 @@ package interpreter
 
 import "fmt"
 
-func pr(params []Result) (Result, error) {
-	for _, param := range params {
-		fmt.Print(param.Value())
+func resolveExpression(expr Expression, session *Session) (Expression, error) {
+	if expr.Type() == SymbolExpr {
+		return session.FindObject(expr.(*SymbolExpression).Identifier)
 	}
 
-	return &NilResult{}, nil
+	return expr, nil
 }
 
-func prn(params []Result) (Result, error) {
+func __pr(params []Expression, session *Session) (Expression, error) {
+	var err error
 	for _, param := range params {
+		param, err = resolveExpression(param, session)
+		if err != nil {
+			return nil, err
+		}
+
+		fmt.Print(param)
+	}
+
+	return createNilExpression()
+}
+
+func __prn(params []Expression, session *Session) (Expression, error) {
+	var err error
+	for _, param := range params {
+		param, err = resolveExpression(param, session)
+		if err != nil {
+			return nil, err
+		}
+
 		fmt.Print(param.Value())
 	}
 
 	fmt.Println("")
-	return &NilResult{}, nil
+	return createNilExpression()
 }

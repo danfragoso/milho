@@ -1,8 +1,8 @@
 package tokenizer
 
-func isReserved(buffer string) bool {
+func isBoolean(buffer string) bool {
 	switch buffer {
-	case "True", "False", "defn", "def":
+	case "True", "False":
 		return true
 	}
 

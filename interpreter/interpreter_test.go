@@ -1,14 +1,18 @@
 package interpreter
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/danfragoso/milho/parser"
 	"github.com/danfragoso/milho/tokenizer"
 )
 
-func Test_add(t *testing.T) {
-	tokens, err := tokenizer.Tokenize("(+ 1 2 (+ 3) (+ 3))")
+func Test_nil(t *testing.T) {
+	src := "()"
+	fmt.Println(src)
+
+	tokens, err := tokenizer.Tokenize(src)
 	if err != nil {
 		t.Error(err)
 	}
@@ -18,24 +22,23 @@ func Test_add(t *testing.T) {
 		t.Error(err)
 	}
 
-	results, err := Run(ast)
-	res := results[0]
+	expressions, err := Run(ast)
+	printExpr(expressions[0])
 
 	if err != nil {
-		t.Error("\n", err)
-	} else {
-		if res.Type() != Number {
-			t.Errorf("Wrong response type, expected Number got %s", res.Type())
-		}
+		t.Error(err)
+	}
 
-		if res.Value() != "9" {
-			t.Errorf("Wrong response value, expected 9 got %s", res.Value())
-		}
+	if expressions[0].Type() != NilExpr {
+		t.Error(err)
 	}
 }
 
-func Test_sub(t *testing.T) {
-	tokens, err := tokenizer.Tokenize("(+ (+ 1 2) (- 3) (- 3))")
+func Test_add(t *testing.T) {
+	src := "(+ 1 2 (+ 1 2))"
+	fmt.Println(src)
+
+	tokens, err := tokenizer.Tokenize(src)
 	if err != nil {
 		t.Error(err)
 	}
@@ -45,21 +48,64 @@ func Test_sub(t *testing.T) {
 		t.Error(err)
 	}
 
-	results, err := Run(ast)
-	res := results[0]
+	expressions, err := Run(ast)
 	if err != nil {
-		t.Error("\n", err)
-	} else {
-		if res.Type() != Number {
-			t.Errorf("Wrong response type, expected Number got %s", res.Type())
-		}
-
-		if res.Value() != "-3" {
-			t.Errorf("Wrong response value, expected -3 got %s", res.Value())
-		}
+		t.Error(err)
 	}
 
-	tokens, err = tokenizer.Tokenize("(- 3)")
+	printExpr(expressions[0])
+	if expressions[0].Type() != NumberExpr {
+		t.Error(err)
+	}
+
+	number := expressions[0].(*NumberExpression)
+
+	if number.Numerator != 6 {
+		t.Errorf("Wrong expression numerator value, expected 6 got %d", number.Numerator)
+	}
+
+	if number.Denominator != 1 {
+		t.Errorf("Wrong expression denominator value, expected 1 got %d", number.Denominator)
+	}
+
+}
+
+func Test_sub(t *testing.T) {
+	src := "(+ (+ 1 2) (- 3) (- 3))"
+	fmt.Println(src)
+	tokens, err := tokenizer.Tokenize(src)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ast, err := parser.Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	expressions, err := Run(ast)
+	if err != nil {
+		t.Error(err)
+	}
+
+	printExpr(expressions[0])
+	if expressions[0].Type() != NumberExpr {
+		t.Error(err)
+	}
+
+	number := expressions[0].(*NumberExpression)
+
+	if number.Numerator != -3 {
+		t.Errorf("Wrong expression numerator value, expected -3 got %d", number.Numerator)
+	}
+
+	if number.Denominator != 1 {
+		t.Errorf("Wrong expression denominator value, expected 1 got %d", number.Denominator)
+	}
+
+	src = "(- 3)"
+	fmt.Println(src)
+	tokens, err = tokenizer.Tokenize(src)
 	if err != nil {
 		t.Error(err)
 	}
@@ -69,21 +115,29 @@ func Test_sub(t *testing.T) {
 		t.Error(err)
 	}
 
-	results, err = Run(ast)
-	res = results[0]
+	expressions, err = Run(ast)
 	if err != nil {
-		t.Error("\n", err)
-	} else {
-		if res.Type() != Number {
-			t.Errorf("Wrong response type, expected Number got %s", res.Type())
-		}
-
-		if res.Value() != "-3" {
-			t.Errorf("Wrong response value, expected -3 got %s", res.Value())
-		}
+		t.Error(err)
 	}
 
-	tokens, err = tokenizer.Tokenize("(- 10 3)")
+	printExpr(expressions[0])
+	if expressions[0].Type() != NumberExpr {
+		t.Error(err)
+	}
+
+	number = expressions[0].(*NumberExpression)
+
+	if number.Numerator != -3 {
+		t.Errorf("Wrong expression numerator value, expected -3 got %d", number.Numerator)
+	}
+
+	if number.Denominator != 1 {
+		t.Errorf("Wrong expression denominator value, expected 1 got %d", number.Denominator)
+	}
+
+	src = "(- 10 3)"
+	fmt.Println(src)
+	tokens, err = tokenizer.Tokenize(src)
 	if err != nil {
 		t.Error(err)
 	}
@@ -93,23 +147,31 @@ func Test_sub(t *testing.T) {
 		t.Error(err)
 	}
 
-	results, err = Run(ast)
-	res = results[0]
+	expressions, err = Run(ast)
 	if err != nil {
-		t.Error("\n", err)
-	} else {
-		if res.Type() != Number {
-			t.Errorf("Wrong response type, expected Number got %s", res.Type())
-		}
+		t.Error(err)
+	}
 
-		if res.Value() != "7" {
-			t.Errorf("Wrong response value, expected 7 got %s", res.Value())
-		}
+	printExpr(expressions[0])
+	if expressions[0].Type() != NumberExpr {
+		t.Error(err)
+	}
+
+	number = expressions[0].(*NumberExpression)
+
+	if number.Numerator != 7 {
+		t.Errorf("Wrong expression numerator value, expected 7 got %d", number.Numerator)
+	}
+
+	if number.Denominator != 1 {
+		t.Errorf("Wrong expression denominator value, expected 1 got %d", number.Denominator)
 	}
 }
 
 func Test_mul(t *testing.T) {
-	tokens, err := tokenizer.Tokenize("(* 0)")
+	src := "(* 0)"
+	fmt.Println(src)
+	tokens, err := tokenizer.Tokenize(src)
 	if err != nil {
 		t.Error(err)
 	}
@@ -119,21 +181,29 @@ func Test_mul(t *testing.T) {
 		t.Error(err)
 	}
 
-	results, err := Run(ast)
-	res := results[0]
+	expressions, err := Run(ast)
 	if err != nil {
-		t.Error("\n", err)
-	} else {
-		if res.Type() != Number {
-			t.Errorf("Wrong response type, expected Number got %s", res.Type())
-		}
-
-		if res.Value() != "0" {
-			t.Errorf("Wrong response value, expected 0 got %s", res.Value())
-		}
+		t.Error(err)
 	}
 
-	tokens, err = tokenizer.Tokenize("(* 100 5)")
+	printExpr(expressions[0])
+	if expressions[0].Type() != NumberExpr {
+		t.Error(err)
+	}
+
+	number := expressions[0].(*NumberExpression)
+
+	if number.Numerator != 0 {
+		t.Errorf("Wrong expression numerator value, expected 0 got %d", number.Numerator)
+	}
+
+	if number.Denominator != 1 {
+		t.Errorf("Wrong expression denominator value, expected 1 got %d", number.Denominator)
+	}
+
+	src = "(* 10 5)"
+	fmt.Println(src)
+	tokens, err = tokenizer.Tokenize(src)
 	if err != nil {
 		t.Error(err)
 	}
@@ -143,23 +213,32 @@ func Test_mul(t *testing.T) {
 		t.Error(err)
 	}
 
-	results, err = Run(ast)
-	res = results[0]
+	expressions, err = Run(ast)
 	if err != nil {
-		t.Error("\n", err)
-	} else {
-		if res.Type() != Number {
-			t.Errorf("Wrong response type, expected Number got %s", res.Type())
-		}
+		t.Error(err)
+	}
 
-		if res.Value() != "500" {
-			t.Errorf("Wrong response value, expected 500 got %s", res.Value())
-		}
+	printExpr(expressions[0])
+	if expressions[0].Type() != NumberExpr {
+		t.Error(err)
+	}
+
+	number = expressions[0].(*NumberExpression)
+
+	if number.Numerator != 50 {
+		t.Errorf("Wrong expression numerator value, expected -3 got %d", number.Numerator)
+	}
+
+	if number.Denominator != 1 {
+		t.Errorf("Wrong expression denominator value, expected 1 got %d", number.Denominator)
 	}
 }
 
 func Test_div(t *testing.T) {
-	tokens, err := tokenizer.Tokenize("(/ 1 0)")
+	src := "(/ 1 0)"
+	fmt.Println(src)
+
+	tokens, err := tokenizer.Tokenize(src)
 	if err != nil {
 		t.Error(err)
 	}
@@ -170,11 +249,15 @@ func Test_div(t *testing.T) {
 	}
 
 	_, err = Run(ast)
+	fmt.Print(err, "\n\n")
 	if err == nil {
 		t.Error("Expected divide by zero error, got nothing")
 	}
 
-	tokens, err = tokenizer.Tokenize("(/ 20 2)")
+	src = "(/ 20 2)"
+	fmt.Println(src)
+
+	tokens, err = tokenizer.Tokenize(src)
 	if err != nil {
 		t.Error(err)
 	}
@@ -184,23 +267,31 @@ func Test_div(t *testing.T) {
 		t.Error(err)
 	}
 
-	results, err := Run(ast)
-	res := results[0]
+	expressions, err := Run(ast)
 	if err != nil {
-		t.Error("\n", err)
-	} else {
-		if res.Type() != Number {
-			t.Errorf("Wrong response type, expected Number got %s", res.Type())
-		}
+		t.Error(err)
+	}
 
-		if res.Value() != "10" {
-			t.Errorf("Wrong response value, expected 10 got %s", res.Value())
-		}
+	printExpr(expressions[0])
+	if expressions[0].Type() != NumberExpr {
+		t.Error(err)
+	}
+
+	number := expressions[0].(*NumberExpression)
+
+	if number.Numerator != 10 {
+		t.Errorf("Wrong expression numerator value, expected 10 got %d", number.Numerator)
+	}
+
+	if number.Denominator != 1 {
+		t.Errorf("Wrong expression denominator value, expected 1 got %d", number.Denominator)
 	}
 }
 
-func Test_eq(t *testing.T) {
-	tokens, err := tokenizer.Tokenize("(= 20 2)")
+func Test_cmp(t *testing.T) {
+	src := "(= 20 2)"
+	fmt.Println(src)
+	tokens, err := tokenizer.Tokenize(src)
 	if err != nil {
 		t.Error(err)
 	}
@@ -210,21 +301,25 @@ func Test_eq(t *testing.T) {
 		t.Error(err)
 	}
 
-	results, err := Run(ast)
-	res := results[0]
+	expressions, err := Run(ast)
 	if err != nil {
-		t.Error("\n", err)
-	} else {
-		if res.Type() != Boolean {
-			t.Errorf("Wrong response type, expected Number got %s", res.Type())
-		}
-
-		if res.Value() != "False" {
-			t.Errorf("Wrong response value, expected  got %s", res.Value())
-		}
+		t.Error(err)
 	}
 
-	tokens, err = tokenizer.Tokenize("(= 20 20 20 defn)")
+	printExpr(expressions[0])
+	if expressions[0].Type() != BooleanExpr {
+		t.Error(err)
+	}
+
+	r := expressions[0].(*BooleanExpression)
+
+	if r.Val != false {
+		t.Errorf("Wrong expression value, expected false got true")
+	}
+
+	src = "(= 20 20 20 defn)"
+	fmt.Println(src)
+	tokens, err = tokenizer.Tokenize(src)
 	if err != nil {
 		t.Error(err)
 	}
@@ -235,11 +330,14 @@ func Test_eq(t *testing.T) {
 	}
 
 	_, err = Run(ast)
+	fmt.Print(err, "\n\n")
 	if err == nil {
 		t.Error("Expected error")
 	}
 
-	tokens, err = tokenizer.Tokenize("(= True (= 2 2))")
+	src = "(= True (= 2 2))"
+	fmt.Println(src)
+	tokens, err = tokenizer.Tokenize(src)
 	if err != nil {
 		t.Error(err)
 	}
@@ -249,27 +347,75 @@ func Test_eq(t *testing.T) {
 		t.Error(err)
 	}
 
-	results, err = Run(ast)
-	res = results[0]
+	expressions, err = Run(ast)
 	if err != nil {
-		t.Error("\n", err)
-	} else {
-		if res.Type() != Boolean {
-			t.Errorf("Wrong response type, expected Number got %s", res.Type())
-		}
-
-		if res.Value() != "True" {
-			t.Errorf("Wrong response value, expected  got %s", res.Value())
-		}
+		t.Error(err)
 	}
 
+	printExpr(expressions[0])
+	if expressions[0].Type() != BooleanExpr {
+		t.Error(err)
+	}
+
+	r = expressions[0].(*BooleanExpression)
+
+	if r.Val != true {
+		t.Errorf("Wrong expression value, expected true got false")
+	}
+
+	src = "(= 20 20 20 vinte)"
+	fmt.Println(src)
+	tokens, err = tokenizer.Tokenize(src)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ast, err = parser.Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = Run(ast)
+	fmt.Print(err, "\n\n")
+	if err == nil {
+		t.Error("Expected error")
+	}
+
+	src = "(if (= 2 2) 10 2)"
+	fmt.Println(src)
+	tokens, err = tokenizer.Tokenize(src)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ast, err = parser.Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	expressions, err = Run(ast)
+	if err != nil {
+		t.Error(err)
+	}
+
+	printExpr(expressions[0])
+	if expressions[0].Type() != NumberExpr {
+		t.Error(err)
+	}
+
+	n := expressions[0].(*NumberExpression)
+
+	if n.Numerator != 10 {
+		t.Errorf("Wrong expression value, expected 10 got %d", n.Numerator)
+	}
 }
 
 func Test_def(t *testing.T) {
-	tokens, err := tokenizer.Tokenize(`
-		(def acc 10)
-		(+ acc 1)
-	`)
+	src := "(def acc 10)\n"
+	src += "(+ acc 1)"
+
+	fmt.Println(src)
+	tokens, err := tokenizer.Tokenize(src)
 
 	if err != nil {
 		t.Error(err)
@@ -280,18 +426,20 @@ func Test_def(t *testing.T) {
 		t.Error(err)
 	}
 
-	results, err := Run(ast)
+	expressions, err := Run(ast)
 	if err != nil {
 		t.Error(err)
 	}
 
-	expectedResults := []Result{
-		&ObjectResult{}, &NumberResult{resultType: Number},
+	expectedExpressions := []Expression{
+		&SymbolExpression{}, &NumberExpression{},
 	}
 
-	for i, result := range results {
-		if expectedResults[i].Type() != result.Type() {
-			t.Errorf("Wrong result type found, expected %s got %s", expectedResults[i].Type().String(), result.Type().String())
+	for i, expression := range expressions {
+		printExpr(expressions[i])
+
+		if expectedExpressions[i].Type() != expression.Type() {
+			t.Errorf("Wrong result type found, expected %s got %s", expectedExpressions[i].Type().String(), expression.Type().String())
 		}
 	}
 }

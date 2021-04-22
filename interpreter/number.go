@@ -2,104 +2,110 @@ package interpreter
 
 import (
 	"errors"
-	"fmt"
-	"strconv"
 )
 
-func evalTypeNumber(n Result) (int64, error) {
-	if n.Type() != Number {
-		return 0, fmt.Errorf("expected parameter type Number, got %s", n.Type())
+func __sum(params []Expression, session *Session) (Expression, error) {
+	var acc int64
+
+	for _, exp := range params {
+		if exp.Type() == SymbolExpr {
+			var err error
+			exp, err = session.FindObject(exp.(*SymbolExpression).Identifier)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		acc += exp.(*NumberExpression).Numerator
 	}
 
-	if n.Value() == "" {
-		return 0, nil
-	}
-
-	parsedInt, err := strconv.ParseInt(n.Value(), 10, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return parsedInt, nil
+	return createNumberExpression(acc, 1)
 }
 
-func numberPrepareParams(params []Result) ([]int64, error) {
-	var nParams []int64
-	for _, parameter := range params {
-		n, err := evalTypeNumber(parameter)
+func __mul(params []Expression, session *Session) (Expression, error) {
+	var acc int64 = 1
+
+	for _, exp := range params {
+		if exp.Type() == SymbolExpr {
+			var err error
+			exp, err = session.FindObject(exp.(*SymbolExpression).Identifier)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		acc *= exp.(*NumberExpression).Numerator
+	}
+
+	return createNumberExpression(acc, 1)
+}
+
+func __sub(params []Expression, session *Session) (Expression, error) {
+	if len(params) == 0 {
+		return nil, errors.New("Wrong number of args '0' passed to Number:[-] function")
+	}
+
+	var acc int64
+	fExp := params[0]
+	if fExp.Type() == SymbolExpr {
+		var err error
+		fExp, err = session.FindObject(fExp.(*SymbolExpression).Identifier)
 		if err != nil {
 			return nil, err
 		}
-
-		nParams = append(nParams, n)
 	}
 
-	return nParams, nil
-}
-
-func numberSum(numbers []int64) (Result, error) {
-	var acc int64
-	for _, n := range numbers {
-		acc += n
-	}
-
-	return &NumberResult{
-		resultType: Number,
-		value:      strconv.FormatInt(acc, 10),
-
-		Numerator:   acc,
-		Denominator: 1,
-	}, nil
-}
-
-func numberSub(numbers []int64) (Result, error) {
-	if len(numbers) == 0 {
-		return nil, errors.New("Wrong number of args '0' passed to Number:[-] function")
-	}
-
-	var acc int64
-	if len(numbers) == 1 {
-		acc = -numbers[0]
+	nB := fExp.(*NumberExpression)
+	if len(params) == 1 {
+		acc = -nB.Numerator
 	} else {
-		acc = numbers[0]
-		for _, n := range numbers[1:] {
-			acc -= n
+		acc = nB.Numerator
+		for _, n := range params[1:] {
+			if n.Type() == SymbolExpr {
+				var err error
+				n, err = session.FindObject(n.(*SymbolExpression).Identifier)
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			acc -= n.(*NumberExpression).Numerator
 		}
 	}
 
-	return &NumberResult{
-		resultType: Number,
-		value:      strconv.FormatInt(acc, 10),
-
-		Numerator:   acc,
-		Denominator: 1,
-	}, nil
+	return createNumberExpression(acc, 1)
 }
 
-func numberMul(numbers []int64) (Result, error) {
-	var acc int64 = 1
-	for _, n := range numbers {
-		acc *= n
-	}
-
-	return &NumberResult{
-		resultType: Number,
-		value:      strconv.FormatInt(acc, 10),
-
-		Numerator:   acc,
-		Denominator: 1,
-	}, nil
-}
-
-func numberDiv(numbers []int64) (Result, error) {
-	if len(numbers) == 0 {
+func __div(params []Expression, session *Session) (Expression, error) {
+	if len(params) == 0 {
 		return nil, errors.New("Wrong number of args '0' passed to Number:[-] function")
-	} else if numbers[0] == 0 {
-		return nil, errors.New("Divide by zero error")
 	}
 
-	acc := numbers[0]
-	for _, n := range numbers[1:] {
+	fExp := params[0]
+	if fExp.Type() == SymbolExpr {
+		var err error
+		fExp, err = session.FindObject(fExp.(*SymbolExpression).Identifier)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	acc := fExp.(*NumberExpression).Numerator
+	if acc == 0 {
+		return createNumberExpression(acc, 1)
+	}
+
+	for _, nE := range params[1:] {
+		if nE.Type() == SymbolExpr {
+			var err error
+			nE, err = session.FindObject(nE.(*SymbolExpression).Identifier)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		n := nE.(*NumberExpression).Numerator
+
 		if n == 0 {
 			return nil, errors.New("Divide by zero error")
 		}
@@ -107,11 +113,5 @@ func numberDiv(numbers []int64) (Result, error) {
 		acc /= n
 	}
 
-	return &NumberResult{
-		resultType: Number,
-		value:      strconv.FormatInt(acc, 10),
-
-		Numerator:   acc,
-		Denominator: 1,
-	}, nil
+	return createNumberExpression(acc, 1)
 }

@@ -16,31 +16,22 @@ func Parse(tokens []*tokenizer.Token) ([]*Node, error) {
 	for currentToken != nil {
 		switch currentToken.Type {
 		case tokenizer.OParen:
-			if currentNode == nil {
-				currentNode = createEmptyNode()
-			} else {
-				childNode := createEmptyNode()
+			childNode := createListNode()
+			if currentNode != nil {
 				childNode.Parent = currentNode
-
 				currentNode.Nodes = append(currentNode.Nodes, childNode)
-				currentNode = childNode
 			}
 
-		case tokenizer.OBrack:
-			if currentNode == nil {
-				currentNode = createListNode()
-				nodes = append(nodes, currentNode)
-			} else {
-				childNode := createListNode()
-				childNode.Parent = currentNode
-
-				currentNode.Nodes = append(currentNode.Nodes, childNode)
-				currentNode = childNode
+			if tokenList.PreviousToken() != nil &&
+				tokenList.PreviousToken().Type == tokenizer.SQuote {
+				childNode.notToeval = true
 			}
+
+			currentNode = childNode
 
 		case tokenizer.CParen:
 			if currentNode == nil {
-				return nil, fmt.Errorf("unexpected token '('")
+				return nil, fmt.Errorf("Unmatched delimiter ')'")
 			}
 
 			if currentNode.Parent != nil {
@@ -50,86 +41,17 @@ func Parse(tokens []*tokenizer.Token) ([]*Node, error) {
 				currentNode = nil
 			}
 
-		case tokenizer.CBrack:
-			if currentNode == nil {
-				return nil, fmt.Errorf("unexpected token '['")
-			} else if currentNode.Parent != nil {
-				currentNode = currentNode.Parent
-			}
-
-		case tokenizer.Reserved:
-			if currentNode == nil {
-				return nil, fmt.Errorf("unexpected token '%s'", currentToken.Value)
-			} else {
-				if currentNode.Type == Nil {
-					if isMacro(currentToken.Value) {
-						currentNode.Type = Macro
-					} else {
-						currentNode.Type = Boolean
-					}
-
-					currentNode.Identifier = currentToken.Value
-				} else {
-					childNode := createEmptyNode()
-					childNode.Parent = currentNode
-
-					if isMacro(currentToken.Value) {
-						childNode.Type = Macro
-					} else {
-						childNode.Type = Boolean
-					}
-
-					childNode.Identifier = currentToken.Value
-
-					if currentNode == nil {
-						currentNode = childNode
-					} else {
-						currentNode.Nodes = append(currentNode.Nodes, childNode)
-					}
-				}
-			}
-
-		case tokenizer.Symbol:
-			if currentNode == nil {
-				childNode := createEmptyNode()
-				childNode.Parent = currentNode
-				childNode.Type = Identifier
-				childNode.Identifier = currentToken.Value
-
-				currentNode = childNode
-				nodes = append(nodes, currentNode)
-			} else {
-				switch currentNode.Type {
-				case Nil:
-					currentNode.Type = Function
-					currentNode.Identifier = currentToken.Value
-
-				default:
-					childNode := createEmptyNode()
-					childNode.Parent = currentNode
-					childNode.Type = Identifier
-					childNode.Identifier = currentToken.Value
-
-					if currentNode == nil {
-						currentNode = childNode
-					} else {
-						currentNode.Nodes = append(currentNode.Nodes, childNode)
-					}
-				}
-			}
-
-		case tokenizer.Number:
+		case tokenizer.Symbol, tokenizer.Number, tokenizer.Boolean:
 			childNode := createEmptyNode()
-			childNode.Parent = currentNode
-			childNode.Type = Number
-			childNode.Identifier = currentToken.Value
-
-			if currentNode == nil {
-				currentNode = childNode
-				nodes = append(nodes, currentNode)
-			} else {
+			if currentNode != nil {
+				childNode.Parent = currentNode
 				currentNode.Nodes = append(currentNode.Nodes, childNode)
+			} else {
+				nodes = append(nodes, childNode)
 			}
+
+			childNode.Type = resolveNodeType(currentToken)
+			childNode.Identifier = currentToken.Value
 		}
 
 		currentToken = tokenList.NextToken()
@@ -138,21 +60,30 @@ func Parse(tokens []*tokenizer.Token) ([]*Node, error) {
 	return nodes, nil
 }
 
+func resolveNodeType(token *tokenizer.Token) NodeType {
+	switch token.Type {
+	case tokenizer.Symbol:
+		return Identifier
+
+	case tokenizer.Number:
+		return Number
+
+	case tokenizer.Boolean:
+		return Boolean
+
+	}
+
+	return Nil
+}
+
 func createEmptyNode() *Node {
 	return &Node{}
 }
 
 func createListNode() *Node {
-	return &Node{Type: List}
-}
-
-func isMacro(macroCandidate string) bool {
-	switch macroCandidate {
-	case "defn", "def":
-		return true
+	return &Node{
+		Type: List,
 	}
-
-	return false
 }
 
 func isBoolean(booleanCandidate string) bool {
