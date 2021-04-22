@@ -2,115 +2,83 @@ package interpreter
 
 import (
 	"fmt"
-
-	"github.com/danfragoso/milho/parser"
 )
 
-func eval(ast *parser.Node, sess *Session) (Result, error) {
-	if ast.Parent != nil && ast.Parent.Type == parser.Macro {
-		return createNilResult()
+func evaluate(expr Expression, session *Session) (Expression, error) {
+	switch expr.Type() {
+	case ListExpr:
+		return evaluateList(expr, session)
+
+	case SymbolExpr:
+		return evaluateSymbol(expr, session)
 	}
 
-	var results []Result
-	for _, childNode := range ast.Nodes {
-		childResult, err := eval(childNode, sess)
-		if err != nil {
-			return nil, err
-		}
-
-		results = append(results, childResult)
-	}
-
-	switch ast.Type {
-	case parser.Function:
-		result, err := evalFunction(ast.Identifier, results)
-		if err != nil {
-			return nil, err
-		}
-
-		return result, nil
-
-	case parser.Macro:
-		result, err := evalMacro(ast, sess.Objects)
-		if err != nil {
-			return nil, err
-		}
-
-		return result, nil
-
-	case parser.Identifier:
-		result, err := evalIdentifier(ast.Identifier, sess)
-		if err != nil {
-			return nil, err
-		}
-
-		return result, nil
-
-	default:
-		return createTypedResult(ResultType(ast.Type), ast.Identifier)
-	}
+	return expr, nil
 }
 
-func evalIdentifier(identifier string, sess *Session) (Result, error) {
-	for _, obj := range sess.Objects {
-		if obj.Identifier() == identifier {
-			if obj.Result().Type() != Pending {
-				return obj.Result(), nil
+func evaluateSymbol(expr Expression, session *Session) (Expression, error) {
+	symbol := expr.(*SymbolExpression)
+	obj, err := session.FindObject(symbol.Identifier)
+	if err != nil {
+		return nil, err
+	}
+
+	return obj, nil
+}
+
+func evaluateList(expr Expression, session *Session) (Expression, error) {
+	var expressions []Expression
+	for _, childExpr := range expr.(*ListExpression).Expressions {
+		if childExpr.Type() == ListExpr {
+			e, err := evaluate(childExpr, session)
+			if err != nil {
+				return nil, err
 			}
 
-			pendingResult := obj.Result().(*PendingResult).Tree
-			pendingResult.Parent = nil
-			return eval(pendingResult, sess)
+			expressions = append(expressions, e)
+		} else {
+			expressions = append(expressions, childExpr)
 		}
 	}
 
-	return nil, fmt.Errorf("Identifier %s value couldn’t be resolved", identifier)
-}
-
-func evalMacro(node *parser.Node, objs []Object) (Result, error) {
-	if len(node.Nodes) < 2 {
-		return nil, fmt.Errorf("Malformatted macro %s couldn’t be evaluated", node.Identifier)
+	if len(expressions) == 0 {
+		return createNilExpression()
 	}
 
-	for _, obj := range objs {
-		if node.Nodes[0].Identifier == obj.Identifier() {
-			return createObjectResult(obj)
-		}
+	firstExpr := expressions[0]
+	if firstExpr.Type() != SymbolExpr {
+		return nil, fmt.Errorf("%s can't be a function", firstExpr.Value())
 	}
 
-	return nil, fmt.Errorf("Macro %s was not correctly expanded", node.Nodes[0].Identifier)
+	return evaluateFunction(firstExpr.Value(), expressions[1:], session)
 }
 
-func evalFunction(identifier string, params []Result) (Result, error) {
+func evaluateFunction(identifier string, params []Expression, session *Session) (Expression, error) {
 	switch identifier {
-	case "if":
-		return cmp_if(params)
-	case "print", "pr":
-		return pr(params)
-	case "println", "prn":
-		return prn(params)
+	case "def":
+		return __def(params, session)
+
 	case "=":
-		return eq(params)
-	case "/=":
-		return neq(params)
+		return __eq(params, session)
 
-	case "+", "-", "*", "/":
-		nParams, err := numberPrepareParams(params)
-		if err != nil {
-			return nil, err
-		}
+	case "if":
+		return __if(params, session)
 
-		switch identifier {
-		case "+":
-			return numberSum(nParams)
-		case "-":
-			return numberSub(nParams)
-		case "*":
-			return numberMul(nParams)
-		case "/":
-			return numberDiv(nParams)
-		}
+	case "+":
+		return __sum(params, session)
+	case "-":
+		return __sub(params, session)
+	case "*":
+		return __mul(params, session)
+	case "/":
+		return __div(params, session)
+
+	case "pr":
+		return __pr(params, session)
+	case "prn":
+		return __prn(params, session)
+
 	}
 
-	return nil, fmt.Errorf("unknown function identifier '%s'", identifier)
+	return nil, fmt.Errorf("undefined function '%s'", identifier)
 }
