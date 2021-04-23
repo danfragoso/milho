@@ -85,7 +85,15 @@ func (e *ListExpression) Type() ExpressionType {
 }
 
 func (e *ListExpression) Value() string {
-	return "List"
+	v := "("
+	for i, exp := range e.Expressions {
+		v += exp.Value()
+		if i+1 < len(e.Expressions) {
+			v += " "
+		}
+	}
+
+	return v + ")"
 }
 
 // Boolean Expression
