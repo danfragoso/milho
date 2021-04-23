@@ -28,6 +28,12 @@ func evaluateSymbol(expr Expression, session *Session) (Expression, error) {
 
 func evaluateList(expr Expression, session *Session) (Expression, error) {
 	var expressions []Expression
+	if len(expr.(*ListExpression).Expressions) == 2 &&
+		expr.(*ListExpression).Expressions[0].Type() == SymbolExpr &&
+		expr.(*ListExpression).Expressions[0].Value() == "quote" {
+		return evaluateFunction("quote", expr.(*ListExpression).Expressions[1:], session)
+	}
+
 	for _, childExpr := range expr.(*ListExpression).Expressions {
 		if childExpr.Type() == ListExpr {
 			e, err := evaluate(childExpr, session)
@@ -84,6 +90,9 @@ func evaluateFunction(identifier string, params []Expression, session *Session) 
 
 	case "str":
 		return __str(params, session)
+
+	case "quote":
+		return __quote(params, session)
 	}
 
 	return nil, fmt.Errorf("undefined function '%s'", identifier)

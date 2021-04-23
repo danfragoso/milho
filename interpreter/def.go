@@ -27,3 +27,11 @@ func __def(params []Expression, session *Session) (Expression, error) {
 
 	return symbol, nil
 }
+
+func __quote(params []Expression, session *Session) (Expression, error) {
+	if len(params) != 1 {
+		return nil, errors.New("Wrong number of args '1' passed to quote")
+	}
+
+	return params[0], nil
+}
