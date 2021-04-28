@@ -109,7 +109,7 @@ func Test_list(t *testing.T) {
 }
 
 func Test_list_param(t *testing.T) {
-	src := "(append '(2) '(3 4))"
+	src := "(append '(2) ''(3 4))"
 	fmt.Println(src)
 
 	tokens, err := tokenizer.Tokenize(src)
@@ -126,8 +126,12 @@ func Test_list_param(t *testing.T) {
 	fmt.Println(tree)
 
 	expectedNodes := []*Node{
-		{Type: List}, {Type: Identifier, Identifier: "append"}, {Type: List}, {Type: Number, Identifier: "2"},
-		{Type: List}, {Type: Number, Identifier: "3"}, {Type: Number, Identifier: "4"},
+		{Type: List}, {Type: Identifier, Identifier: "append"}, {Type: List},
+		{Type: Identifier, Identifier: "quote"}, {Type: List},
+		{Type: Number, Identifier: "2"}, {Type: List},
+		{Type: Identifier, Identifier: "quote"}, {Type: List},
+		{Type: Identifier, Identifier: "quote"}, {Type: List},
+		{Type: Number, Identifier: "3"}, {Type: Number, Identifier: "4"},
 	}
 
 	for idx, node := range treeAsList(tree) {

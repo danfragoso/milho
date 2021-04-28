@@ -18,17 +18,13 @@ const (
 )
 
 type Node struct {
-	notToeval bool
+	quotes uint
 
 	Type   NodeType
 	Parent *Node
 
 	Identifier string
 	Nodes      []*Node
-}
-
-func (n *Node) ShouldBeEvaluated() bool {
-	return !n.notToeval
 }
 
 func (n *Node) String() string {
@@ -39,7 +35,7 @@ func (n *Node) Sprint(tab string, last bool) string {
 	var str string
 
 	str += fmt.Sprintf("\n%s+- ", tab)
-	if n.notToeval {
+	for i := 0; i < int(n.quotes); i++ {
 		str += "'"
 	}
 
