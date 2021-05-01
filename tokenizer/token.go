@@ -2,6 +2,7 @@ package tokenizer
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -32,7 +33,11 @@ type Token struct {
 }
 
 func generateToken(rawToken string) (*Token, error) {
-	tokenType := resolveTokenType(rawToken)
+	tokenType, err := resolveTokenType(rawToken)
+	if err != nil {
+		return nil, err
+	}
+
 	switch tokenType {
 	case Invalid:
 		return nil, fmt.Errorf("invalid token '%s'", rawToken)
@@ -46,27 +51,46 @@ func generateToken(rawToken string) (*Token, error) {
 	}, nil
 }
 
-func resolveTokenType(rawToken string) TokenType {
+func resolveTokenType(rawToken string) (TokenType, error) {
 	switch rawToken[0] {
 	case '(':
-		return OParen
+		return OParen, nil
 	case ')':
-		return CParen
+		return CParen, nil
 	case '\'':
-		return SQuote
+		return SQuote, nil
 	case '"':
-		return String
+		return String, nil
+	}
+
+	if isDigit(rune(rawToken[0])) {
+		sArr := strings.Split(rawToken, "/")
+		if len(sArr) > 2 {
+			return Invalid, fmt.Errorf("Numbers can only have a single slash.")
+		}
+
+		_, err := strconv.ParseInt(sArr[0], 10, 64)
+		if err != nil {
+			return Invalid, fmt.Errorf("Error parsing numerator '%s'", sArr[0])
+		}
+
+		if len(sArr) == 2 {
+			if sArr[1] == "" {
+				return Number, nil
+			}
+
+			_, err = strconv.ParseInt(sArr[1], 10, 64)
+			if err != nil {
+				return Invalid, fmt.Errorf("Error parsing denominator '%s'", sArr[1])
+			}
+		}
+
+		return Number, nil
 	}
 
 	if isBoolean(rawToken) {
-		return Boolean
+		return Boolean, nil
 	}
 
-	for _, char := range rawToken {
-		if !isDigit(char) {
-			return Symbol
-		}
-	}
-
-	return Number
+	return Symbol, nil
 }

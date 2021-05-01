@@ -34,6 +34,66 @@ func Test_nil(t *testing.T) {
 	}
 }
 
+func Test_number_slash(t *testing.T) {
+	src := "4/3"
+	fmt.Println(src)
+
+	tokens, err := tokenizer.Tokenize(src)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ast, err := parser.Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	expressions, err := Run(ast)
+	printExpr(expressions[0])
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if expressions[0].Type() != NumberExpr {
+		t.Error(err)
+	}
+
+	if expressions[0].Value() != "4/3" {
+		t.Error(err)
+	}
+}
+
+func Test_number_slash2(t *testing.T) {
+	src := "10/5"
+	fmt.Println(src)
+
+	tokens, err := tokenizer.Tokenize(src)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ast, err := parser.Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	expressions, err := Run(ast)
+	printExpr(expressions[0])
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if expressions[0].Type() != NumberExpr {
+		t.Error(err)
+	}
+
+	if expressions[0].Value() != "2" {
+		t.Error(err)
+	}
+}
+
 func Test_add(t *testing.T) {
 	src := "(+ 1 2 (+ 1 2))"
 	fmt.Println(src)

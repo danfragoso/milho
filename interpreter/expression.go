@@ -191,23 +191,30 @@ func createExpressionTree(node *parser.Node) (Expression, error) {
 		numerator := int64(0)
 		denominator := int64(1)
 
-		var err error
-		if len(numberStr) > 1 {
-			denominator, err = strconv.ParseInt(numberStr[1], 10, 64)
-			if err != nil {
-				return nil, err
-			}
-		}
+		numerator, _ = strconv.ParseInt(numberStr[0], 10, 64)
+		if len(numberStr) == 2 {
+			denominator, _ = strconv.ParseInt(numberStr[1], 10, 64)
 
-		numerator, err = strconv.ParseInt(numberStr[0], 10, 64)
-		if err != nil {
-			return nil, err
+			numerator, denominator = simplifyFraction(numerator, denominator)
 		}
 
 		return createNumberExpression(numerator, denominator)
 	}
 
 	return createListExpression(expressions...)
+}
+
+func simplifyFraction(numerator, denominator int64) (int64, int64) {
+	divider := gcd(numerator, denominator)
+	return numerator / divider, denominator / divider
+}
+
+func gcd(a, b int64) int64 {
+	for b != 0 {
+		a, b = b, a%b
+	}
+
+	return a
 }
 
 func printExpr(e Expression) {

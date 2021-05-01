@@ -20,8 +20,38 @@ func Test_number(t *testing.T) {
 	}
 }
 
+func Test_number_slash(t *testing.T) {
+	tokens, err := Tokenize("4/3")
+	if err != nil {
+		t.Error(err)
+	} else {
+		if tokens[0].Type != Number {
+			t.Error("Wrong token type, expected Number got", tokens[0].Type)
+		}
+
+		if tokens[0].Value != "4/3" {
+			t.Error("Wrong token value, expected 4/3 got", tokens[0].Value)
+		}
+	}
+}
+
+func Test_number_slash2(t *testing.T) {
+	tokens, err := Tokenize("10/5")
+	if err != nil {
+		t.Error(err)
+	} else {
+		if tokens[0].Type != Number {
+			t.Error("Wrong token type, expected Number got", tokens[0].Type)
+		}
+
+		if tokens[0].Value != "10/5" {
+			t.Error("Wrong token value, expected 10/5 got", tokens[0].Value)
+		}
+	}
+}
+
 func Test_symbols(t *testing.T) {
-	atoms := []string{"4c", "4f", "cd"}
+	atoms := []string{"c4", "f4", "cd"}
 	tokens, err := Tokenize(strings.Join(atoms, " "))
 
 	if err != nil {

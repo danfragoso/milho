@@ -42,6 +42,58 @@ func Test_number(t *testing.T) {
 	}
 }
 
+func Test_number_slash(t *testing.T) {
+	src := "4/3"
+	fmt.Println(src)
+
+	tokens, err := tokenizer.Tokenize(src)
+	if err != nil {
+		t.Error(err)
+	}
+
+	nodes, err := Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	tree := nodes[0]
+	fmt.Println(tree)
+
+	if tree.Type != Number {
+		t.Errorf("Expected node type to be Number, got %s", tree.Type)
+	}
+
+	if tree.Identifier != "4/3" {
+		t.Errorf("Expected node identifier to be 4/3, got %s", tree.Identifier)
+	}
+}
+
+func Test_number_slash2(t *testing.T) {
+	src := "10/5"
+	fmt.Println(src)
+
+	tokens, err := tokenizer.Tokenize(src)
+	if err != nil {
+		t.Error(err)
+	}
+
+	nodes, err := Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	tree := nodes[0]
+	fmt.Println(tree)
+
+	if tree.Type != Number {
+		t.Errorf("Expected node type to be Number, got %s", tree.Type)
+	}
+
+	if tree.Identifier != "10/5" {
+		t.Errorf("Expected node identifier to be 10/5, got %s", tree.Identifier)
+	}
+}
+
 func Test_parens(t *testing.T) {
 	src := "(+ 2 (+ 1 3))"
 	fmt.Println(src)
