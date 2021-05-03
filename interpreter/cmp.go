@@ -15,18 +15,14 @@ func __eq(params []Expression, session *Session) (Expression, error) {
 	result := true
 
 	for _, param := range params[1:] {
-		if lastParam.Type() == SymbolExpr {
-			lastParam, err = session.FindObject(lastParam.(*SymbolExpression).Identifier)
-			if err != nil {
-				return nil, err
-			}
+		lastParam, err = evaluate(lastParam, session)
+		if err != nil {
+			return nil, err
 		}
 
-		if param.Type() == SymbolExpr {
-			param, err = session.FindObject(param.(*SymbolExpression).Identifier)
-			if err != nil {
-				return nil, err
-			}
+		param, err = evaluate(param, session)
+		if err != nil {
+			return nil, err
 		}
 
 		if lastParam.Type() != param.Type() || lastParam.Value() != param.Value() {
@@ -49,11 +45,9 @@ func __if(params []Expression, session *Session) (Expression, error) {
 	}
 
 	fParam := params[0]
-	if fParam.Type() == SymbolExpr {
-		fParam, err = session.FindObject(fParam.(*SymbolExpression).Identifier)
-		if err != nil {
-			return nil, err
-		}
+	fParam, err = evaluate(fParam, session)
+	if err != nil {
+		return nil, err
 	}
 
 	if fParam.Type() == BooleanExpr &&

@@ -24,12 +24,10 @@ func __mul(params []Expression, session *Session) (Expression, error) {
 	var acc int64 = 1
 
 	for _, exp := range params {
-		if exp.Type() == SymbolExpr {
-			var err error
-			exp, err = session.FindObject(exp.(*SymbolExpression).Identifier)
-			if err != nil {
-				return nil, err
-			}
+		var err error
+		exp, err = resolveTypedExpression(NumberExpr, exp, session)
+		if err != nil {
+			return nil, err
 		}
 
 		acc *= exp.(*NumberExpression).Numerator
@@ -44,13 +42,12 @@ func __sub(params []Expression, session *Session) (Expression, error) {
 	}
 
 	var acc int64
+	var err error
+
 	fExp := params[0]
-	if fExp.Type() == SymbolExpr {
-		var err error
-		fExp, err = session.FindObject(fExp.(*SymbolExpression).Identifier)
-		if err != nil {
-			return nil, err
-		}
+	fExp, err = evaluate(fExp, session)
+	if err != nil {
+		return nil, err
 	}
 
 	nB := fExp.(*NumberExpression)
@@ -59,12 +56,9 @@ func __sub(params []Expression, session *Session) (Expression, error) {
 	} else {
 		acc = nB.Numerator
 		for _, n := range params[1:] {
-			if n.Type() == SymbolExpr {
-				var err error
-				n, err = session.FindObject(n.(*SymbolExpression).Identifier)
-				if err != nil {
-					return nil, err
-				}
+			n, err = evaluate(n, session)
+			if err != nil {
+				return nil, err
 			}
 
 			acc -= n.(*NumberExpression).Numerator
@@ -79,13 +73,11 @@ func __div(params []Expression, session *Session) (Expression, error) {
 		return nil, errors.New("Wrong number of args '0' passed to Number:[-] function")
 	}
 
+	var err error
 	fExp := params[0]
-	if fExp.Type() == SymbolExpr {
-		var err error
-		fExp, err = session.FindObject(fExp.(*SymbolExpression).Identifier)
-		if err != nil {
-			return nil, err
-		}
+	fExp, err = evaluate(fExp, session)
+	if err != nil {
+		return nil, err
 	}
 
 	acc := fExp.(*NumberExpression).Numerator
@@ -94,12 +86,9 @@ func __div(params []Expression, session *Session) (Expression, error) {
 	}
 
 	for _, nE := range params[1:] {
-		if nE.Type() == SymbolExpr {
-			var err error
-			nE, err = session.FindObject(nE.(*SymbolExpression).Identifier)
-			if err != nil {
-				return nil, err
-			}
+		nE, err = evaluate(nE, session)
+		if err != nil {
+			return nil, err
 		}
 
 		n := nE.(*NumberExpression).Numerator

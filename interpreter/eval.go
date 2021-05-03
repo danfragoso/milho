@@ -27,26 +27,7 @@ func evaluateSymbol(expr Expression, session *Session) (Expression, error) {
 }
 
 func evaluateList(expr Expression, session *Session) (Expression, error) {
-	var expressions []Expression
-	if len(expr.(*ListExpression).Expressions) == 2 &&
-		expr.(*ListExpression).Expressions[0].Type() == SymbolExpr &&
-		expr.(*ListExpression).Expressions[0].Value() == "quote" {
-		return evaluateFunction("quote", expr.(*ListExpression).Expressions[1:], session)
-	}
-
-	for _, childExpr := range expr.(*ListExpression).Expressions {
-		if childExpr.Type() == ListExpr {
-			e, err := evaluate(childExpr, session)
-			if err != nil {
-				return nil, err
-			}
-
-			expressions = append(expressions, e)
-		} else {
-			expressions = append(expressions, childExpr)
-		}
-	}
-
+	expressions := expr.(*ListExpression).Expressions
 	if len(expressions) == 0 {
 		return createNilExpression()
 	}

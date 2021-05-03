@@ -6,33 +6,20 @@ import (
 )
 
 func resolveTypedExpression(exprType ExpressionType, expr Expression, session *Session) (Expression, error) {
-	if expr.Type() == SymbolExpr {
-		var err error
-		expr, err = session.FindObject(expr.(*SymbolExpression).Identifier)
-		if err != nil {
-			return nil, err
-		}
-	}
+	var err error
+	expr, err = evaluate(expr, session)
 
 	if expr.Type() != exprType {
 		return nil, fmt.Errorf("expected resolved expression %s type to be %s, instead got %s", expr.Value(), exprType, expr.Type())
 	}
 
-	return expr, nil
-}
-
-func resolveExpression(expr Expression, session *Session) (Expression, error) {
-	if expr.Type() == SymbolExpr {
-		return session.FindObject(expr.(*SymbolExpression).Identifier)
-	}
-
-	return expr, nil
+	return expr, err
 }
 
 func __pr(params []Expression, session *Session) (Expression, error) {
 	var err error
 	for _, param := range params {
-		param, err = resolveExpression(param, session)
+		param, err = evaluate(param, session)
 		if err != nil {
 			return nil, err
 		}
@@ -46,7 +33,7 @@ func __pr(params []Expression, session *Session) (Expression, error) {
 func __prn(params []Expression, session *Session) (Expression, error) {
 	var err error
 	for _, param := range params {
-		param, err = resolveExpression(param, session)
+		param, err = evaluate(param, session)
 		if err != nil {
 			return nil, err
 		}
@@ -61,7 +48,7 @@ func __prn(params []Expression, session *Session) (Expression, error) {
 func __print(params []Expression, session *Session) (Expression, error) {
 	var err error
 	for _, param := range params {
-		param, err = resolveExpression(param, session)
+		param, err = evaluate(param, session)
 		if err != nil {
 			return nil, err
 		}
@@ -79,7 +66,7 @@ func __print(params []Expression, session *Session) (Expression, error) {
 func __println(params []Expression, session *Session) (Expression, error) {
 	var err error
 	for _, param := range params {
-		param, err = resolveExpression(param, session)
+		param, err = evaluate(param, session)
 		if err != nil {
 			return nil, err
 		}

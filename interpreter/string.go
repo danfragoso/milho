@@ -4,7 +4,7 @@ func __str(params []Expression, session *Session) (Expression, error) {
 	var err error
 	var resultStr string
 	for _, param := range params {
-		param, err = resolveExpression(param, session)
+		param, err = evaluate(param, session)
 		if err != nil {
 			return nil, err
 		}

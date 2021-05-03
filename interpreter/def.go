@@ -15,7 +15,12 @@ func __def(params []Expression, session *Session) (Expression, error) {
 		return nil, fmt.Errorf("First argument of def should be a symbol")
 	}
 
-	symbol, err := createSymbolExpression(firstParam.(*SymbolExpression).Identifier, params[1])
+	value, err := evaluate(params[1], session)
+	if err != nil {
+		return nil, err
+	}
+
+	symbol, err := createSymbolExpression(firstParam.(*SymbolExpression).Identifier, value)
 	if err != nil {
 		return nil, err
 	}
