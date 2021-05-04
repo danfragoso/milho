@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/danfragoso/milho/parser"
+	"github.com/danfragoso/milho/tokenizer"
 )
 
 type Session struct {
@@ -13,11 +14,14 @@ type Session struct {
 	Objects []*Object
 }
 
-func createSession(node *parser.Node) (*Session, error) {
+func CreateSession(node *parser.Node) (*Session, error) {
 	sess := &Session{
 		SyntaxTree: node,
 	}
+	tokens, _ := tokenizer.Tokenize(builtinInjector)
+	nodes, _ := parser.Parse(tokens)
 
+	RunFromSession(nodes, sess)
 	return sess, nil
 }
 
@@ -28,6 +32,11 @@ func updateSession(session *Session, node *parser.Node) error {
 }
 
 func (s *Session) FindObject(identifier string) (Expression, error) {
+	builtIn := BuiltIns[identifier]
+	if builtIn != nil {
+		return builtIn, nil
+	}
+
 	for _, obj := range s.Objects {
 		if obj.Identifier() == identifier {
 			return obj.Value(), nil

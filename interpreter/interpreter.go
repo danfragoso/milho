@@ -43,7 +43,7 @@ func Run(nodes []*parser.Node) ([]Expression, error) {
 	for _, node := range nodes {
 		var err error
 		if session == nil {
-			session, err = createSession(node)
+			session, err = CreateSession(node)
 		} else {
 			err = updateSession(session, node)
 		}

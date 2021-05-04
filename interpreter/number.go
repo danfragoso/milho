@@ -4,7 +4,7 @@ import (
 	"errors"
 )
 
-func __sum(params []Expression, session *Session) (Expression, error) {
+func __add(params []Expression, session *Session) (Expression, error) {
 	var acc int64
 
 	for _, exp := range params {

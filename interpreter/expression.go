@@ -11,7 +11,7 @@ import (
 type ExpressionType int
 
 func (e ExpressionType) String() string {
-	return [...]string{"Nil", "Number", "Boolean", "Symbol", "String", "List"}[e]
+	return [...]string{"Nil", "Number", "Boolean", "Symbol", "String", "List", "BuiltIn"}[e]
 }
 
 const (
@@ -21,6 +21,7 @@ const (
 	SymbolExpr
 	StringExpr
 	ListExpr
+	BuiltInExpr
 )
 
 type Expression interface {
@@ -41,6 +42,20 @@ func (e *NilExpression) Type() ExpressionType {
 
 func (e *NilExpression) Value() string {
 	return "Nil"
+}
+
+// BuiltIn Expression
+type BuiltInExpression struct {
+	Identifier string
+	Function   func([]Expression, *Session) (Expression, error)
+}
+
+func (e *BuiltInExpression) Type() ExpressionType {
+	return BuiltInExpr
+}
+
+func (e *BuiltInExpression) Value() string {
+	return "BuiltIn." + e.Identifier
 }
 
 // Number Expression

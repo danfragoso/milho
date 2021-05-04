@@ -37,44 +37,15 @@ func evaluateList(expr Expression, session *Session) (Expression, error) {
 		return nil, fmt.Errorf("%s can't be a function", firstExpr.Value())
 	}
 
-	return evaluateFunction(firstExpr.Value(), expressions[1:], session)
-}
-
-func evaluateFunction(identifier string, params []Expression, session *Session) (Expression, error) {
-	switch identifier {
-	case "def":
-		return __def(params, session)
-
-	case "=":
-		return __eq(params, session)
-
-	case "if":
-		return __if(params, session)
-
-	case "+":
-		return __sum(params, session)
-	case "-":
-		return __sub(params, session)
-	case "*":
-		return __mul(params, session)
-	case "/":
-		return __div(params, session)
-
-	case "pr":
-		return __pr(params, session)
-	case "prn":
-		return __prn(params, session)
-	case "print":
-		return __print(params, session)
-	case "println":
-		return __println(params, session)
-
-	case "str":
-		return __str(params, session)
-
-	case "quote":
-		return __quote(params, session)
+	obj, err := session.FindObject(firstExpr.Value())
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, fmt.Errorf("undefined function '%s'", identifier)
+	switch obj.Type() {
+	case BuiltInExpr:
+		return obj.(*BuiltInExpression).Function(expressions[1:], session)
+	}
+
+	return nil, fmt.Errorf("undefined function '%s'", firstExpr.Value())
 }
