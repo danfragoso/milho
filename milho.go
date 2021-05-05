@@ -78,5 +78,6 @@ func RunRaw(src string) ([]interpreter.Expression, error) {
 }
 
 func CreateSession() *interpreter.Session {
-	return &interpreter.Session{}
+	sess, _ := interpreter.CreateSession(&parser.Node{})
+	return sess
 }

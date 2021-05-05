@@ -40,3 +40,16 @@ func __quote(params []Expression, session *Session) (Expression, error) {
 
 	return params[0], nil
 }
+
+func __type(params []Expression, session *Session) (Expression, error) {
+	if len(params) != 1 {
+		return nil, errors.New("Wrong number of args '1' passed to type")
+	}
+
+	ev, err := evaluate(params[0], session)
+	if err != nil {
+		return nil, err
+	}
+
+	return createSymbolExpression(ev.Type().String(), &SymbolExpression{})
+}
