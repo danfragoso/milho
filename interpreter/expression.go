@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"encoding/hex"
 	"fmt"
 	"strconv"
 	"strings"
@@ -11,7 +12,7 @@ import (
 type ExpressionType int
 
 func (e ExpressionType) String() string {
-	return [...]string{"Nil", "Number", "Boolean", "Symbol", "String", "List", "BuiltIn"}[e]
+	return [...]string{"Nil", "Number", "Boolean", "Symbol", "String", "Byte", "List", "BuiltIn"}[e]
 }
 
 const (
@@ -20,6 +21,7 @@ const (
 	BooleanExpr
 	SymbolExpr
 	StringExpr
+	ByteExpr
 	ListExpr
 	BuiltInExpr
 )
@@ -111,6 +113,25 @@ func (e *ListExpression) Value() string {
 	return v + ")"
 }
 
+// Byte Expression
+func createByteExpression(value byte) (*ByteExpression, error) {
+	return &ByteExpression{
+		Val: value,
+	}, nil
+}
+
+type ByteExpression struct {
+	Val byte
+}
+
+func (e *ByteExpression) Type() ExpressionType {
+	return ByteExpr
+}
+
+func (e *ByteExpression) Value() string {
+	return fmt.Sprintf("0x%X", e.Val)
+}
+
 // Boolean Expression
 func createBooleanExpression(value bool) (*BooleanExpression, error) {
 	return &BooleanExpression{
@@ -199,6 +220,10 @@ func createExpressionTree(node *parser.Node) (Expression, error) {
 		}
 
 		return createBooleanExpression(false)
+
+	case parser.Byte:
+		b, _ := hex.DecodeString(node.Identifier[2:])
+		return createByteExpression(b[0])
 
 	case parser.Number:
 		numberStr := strings.Split(node.Identifier, "/")

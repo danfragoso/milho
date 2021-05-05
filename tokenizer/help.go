@@ -33,3 +33,11 @@ func isDigit(r rune) bool {
 
 	return false
 }
+
+func isHexDigit(r rune) bool {
+	if isDigit(r) || r >= 65 && r <= 70 || r >= 97 && r <= 102 {
+		return true
+	}
+
+	return false
+}

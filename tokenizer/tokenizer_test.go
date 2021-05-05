@@ -1,6 +1,7 @@
 package tokenizer
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -48,6 +49,30 @@ func Test_number_slash2(t *testing.T) {
 			t.Error("Wrong token value, expected 10/5 got", tokens[0].Value)
 		}
 	}
+}
+
+func Test_byte(t *testing.T) {
+	tokens, err := Tokenize("0xFF")
+	if err != nil {
+		t.Error(err)
+	} else {
+		if tokens[0].Type != Byte {
+			t.Error("Wrong token type, expected Byte got", tokens[0].Type)
+		}
+
+		if tokens[0].Value != "0xFF" {
+			t.Error("Wrong token value, expected 0xFF got", tokens[0].Value)
+		}
+	}
+}
+
+func Test_fakebyte(t *testing.T) {
+	_, err := Tokenize("0Xf")
+	if err == nil {
+		t.Error("Expected tokenizer error for 0Xf!")
+	}
+
+	fmt.Println(err)
 }
 
 func Test_symbols(t *testing.T) {

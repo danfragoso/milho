@@ -41,7 +41,7 @@ func Parse(tokens []*tokenizer.Token) ([]*Node, error) {
 				currentNode = nil
 			}
 
-		case tokenizer.Symbol, tokenizer.Number, tokenizer.Boolean, tokenizer.String:
+		case tokenizer.Symbol, tokenizer.Number, tokenizer.Boolean, tokenizer.String, tokenizer.Byte:
 			childNode := createEmptyNode()
 			quotes = setQuote(childNode, quotes)
 
@@ -154,6 +154,9 @@ func resolveNodeType(token *tokenizer.Token) NodeType {
 
 	case tokenizer.String:
 		return String
+
+	case tokenizer.Byte:
+		return Byte
 	}
 
 	return Nil
