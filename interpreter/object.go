@@ -12,3 +12,13 @@ func (o *Object) Identifier() string {
 func (o *Object) Value() Expression {
 	return o.value
 }
+
+func findObject(objs []*Object, identifier string) *Object {
+	for _, obj := range objs {
+		if obj.identifier == identifier {
+			return obj
+		}
+	}
+
+	return nil
+}

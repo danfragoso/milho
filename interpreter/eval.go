@@ -16,11 +16,34 @@ func evaluate(expr Expression, session *Session) (Expression, error) {
 	return expr, nil
 }
 
+func findExprObject(expr Expression, identifier string) *Object {
+	if expr.Parent() == nil {
+		return nil
+	}
+
+	if expr.Parent().Type() == ListExpr {
+		lst := expr.Parent().(*ListExpression)
+		obj := lst.FindObject(identifier)
+		if obj != nil {
+			return obj
+		}
+
+		return findExprObject(expr.Parent(), identifier)
+	}
+
+	return nil
+}
+
 func evaluateSymbol(expr Expression, session *Session) (Expression, error) {
 	symbol := expr.(*SymbolExpression)
 	obj, err := session.FindObject(symbol.Identifier)
 	if err != nil {
-		return nil, err
+		nObj := findExprObject(expr, symbol.Identifier)
+		if nObj == nil {
+			return nil, err
+		}
+
+		obj = nObj.value
 	}
 
 	return obj, nil

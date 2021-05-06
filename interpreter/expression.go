@@ -29,14 +29,19 @@ const (
 type Expression interface {
 	Type() ExpressionType
 	Value() string
+
+	Parent() Expression
+	setParent(Expression)
 }
 
-// Symbol Expression
+// Nil Expression
 func createNilExpression() (*NilExpression, error) {
 	return &NilExpression{}, nil
 }
 
-type NilExpression struct{}
+type NilExpression struct {
+	ParentExpr Expression
+}
 
 func (e *NilExpression) Type() ExpressionType {
 	return NilExpr
@@ -44,6 +49,14 @@ func (e *NilExpression) Type() ExpressionType {
 
 func (e *NilExpression) Value() string {
 	return "Nil"
+}
+
+func (e *NilExpression) Parent() Expression {
+	return e.ParentExpr
+}
+
+func (e *NilExpression) setParent(parent Expression) {
+	e.ParentExpr = parent
 }
 
 // BuiltIn Expression
@@ -60,6 +73,13 @@ func (e *BuiltInExpression) Value() string {
 	return "BuiltIn." + e.Identifier
 }
 
+func (e *BuiltInExpression) Parent() Expression {
+	return nil
+}
+
+func (e *BuiltInExpression) setParent(parent Expression) {
+}
+
 // Number Expression
 func createNumberExpression(numerator, denominator int64) (*NumberExpression, error) {
 	return &NumberExpression{
@@ -69,6 +89,7 @@ func createNumberExpression(numerator, denominator int64) (*NumberExpression, er
 }
 
 type NumberExpression struct {
+	ParentExpr  Expression
 	Numerator   int64
 	Denominator int64
 }
@@ -86,19 +107,54 @@ func (e *NumberExpression) Value() string {
 	return r
 }
 
+func (e *NumberExpression) Parent() Expression {
+	return e.ParentExpr
+}
+
+func (e *NumberExpression) setParent(parent Expression) {
+	e.ParentExpr = parent
+}
+
 // List Expression
 func createListExpression(expressions ...Expression) (*ListExpression, error) {
-	return &ListExpression{
+	listExpression := &ListExpression{
+		Objects:     make(map[string]*Object),
 		Expressions: expressions,
-	}, nil
+	}
+
+	for _, expr := range listExpression.Expressions {
+		expr.setParent(listExpression)
+	}
+
+	return listExpression, nil
 }
 
 type ListExpression struct {
+	ParentExpr  Expression
 	Expressions []Expression
+	Objects     map[string]*Object
+}
+
+func (e *ListExpression) AddObjects(objects ...*Object) {
+	for _, obj := range objects {
+		e.Objects[obj.identifier] = obj
+	}
+}
+
+func (e *ListExpression) FindObject(identifier string) *Object {
+	return e.Objects[identifier]
 }
 
 func (e *ListExpression) Type() ExpressionType {
 	return ListExpr
+}
+
+func (e *ListExpression) Parent() Expression {
+	return e.ParentExpr
+}
+
+func (e *ListExpression) setParent(parent Expression) {
+	e.ParentExpr = parent
 }
 
 func (e *ListExpression) Value() string {
@@ -121,7 +177,8 @@ func createByteExpression(value byte) (*ByteExpression, error) {
 }
 
 type ByteExpression struct {
-	Val byte
+	ParentExpr Expression
+	Val        byte
 }
 
 func (e *ByteExpression) Type() ExpressionType {
@@ -132,6 +189,14 @@ func (e *ByteExpression) Value() string {
 	return fmt.Sprintf("0x%X", e.Val)
 }
 
+func (e *ByteExpression) Parent() Expression {
+	return e.ParentExpr
+}
+
+func (e *ByteExpression) setParent(parent Expression) {
+	e.ParentExpr = parent
+}
+
 // Boolean Expression
 func createBooleanExpression(value bool) (*BooleanExpression, error) {
 	return &BooleanExpression{
@@ -140,7 +205,8 @@ func createBooleanExpression(value bool) (*BooleanExpression, error) {
 }
 
 type BooleanExpression struct {
-	Val bool
+	ParentExpr Expression
+	Val        bool
 }
 
 func (e *BooleanExpression) Type() ExpressionType {
@@ -155,6 +221,14 @@ func (e *BooleanExpression) Value() string {
 	return "False"
 }
 
+func (e *BooleanExpression) Parent() Expression {
+	return e.ParentExpr
+}
+
+func (e *BooleanExpression) setParent(parent Expression) {
+	e.ParentExpr = parent
+}
+
 // Symbol Expression
 func createSymbolExpression(identifier string, expression Expression) (*SymbolExpression, error) {
 	return &SymbolExpression{
@@ -164,6 +238,7 @@ func createSymbolExpression(identifier string, expression Expression) (*SymbolEx
 }
 
 type SymbolExpression struct {
+	ParentExpr Expression
 	Identifier string
 	Expression Expression
 }
@@ -176,6 +251,14 @@ func (e *SymbolExpression) Value() string {
 	return e.Identifier
 }
 
+func (e *SymbolExpression) Parent() Expression {
+	return e.ParentExpr
+}
+
+func (e *SymbolExpression) setParent(parent Expression) {
+	e.ParentExpr = parent
+}
+
 // String Expression
 func createStringExpression(value string) (*StringExpression, error) {
 	return &StringExpression{
@@ -184,7 +267,8 @@ func createStringExpression(value string) (*StringExpression, error) {
 }
 
 type StringExpression struct {
-	Val string
+	ParentExpr Expression
+	Val        string
 }
 
 func (e *StringExpression) Type() ExpressionType {
@@ -193,6 +277,14 @@ func (e *StringExpression) Type() ExpressionType {
 
 func (e *StringExpression) Value() string {
 	return fmt.Sprintf("\"%s\"", e.Val)
+}
+
+func (e *StringExpression) Parent() Expression {
+	return e.ParentExpr
+}
+
+func (e *StringExpression) setParent(parent Expression) {
+	e.ParentExpr = parent
 }
 
 // Expression Tree

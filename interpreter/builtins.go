@@ -6,6 +6,7 @@ func init() {
 	BuiltIns = map[string]*BuiltInExpression{
 		".__def":   {"Def", __def},
 		".__quote": {"Quote", __quote},
+		".__let":   {"Let", __let},
 		".__type":  {"Type", __type},
 
 		".__add": {"Add", __add},
@@ -29,7 +30,7 @@ func init() {
 }
 
 var builtinInjector = `
-	(.__def def .__def) (def quote .__quote) (def type .__type)
+	(.__def def .__def) (def quote .__quote) (def type .__type) (def let .__let)
 
 	(def + .__add) (def * .__mul) (def - .__sub) (def / .__div)
 	
