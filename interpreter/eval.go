@@ -68,7 +68,50 @@ func evaluateList(expr Expression, session *Session) (Expression, error) {
 	switch obj.Type() {
 	case BuiltInExpr:
 		return obj.(*BuiltInExpression).Function(expressions[1:], session)
+	case FunctionExpr:
+		return evaluateUserFunction(obj.(*FunctionExpression), expressions[1:], session)
 	}
 
 	return nil, fmt.Errorf("undefined function '%s'", firstExpr.Value())
+}
+
+func evaluateUserFunction(fn *FunctionExpression, params []Expression, session *Session) (Expression, error) {
+	arity := fn.Arities[len(params)]
+	if arity == nil {
+		return nil, fmt.Errorf("Wrong number of args passed to function %s", fn.Value())
+	}
+
+	var objs []*Object
+	for i, fnParam := range arity.parameters {
+		value, err := evaluate(params[i], session)
+		if err != nil {
+			return nil, err
+		}
+
+		objs = append(objs, &Object{
+			identifier: fnParam,
+			value:      value,
+		})
+	}
+
+	switch arity.body.Type() {
+	case SymbolExpr:
+		obj := findObject(objs, arity.body.Value())
+		if obj == nil {
+			fObj, err := session.FindObject(arity.body.Value())
+			if err != nil {
+				return nil, err
+			}
+
+			return fObj, nil
+		}
+
+		return obj.value, nil
+
+	case ListExpr:
+		listExpr := arity.body.(*ListExpression)
+		listExpr.AddObjects(objs...)
+	}
+
+	return evaluate(arity.body, session)
 }

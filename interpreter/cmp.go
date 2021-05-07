@@ -54,11 +54,11 @@ func __if(params []Expression, session *Session) (Expression, error) {
 		!fParam.(*BooleanExpression).Val {
 
 		if len(params) == 3 {
-			return params[2], nil
+			return evaluate(params[2], session)
 		}
 
 		return createNilExpression()
 	}
 
-	return params[1], nil
+	return evaluate(params[1], session)
 }

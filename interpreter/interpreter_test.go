@@ -583,3 +583,40 @@ func Test_string(t *testing.T) {
 		}
 	}
 }
+
+func Test_fn(t *testing.T) {
+	src := "(fn (a) (* a a))\n"
+
+	fmt.Println(src)
+	tokens, err := tokenizer.Tokenize(src)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	ast, err := parser.Parse(tokens)
+	if err != nil {
+		t.Error(err)
+	}
+
+	expressions, err := Run(ast)
+	if err != nil {
+		t.Error(err)
+	}
+
+	expectedExpressions := []Expression{
+		&FunctionExpression{},
+	}
+
+	for i, expression := range expressions {
+		printExpr(expressions[i])
+
+		if expectedExpressions[i].Type() != expression.Type() {
+			t.Errorf("Wrong result type found, expected %s got %s", expectedExpressions[i].Type().String(), expression.Type().String())
+		}
+
+		if expectedExpressions[i].Value() != expression.Value() {
+			t.Errorf("Wrong result value found, expected %s got %s", expectedExpressions[i].Value(), expression.Value())
+		}
+	}
+}

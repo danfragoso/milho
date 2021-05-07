@@ -8,6 +8,9 @@ func init() {
 		".__quote": {"Quote", __quote},
 		".__let":   {"Let", __let},
 		".__type":  {"Type", __type},
+		".__fn":    {"Fn", __fn},
+		".__time":  {"Time", __time},
+		".__progn": {"Progn", __progn},
 
 		".__add": {"Add", __add},
 		".__mul": {"Mul", __mul},
@@ -31,6 +34,7 @@ func init() {
 
 var builtinInjector = `
 	(.__def def .__def) (def quote .__quote) (def type .__type) (def let .__let)
+	(def fn .__fn) (def time .__time) (def progn .__progn)
 
 	(def + .__add) (def * .__mul) (def - .__sub) (def / .__div)
 	

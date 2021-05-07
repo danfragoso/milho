@@ -12,7 +12,7 @@ import (
 type ExpressionType int
 
 func (e ExpressionType) String() string {
-	return [...]string{"Nil", "Number", "Boolean", "Symbol", "String", "Byte", "List", "BuiltIn"}[e]
+	return [...]string{"Nil", "Number", "Boolean", "Symbol", "FunctionExpr", "String", "Byte", "List", "BuiltIn"}[e]
 }
 
 const (
@@ -20,6 +20,7 @@ const (
 	NumberExpr
 	BooleanExpr
 	SymbolExpr
+	FunctionExpr
 	StringExpr
 	ByteExpr
 	ListExpr
@@ -226,6 +227,52 @@ func (e *BooleanExpression) Parent() Expression {
 }
 
 func (e *BooleanExpression) setParent(parent Expression) {
+	e.ParentExpr = parent
+}
+
+// Function Expression
+
+func createFunctionExpression(identifier string, arities map[int]*fnArity) (*FunctionExpression, error) {
+	fExpr := &FunctionExpression{
+		Arities: arities,
+		Objects: make(map[string]Expression),
+	}
+
+	if identifier == "" {
+		identifier = fmt.Sprintf("%p", fExpr)
+	}
+
+	fExpr.Identifier = identifier
+	return fExpr, nil
+}
+
+type FunctionExpression struct {
+	ParentExpr Expression
+	Identifier string
+
+	Arities map[int]*fnArity
+	Objects map[string]Expression
+}
+
+type fnArity struct {
+	parameters []string
+
+	body Expression
+}
+
+func (e *FunctionExpression) Type() ExpressionType {
+	return FunctionExpr
+}
+
+func (e *FunctionExpression) Value() string {
+	return "fn@" + e.Identifier
+}
+
+func (e *FunctionExpression) Parent() Expression {
+	return e.ParentExpr
+}
+
+func (e *FunctionExpression) setParent(parent Expression) {
 	e.ParentExpr = parent
 }
 
