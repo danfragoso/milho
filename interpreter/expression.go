@@ -255,9 +255,9 @@ type FunctionExpression struct {
 }
 
 type fnArity struct {
-	parameters []string
-
-	body Expression
+	hasVariadic bool
+	body        Expression
+	parameters  []string
 }
 
 func (e *FunctionExpression) Type() ExpressionType {

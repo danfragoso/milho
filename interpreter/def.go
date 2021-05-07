@@ -122,9 +122,18 @@ func __fn(params []Expression, session *Session) (Expression, error) {
 
 	fLst := firstParam.(*ListExpression)
 	var fParams []string
-	for _, lstItem := range fLst.Expressions {
+	var hasVariadic bool
+
+	for i, lstItem := range fLst.Expressions {
 		if lstItem.Type() != SymbolExpr {
 			return nil, fmt.Errorf("Every item of fn first param must be a Symbol")
+		}
+
+		isVariadic := lstItem.Value() == "+rest"
+		if i+1 == len(fLst.Expressions) && isVariadic {
+			hasVariadic = true
+		} else if isVariadic {
+			return nil, fmt.Errorf("Only the last param can be a variadic")
 		}
 
 		fParams = append(fParams, lstItem.Value())
@@ -132,10 +141,55 @@ func __fn(params []Expression, session *Session) (Expression, error) {
 
 	return createFunctionExpression("", map[int]*fnArity{
 		len(fLst.Expressions): {
-			parameters: fParams,
-			body:       params[1],
+			hasVariadic: hasVariadic,
+			parameters:  fParams,
+			body:        params[1],
 		},
 	})
+}
+
+func __defn(params []Expression, session *Session) (Expression, error) {
+	if len(params) < 3 {
+		return nil, fmt.Errorf("Wrong number of args '%d' passed to defn, needs to be at least 3", len(params))
+	}
+
+	firstParam := params[0]
+	if firstParam.Type() != SymbolExpr {
+		return nil, fmt.Errorf("First argument of defn must be a symbol")
+	}
+
+	secondParam := params[1]
+	if secondParam.Type() != ListExpr {
+		return nil, fmt.Errorf("Second argument of defn must be a list of arguments")
+	}
+
+	fLst := secondParam.(*ListExpression)
+	var fParams []string
+	for _, lstItem := range fLst.Expressions {
+		if lstItem.Type() != SymbolExpr {
+			return nil, fmt.Errorf("Every item of defn second param must be a Symbol")
+		}
+
+		fParams = append(fParams, lstItem.Value())
+	}
+
+	fExp, err := createFunctionExpression(firstParam.Value(), map[int]*fnArity{
+		len(fLst.Expressions): {
+			parameters: fParams,
+			body:       params[2],
+		},
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = session.AddObject(firstParam.Value(), fExp)
+	if err != nil {
+		return nil, err
+	}
+
+	return fExp, nil
 }
 
 func __time(params []Expression, session *Session) (Expression, error) {

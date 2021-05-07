@@ -5,6 +5,7 @@ var BuiltIns = map[string]*BuiltInExpression{}
 func init() {
 	BuiltIns = map[string]*BuiltInExpression{
 		".__def":   {"Def", __def},
+		".__defn":  {"Defn", __defn},
 		".__quote": {"Quote", __quote},
 		".__let":   {"Let", __let},
 		".__type":  {"Type", __type},
@@ -33,8 +34,8 @@ func init() {
 }
 
 var builtinInjector = `
-	(.__def def .__def) (def quote .__quote) (def type .__type) (def let .__let)
-	(def fn .__fn) (def time .__time) (def progn .__progn)
+	(.__def def .__def) (def defn .__defn) (def quote .__quote) (def type .__type)
+	(def let .__let) (def fn .__fn) (def time .__time) (def progn .__progn)
 
 	(def + .__add) (def * .__mul) (def - .__sub) (def / .__div)
 	
@@ -48,4 +49,14 @@ var builtinInjector = `
 
 	(def Real True)
 	(def Feike False)
+
+	(def Nil ())
+`
+var functionInjector = `
+(defn test (name expected result)
+	(if (= expected result)
+		(println "PASS:" name)
+		(progn
+			(println "FAIL:" name)
+			(println "` + "\u200e" + `  └─ Value {" (str result) "} doesn't equal expected result {" (str expected) "}."))))
 `

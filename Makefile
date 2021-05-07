@@ -9,6 +9,9 @@ repl:
 build:
 	@go build $(ldflags) -o milho ./cli/*.go
 
+install:
+	@cp milho /usr/bin/milho
+
 wasm:
 	@GOOS=js GOARCH=wasm go build $(ldflags) -o web/wasm/milho.wasm web/go/milho.go
 

@@ -78,7 +78,18 @@ func evaluateList(expr Expression, session *Session) (Expression, error) {
 func evaluateUserFunction(fn *FunctionExpression, params []Expression, session *Session) (Expression, error) {
 	arity := fn.Arities[len(params)]
 	if arity == nil {
-		return nil, fmt.Errorf("Wrong number of args passed to function %s", fn.Value())
+		var sArity *fnArity
+		for _, arity := range fn.Arities {
+			if arity.hasVariadic {
+				sArity = arity
+			}
+		}
+
+		if sArity == nil {
+			return nil, fmt.Errorf("Wrong number of args passed to function %s", fn.Value())
+		}
+
+		arity = sArity
 	}
 
 	var objs []*Object

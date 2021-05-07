@@ -18,7 +18,7 @@ func CreateSession(node *parser.Node) (*Session, error) {
 	sess := &Session{
 		SyntaxTree: node,
 	}
-	tokens, _ := tokenizer.Tokenize(builtinInjector)
+	tokens, _ := tokenizer.Tokenize(builtinInjector + functionInjector)
 	nodes, _ := parser.Parse(tokens)
 
 	RunFromSession(nodes, sess)
