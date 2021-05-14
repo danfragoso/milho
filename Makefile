@@ -1,5 +1,6 @@
 git_revision != git log -1 --pretty="%h_%ad" --date=short
 ldflags := -ldflags "-X 'github.com/danfragoso/milho.version=$(git_revision)'"
+pwd != pwd
 
 all: test
 
@@ -15,7 +16,13 @@ install:
 wasm:
 	@GOOS=js GOARCH=wasm go build $(ldflags) -o web/wasm/milho.wasm web/go/milho.go
 
-test: test_tokenizer test_parser test_interpreter test_milho
+test_spec:
+	@make build
+	@git clone https://github.com/milho-lang/tests
+	@cd tests && ./run $(pwd)/milho
+	@rm -rf tests
+
+test: test_tokenizer test_parser test_interpreter test_milho test_spec
 
 test_tokenizer:
 	@echo "Testing tokenizer...\n"
