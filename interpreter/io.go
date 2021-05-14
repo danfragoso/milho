@@ -2,7 +2,6 @@ package interpreter
 
 import (
 	"fmt"
-	"strings"
 )
 
 func resolveTypedExpression(exprType ExpressionType, expr Expression, session *Session) (Expression, error) {
@@ -54,7 +53,7 @@ func __print(params []Expression, session *Session) (Expression, error) {
 		}
 
 		if param.Type() == StringExpr {
-			fmt.Print(strings.Trim(param.Value(), "\"") + " ")
+			fmt.Print(param.Value()[1:len(param.Value())-1] + " ")
 		} else {
 			fmt.Print(param.Value() + " ")
 		}
@@ -72,7 +71,7 @@ func __println(params []Expression, session *Session) (Expression, error) {
 		}
 
 		if param.Type() == StringExpr {
-			fmt.Print(strings.Trim(param.Value(), "\"") + " ")
+			fmt.Print(param.Value()[1:len(param.Value())-1] + " ")
 		} else {
 			fmt.Print(param.Value() + " ")
 		}

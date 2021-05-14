@@ -24,6 +24,14 @@ func (src *Source) CurrChar() rune {
 	return NULL_CHAR
 }
 
+func (src *Source) PreviousChar() rune {
+	if src.Index-1 >= 0 {
+		return src.Value[src.Index-1]
+	}
+
+	return NULL_CHAR
+}
+
 func (src *Source) NextChar() rune {
 	src.Index++
 	if src.Index < src.Length {

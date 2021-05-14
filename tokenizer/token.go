@@ -43,7 +43,7 @@ func generateToken(rawToken string) (*Token, error) {
 	case Invalid:
 		return nil, fmt.Errorf("invalid token '%s'", rawToken)
 	case String:
-		rawToken = strings.Trim(rawToken, "\"")
+		rawToken = strings.ReplaceAll(rawToken[1:len(rawToken)-1], "\\\"", "\"")
 	}
 
 	return &Token{

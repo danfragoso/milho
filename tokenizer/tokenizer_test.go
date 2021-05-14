@@ -216,9 +216,13 @@ func Test_session_fn(t *testing.T) {
 func Test_string(t *testing.T) {
 	tokens, err := Tokenize(`
 		(def lang "milho")
-		(def food (str lang " cozido na agua"))
+		(def food (str lang " cozido na \"agua"))
 		(prn food)
 	`)
+
+	for _, tok := range tokens {
+		fmt.Println(tok)
+	}
 
 	if err != nil {
 		t.Error(err)

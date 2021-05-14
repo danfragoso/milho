@@ -17,6 +17,10 @@ func isDoubleQuote(r rune) bool {
 	return r == '"'
 }
 
+func isBackslash(r rune) bool {
+	return r == '\\'
+}
+
 func isParenthesis(r rune) bool {
 	switch r {
 	case '(', ')':

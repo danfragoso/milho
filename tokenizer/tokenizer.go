@@ -18,13 +18,13 @@ func Tokenize(rawString string) ([]*Token, error) {
 			tokenBuffer = string(currentChar)
 		} else {
 			for openString || !isWhiteSpace(currentChar) {
-				if isDoubleQuote(currentChar) {
+				if isDoubleQuote(currentChar) && !isBackslash(s.PreviousChar()) {
 					openString = !openString
 				}
 
 				tokenBuffer += string(currentChar)
 
-				if isParenthesis(s.PeekNextChar()) {
+				if isParenthesis(s.PeekNextChar()) && !openString {
 					break
 				}
 
