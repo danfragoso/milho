@@ -377,7 +377,7 @@ func Test_cmp(t *testing.T) {
 		t.Errorf("Wrong expression value, expected false got true")
 	}
 
-	src = "(= 20 20 20 defn)"
+	src = "(= 20 20 20 ddefn)"
 	fmt.Println(src)
 	tokens, err = tokenizer.Tokenize(src)
 	if err != nil {
