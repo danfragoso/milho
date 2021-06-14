@@ -61,6 +61,11 @@ func __let(params []Expression, session *Session) (Expression, error) {
 			return nil, err
 		}
 
+		foundObj := findObject(objs, key.Value())
+		if foundObj != nil {
+			return nil, fmt.Errorf("Can't redeclare variables, '%s' is already defined as '%s'", key.Value(), foundObj.value.Value())
+		}
+
 		objs = append(objs, &Object{
 			val, key.Value(),
 		})
