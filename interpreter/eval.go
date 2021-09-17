@@ -56,13 +56,21 @@ func evaluateList(expr Expression, session *Session) (Expression, error) {
 	}
 
 	firstExpr := expressions[0]
-	if firstExpr.Type() != SymbolExpr {
-		return nil, fmt.Errorf("%s can't be a function", firstExpr.Value())
+	if firstExpr.Type() == ListExpr {
+		var err error
+		firstExpr, err = evaluate(firstExpr, session)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	obj, err := session.FindObject(firstExpr.Value())
-	if err != nil {
-		return nil, err
+	var obj Expression
+	var err error
+	if firstExpr.Type() != FunctionExpr {
+		obj, err = session.FindObject(firstExpr.Value())
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	switch obj.Type() {

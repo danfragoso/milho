@@ -12,7 +12,7 @@ import (
 type ExpressionType int
 
 func (e ExpressionType) String() string {
-	return [...]string{"Nil", "Number", "Boolean", "Symbol", "FunctionExpr", "String", "Byte", "List", "BuiltIn"}[e]
+	return [...]string{"Nil", "Number", "Boolean", "Symbol", "FunctionExpr", "String", "Byte", "List", "ErrorExpr", "BuiltIn"}[e]
 }
 
 const (
@@ -24,6 +24,7 @@ const (
 	StringExpr
 	ByteExpr
 	ListExpr
+	ErrorExpr
 	BuiltInExpr
 )
 
@@ -195,6 +196,36 @@ func (e *ByteExpression) Parent() Expression {
 }
 
 func (e *ByteExpression) setParent(parent Expression) {
+	e.ParentExpr = parent
+}
+
+// Error Expression
+func createErrorExpression(code, message string) (*ErrorExpression, error) {
+	return &ErrorExpression{
+		Code:    code,
+		Message: message,
+	}, nil
+}
+
+type ErrorExpression struct {
+	ParentExpr Expression
+	Code       string
+	Message    string
+}
+
+func (e *ErrorExpression) Type() ExpressionType {
+	return ErrorExpr
+}
+
+func (e *ErrorExpression) Value() string {
+	return fmt.Sprintf("Error#%s", e.Code)
+}
+
+func (e *ErrorExpression) Parent() Expression {
+	return e.ParentExpr
+}
+
+func (e *ErrorExpression) setParent(parent Expression) {
 	e.ParentExpr = parent
 }
 

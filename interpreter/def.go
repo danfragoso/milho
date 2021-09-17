@@ -227,3 +227,16 @@ func __progn(params []Expression, session *Session) (Expression, error) {
 
 	return res, nil
 }
+
+func __eval(params []Expression, session *Session) (Expression, error) {
+	if len(params) != 1 {
+		return nil, fmt.Errorf("Wrong number of args '%d' passed to eval, only one is allowed", len(params))
+	}
+
+	param, err := evaluate(params[0], session)
+	if err != nil {
+		return nil, err
+	}
+
+	return evaluate(param, session)
+}

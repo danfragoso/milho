@@ -12,6 +12,7 @@ func init() {
 		".__fn":    {"Fn", __fn},
 		".__time":  {"Time", __time},
 		".__progn": {"Progn", __progn},
+		".__eval":  {"Eval", __eval},
 
 		".__add": {"Add", __add},
 		".__mul": {"Mul", __mul},
@@ -28,6 +29,8 @@ func init() {
 		".__prn":     {"Prn", __prn},
 		".__print":   {"Print", __print},
 		".__println": {"Println", __println},
+
+		".__list": {"List", __list},
 
 		".__str": {"Str", __str},
 	}
@@ -51,12 +54,19 @@ var builtinInjector = `
 	(def Feike False)
 
 	(def Nil ())
+
+	(def list .__list)
 `
 var functionInjector = `
+(defn fat (n)
+	(if (= n 0)
+		1
+		(* n (fat (- n 1)))))
+
 (defn test (name expected result)
 	(if (= expected result)
 		(println "PASS:" name)
 		(progn
 			(println "FAIL:" name)
-			(println "` + "\u200e" + `  └─ Value {" (str result) "} doesn't equal expected result {" (str expected) "}."))))
+			(println "` + "\u200e" + ` └─ Value {" (str result) "} doesn't equal expected result {" (str expected) "}."))))
 `

@@ -2,6 +2,7 @@ package milho
 
 import (
 	"fmt"
+	"runtime"
 
 	"github.com/danfragoso/milho/interpreter"
 	"github.com/danfragoso/milho/parser"
@@ -11,7 +12,7 @@ import (
 var version string
 
 func Version() string {
-	return version
+	return fmt.Sprintf("%s_%s:%s", version, runtime.GOARCH, runtime.GOOS)
 }
 
 func Run(src string) string {

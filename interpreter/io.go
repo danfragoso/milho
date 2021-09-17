@@ -80,3 +80,11 @@ func __println(params []Expression, session *Session) (Expression, error) {
 	fmt.Println("")
 	return createNilExpression()
 }
+
+func __list(params []Expression, session *Session) (Expression, error) {
+	for _, object := range session.Objects {
+		fmt.Printf("%s [%s:%s]\n", object.Identifier(), object.value.Value(), object.value.Type())
+	}
+
+	return createNilExpression()
+}
