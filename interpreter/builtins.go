@@ -32,7 +32,14 @@ func init() {
 
 		".__list": {"List", __list},
 
+		".__asList": {"AsList", __asList},
+
 		".__str": {"Str", __str},
+
+		".__createSocket": {"CreateSocket", __createSocket},
+		".__writeSocket":  {"WriteSocket", __writeSocket},
+
+		".__import": {"Import", __import},
 	}
 }
 
@@ -56,6 +63,10 @@ var builtinInjector = `
 	(def Nil ())
 
 	(def list .__list)
+
+	(def asList .__asList)
+
+	(def import .__import)
 `
 var functionInjector = `
 (defn fat (n)

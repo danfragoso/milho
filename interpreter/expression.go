@@ -3,6 +3,7 @@ package interpreter
 import (
 	"encoding/hex"
 	"fmt"
+	"net"
 	"strconv"
 	"strings"
 
@@ -12,7 +13,7 @@ import (
 type ExpressionType int
 
 func (e ExpressionType) String() string {
-	return [...]string{"Nil", "Number", "Boolean", "Symbol", "FunctionExpr", "String", "Byte", "List", "ErrorExpr", "BuiltIn"}[e]
+	return [...]string{"Nil", "Number", "Boolean", "Symbol", "Socket", "FunctionExpr", "String", "Byte", "List", "ErrorExpr", "BuiltIn"}[e]
 }
 
 const (
@@ -20,6 +21,7 @@ const (
 	NumberExpr
 	BooleanExpr
 	SymbolExpr
+	SocketExpr
 	FunctionExpr
 	StringExpr
 	ByteExpr
@@ -334,6 +336,65 @@ func (e *SymbolExpression) Parent() Expression {
 }
 
 func (e *SymbolExpression) setParent(parent Expression) {
+	e.ParentExpr = parent
+}
+
+// Symbol Expression
+type socketType string
+
+const (
+	ClientSocket socketType = "CLIENT"
+	ServerSocket socketType = "SERVER"
+)
+
+type socketProtocol string
+
+const (
+	TCPSocket socketProtocol = "TCP"
+	UDPSocket socketProtocol = "UDP"
+)
+
+func createSocketExpression(kind socketType, protocol socketProtocol, port int) (*SocketExpression, error) {
+	var conn net.Conn
+
+	if kind == ClientSocket {
+		var err error
+		conn, err = net.Dial(strings.ToLower(string(protocol)), fmt.Sprintf("localhost:%d", port))
+		if err != nil {
+			return nil, fmt.Errorf("Error creating %s Client socket: %s", protocol, err)
+		}
+	}
+
+	return &SocketExpression{
+		Kind:     kind,
+		Protocol: protocol,
+		Port:     port,
+
+		conn: conn,
+	}, nil
+}
+
+type SocketExpression struct {
+	ParentExpr Expression
+	Kind       socketType
+	Protocol   socketProtocol
+	conn       net.Conn
+	Port       int
+}
+
+func (e *SocketExpression) Type() ExpressionType {
+	return SocketExpr
+}
+
+func (e *SocketExpression) Value() string {
+	return fmt.Sprintf("Socket@%s:%s:%d", e.Kind, e.Protocol, e.Port)
+}
+
+func (e *SocketExpression) Parent() Expression {
+	return e.ParentExpr
+}
+
+func (e *SocketExpression) setParent(parent Expression) {
 	e.ParentExpr = parent
 }
 

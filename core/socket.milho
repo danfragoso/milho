@@ -1,0 +1,15 @@
+(def createSocket .__createSocket)
+
+(defn createUDPClient (port)
+	(createSocket 'CLIENT 'UDP port))
+
+(defn createUDPServer (port)
+	(createSocket 'SERVER 'UDP port))
+
+(defn createTCPCLIENT (port)
+	(createSocket 'CLIENT 'TCP port))
+
+(defn createTCPServer (port)
+	(createSocket 'SERVER 'TCP port))
+
+(def writeSocket .__writeSocket)
