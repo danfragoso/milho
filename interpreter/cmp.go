@@ -3,6 +3,8 @@ package interpreter
 import (
 	"errors"
 	"fmt"
+	"os/exec"
+	"strings"
 )
 
 func __eq(params []Expression, session *Session) (Expression, error) {
@@ -35,6 +37,25 @@ func __eq(params []Expression, session *Session) (Expression, error) {
 	return createBooleanExpression(result)
 }
 
+func __negate(params []Expression, session *Session) (Expression, error) {
+	var err error
+	if len(params) != 1 {
+		return nil, errors.New("Wrong number of args '0' passed to cmp:[!] function")
+	}
+
+	param := params[0]
+	param, err = evaluate(param, session)
+	if err != nil {
+		return nil, err
+	}
+
+	if param.Type() != BooleanExpr {
+		return nil, fmt.Errorf("Wrong type '%s' passed to cmp:[!] function", param.Type())
+	}
+
+	return createBooleanExpression(!param.(*BooleanExpression).Val)
+}
+
 func __if(params []Expression, session *Session) (Expression, error) {
 	var err error
 
@@ -61,4 +82,35 @@ func __if(params []Expression, session *Session) (Expression, error) {
 	}
 
 	return evaluate(params[1], session)
+}
+
+func __exec(params []Expression, session *Session) (Expression, error) {
+	var err error
+
+	if len(params) < 1 {
+		return nil, fmt.Errorf("Too few args '%d' passed to exec function", len(params))
+	}
+
+	for _, param := range params {
+		param, err = evaluate(param, session)
+		if err != nil {
+			return nil, err
+		}
+
+		if param.Type() != StringExpr {
+			return nil, fmt.Errorf("Wrong type '%s' passed to exec function, expected String", param.Type())
+		}
+	}
+
+	cmd := exec.Command(params[0].(*StringExpression).Val)
+	for _, param := range params[1:] {
+		cmd.Args = append(cmd.Args, param.(*StringExpression).Val)
+	}
+
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("Error executing command '%s': %s", cmd.Args, err)
+	}
+
+	return createStringExpression(strings.Trim(string(out), "\n"))
 }

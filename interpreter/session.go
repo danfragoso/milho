@@ -11,7 +11,8 @@ type Session struct {
 	ExprTree   Expression
 	SyntaxTree *parser.Node
 
-	Objects []*Object
+	Objects   []*Object
+	CallStack []string
 }
 
 func CreateSession(node *parser.Node) (*Session, error) {

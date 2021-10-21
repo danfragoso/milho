@@ -75,8 +75,10 @@ func evaluateList(expr Expression, session *Session) (Expression, error) {
 
 	switch obj.Type() {
 	case BuiltInExpr:
+		session.CallStack = append(session.CallStack, obj.Value())
 		return obj.(*BuiltInExpression).Function(expressions[1:], session)
 	case FunctionExpr:
+		session.CallStack = append(session.CallStack, obj.Value())
 		return evaluateUserFunction(obj.(*FunctionExpression), expressions[1:], session)
 	}
 

@@ -1,0 +1,14 @@
+(defn h (tag content)
+  (str "<" tag ">" content "</" tag ">"))
+
+(defn div (children)
+  (h "div" (str children)))
+
+(defn span (children)
+  (h "span" (str children)))
+
+(defn p (children)
+  (h "p" (str children)))
+
+
+

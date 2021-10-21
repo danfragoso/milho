@@ -220,7 +220,7 @@ func (e *ErrorExpression) Type() ExpressionType {
 }
 
 func (e *ErrorExpression) Value() string {
-	return fmt.Sprintf("Error#%s", e.Code)
+	return fmt.Sprintf("%s (%s)", e.Code, e.Message)
 }
 
 func (e *ErrorExpression) Parent() Expression {

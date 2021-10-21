@@ -9,21 +9,24 @@ import (
 	"github.com/danfragoso/milho/tokenizer"
 )
 
+var MILHO_STD_PATH = "./core/"
+
 func __import(params []Expression, session *Session) (Expression, error) {
-	if len(params) != 1 {
-		return nil, fmt.Errorf("import: expected 1 parameter, got %d, parameters must be the path to a .milho file", len(params))
+	if len(params) == 0 {
+		return nil, fmt.Errorf("import: expected at least 1 parameter, got %d, parameters must be the path to a .milho file or a symbol for a relative module or installed at MILHO_STD_PATH", len(params))
 	}
 
-	path, err := evaluate(params[0], session)
-	if err != nil {
-		return nil, err
+	path := params[0]
+	pathStr := ""
+
+	if path.Type() == StringExpr {
+		pathStr = strings.Trim(path.Value(), "\"")
+	} else if path.Type() == SymbolExpr {
+		pathStr = MILHO_STD_PATH + path.Value() + ".milho"
+	} else {
+		return nil, fmt.Errorf("import: first param to import must be either a symbol or a string got: %s", path.Value())
 	}
 
-	if path.Type() != StringExpr {
-		return nil, fmt.Errorf("import: expected path to be a string, got %s", path.Type())
-	}
-
-	pathStr := strings.Trim(path.Value(), "\"")
 	src, err := ioutil.ReadFile(pathStr)
 	if err != nil {
 		return nil, fmt.Errorf("import: failed to import module %s: %s", path.Value(), err)

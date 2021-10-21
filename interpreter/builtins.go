@@ -19,8 +19,9 @@ func init() {
 		".__sub": {"Sub", __sub},
 		".__div": {"Div", __div},
 
-		".__eq": {"Eq", __eq},
-		".__if": {"If", __if},
+		".__eq":     {"Eq", __eq},
+		".__negate": {"Negate", __negate},
+		".__if":     {"If", __if},
 
 		".__car": {"Car", __car},
 		".__cdr": {"Cdr", __cdr},
@@ -30,16 +31,20 @@ func init() {
 		".__print":   {"Print", __print},
 		".__println": {"Println", __println},
 
-		".__list": {"List", __list},
+		".__list": {"List () -> Nil", __list},
+		".__cons": {"Cons", __cons},
+		".__map":  {"Map", __map},
 
-		".__asList": {"AsList", __asList},
+		".__split": {"Split", __split},
+		".__join":  {"Join (stringList:(String) joiner:String) -> String", __join},
+		".__str":   {"Str (?params:...) -> String", __str},
 
-		".__str": {"Str", __str},
+		".__exec": {"Exec (command:String ?params:...String) -> String", __exec},
 
 		".__createSocket": {"CreateSocket", __createSocket},
 		".__writeSocket":  {"WriteSocket", __writeSocket},
 
-		".__import": {"Import", __import},
+		".__import": {"Import (module:String|Symbol ?namespace:Symbol) -> Nil", __import},
 	}
 }
 
@@ -48,13 +53,13 @@ var builtinInjector = `
 	(def let .__let) (def fn .__fn) (def time .__time) (def progn .__progn)
 
 	(def + .__add) (def * .__mul) (def - .__sub) (def / .__div)
-	
-	(def = .__eq) (def if .__if)
-	
-	(def car .__car) (def cdr .__cdr)
+
+	(def = .__eq) (def ! .__negate) (def if .__if) (def map .__map)
+
+	(def car .__car) (def cdr .__cdr) (def cons .__cons)
 
 	(def pr .__pr) (def prn .__prn) (def print .__print) (def println .__println)
-	
+
 	(def str .__str)
 
 	(def Real True)
@@ -64,11 +69,26 @@ var builtinInjector = `
 
 	(def list .__list)
 
-	(def asList .__asList)
+	(def split .__split)
+	(def join .__join)
+
+	(def exec .__exec)
 
 	(def import .__import)
 `
 var functionInjector = `
+(defn Number? (n)
+	(= (type n) 'Number))
+
+(defn String? (n)
+	(= (type n) 'String))
+
+(defn Bool? (n)
+	(= (type n) 'Bool))
+
+(defn Symbol? (n)
+	(= (type n) 'Symbol))
+
 (defn fat (n)
 	(if (= n 0)
 		1

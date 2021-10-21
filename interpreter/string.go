@@ -24,9 +24,9 @@ func __str(params []Expression, session *Session) (Expression, error) {
 	return createStringExpression(resultStr)
 }
 
-func __asList(params []Expression, session *Session) (Expression, error) {
-	if len(params) != 1 {
-		return nil, fmt.Errorf("asList: expected 1 parameter, got %d, parameter must be a string", len(params))
+func __split(params []Expression, session *Session) (Expression, error) {
+	if len(params) != 2 {
+		return nil, fmt.Errorf("split: expected 2 parameter, got %d, parameters must be string and separator", len(params))
 	}
 
 	str, err := evaluate(params[0], session)
@@ -35,19 +35,67 @@ func __asList(params []Expression, session *Session) (Expression, error) {
 	}
 
 	if str.Type() != StringExpr {
-		return nil, fmt.Errorf("asList: expected first parameter to be a string, got %s", str.Type())
+		return nil, fmt.Errorf("split: expected first parameter to be a string, got %s", str.Type())
+	}
+
+	sep, err := evaluate(params[1], session)
+	if err != nil {
+		return nil, err
+	}
+
+	if str.Type() != StringExpr {
+		return nil, fmt.Errorf("split: expected second parameter to be a string, got %s", str.Type())
 	}
 
 	exprs := []Expression{}
 	strValue := strings.Trim(str.Value(), "\"")
-	for _, c := range strValue {
-		s, err := createStringExpression(string(c))
+	sepValue := strings.Trim(sep.Value(), "\"")
+
+	strs := strings.Split(strValue, sepValue)
+	for _, st := range strs {
+		s, err := createStringExpression(st)
 		if err != nil {
-			return nil, fmt.Errorf("asList: %s", err)
+			return nil, fmt.Errorf("split: error creating string expression from %s: %s", st, err)
 		}
 
 		exprs = append(exprs, s)
 	}
 
 	return createListExpression(exprs...)
+}
+
+func __join(params []Expression, session *Session) (Expression, error) {
+	if len(params) != 2 {
+		return nil, fmt.Errorf("join: expected 2 parameter, got %d, parameters must be list of strings and separator", len(params))
+	}
+
+	lst, err := evaluate(params[0], session)
+	if err != nil {
+		return nil, err
+	}
+
+	if lst.Type() != ListExpr {
+		return nil, fmt.Errorf("join: expected first parameter to be a list, got %s", lst.Type())
+	}
+
+	var strList []string
+	for _, expr := range lst.(*ListExpression).Expressions {
+		if expr.Type() != StringExpr {
+			return nil, fmt.Errorf("join: expected list to contain only strings, got %s", expr.Type())
+		}
+
+		strList = append(strList, expr.(*StringExpression).Val)
+	}
+
+	sep, err := evaluate(params[1], session)
+	if err != nil {
+		return nil, err
+	}
+
+	if sep.Type() != StringExpr {
+		return nil, fmt.Errorf("join: expected second parameter to be a string, got %s", sep.Type())
+	}
+
+	sepValue := strings.Trim(sep.Value(), "\"")
+	return createStringExpression(strings.Join(strList, sepValue))
 }

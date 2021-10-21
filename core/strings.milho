@@ -1,0 +1,4 @@
+(defn replaceChar (st old new)
+  (join (map (split st "")
+    (fn (char)
+      (if (= char old) new char))) ""))

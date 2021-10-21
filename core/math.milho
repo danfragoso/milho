@@ -1,0 +1,63 @@
+(defn max (n1 n2)
+  (if (> n1 n2) n1 n2))
+
+(defn min (n1 n2)
+  (if (< n1 n2) n1 n2))
+
+(defn abs (n)
+  (if (> n 0) n (- n)))
+
+(defn inc (n)
+  (+ n 1))
+
+(defn dec (n)
+  (- n 1))
+
+(defn modulo (n m)
+  (if (= m 0)
+      (throw 'modulo-zero m)
+    (let ((r (remainder n m)))
+      (if (< r 0)
+          (+ r m)
+        r))))
+
+(defn modulo-zero (m)
+  (throw 'modulo-zero m))
+
+(defn modulo-non-zero (n m)
+  (remainder n m))
+
+(defn quotient (n m)
+  (/ n m))
+
+(defn quotient-zero (m)
+  (throw 'quotient-zero m))
+
+(defn quotient-non-zero (n m)
+  (/ n m))
+
+(defn quotient-and-remainder (n m)
+  (let ((q (/ n m))
+        (r (remainder n m)))
+    (if (< r 0)
+        (list (- q 1) (+ r m))
+      (list q r))))
+
+(defn quotient-and-remainder-zero (m)
+  (throw 'quotient-and-remainder-zero m))
+
+(defn quotient-and-remainder-non-zero (n m)
+  (let ((q (/ n m))
+        (r (remainder n m)))
+    (if (< r 0)
+        (list (- q 1) (+ r m))
+      (list q r))))
+
+(defn gcd (n1 n2)
+  (if (= n1 0)
+      (if (= n2 0)
+          0
+        n2)
+    (if (= n2 0)
+        n1
+      (gcd (modulo n1 n
