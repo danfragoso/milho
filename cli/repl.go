@@ -26,10 +26,15 @@ func initREPL() {
 			results := milho.RunSession(cmdBuffer, sess)
 			cmdBuffer = ""
 
-			for _, result := range strings.Split(results, "\n") {
+			for i, result := range strings.Split(results, "\n") {
 				r := strings.TrimSpace(result)
 				if r != "" {
-					fmt.Print("🍿 " + r + "\n")
+					prefix := ""
+					if i == 1 {
+						prefix = "🍿 "
+					}
+
+					fmt.Print(prefix + r + "\n")
 				}
 			}
 

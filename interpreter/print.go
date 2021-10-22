@@ -7,6 +7,9 @@ import (
 func resolveTypedExpression(exprType ExpressionType, expr Expression, session *Session) (Expression, error) {
 	var err error
 	expr, err = evaluate(expr, session)
+	if err != nil {
+		return nil, err
+	}
 
 	if expr.Type() != exprType {
 		return nil, fmt.Errorf("expected resolved expression %s type to be %s, instead got %s", expr.Value(), exprType, expr.Type())

@@ -73,16 +73,22 @@ func evaluateList(expr Expression, session *Session) (Expression, error) {
 		}
 	}
 
+	var result Expression
+	session.CallStack.Push(expressions)
+
 	switch obj.Type() {
 	case BuiltInExpr:
-		session.CallStack = append(session.CallStack, obj.Value())
-		return obj.(*BuiltInExpression).Function(expressions[1:], session)
+		result, err = obj.(*BuiltInExpression).Function(expressions[1:], session)
 	case FunctionExpr:
-		session.CallStack = append(session.CallStack, obj.Value())
-		return evaluateUserFunction(obj.(*FunctionExpression), expressions[1:], session)
+		result, err = evaluateUserFunction(obj.(*FunctionExpression), expressions[1:], session)
 	}
 
-	return nil, fmt.Errorf("undefined function '%s'", firstExpr.Value())
+	if err != nil {
+		return nil, err
+	}
+
+	session.CallStack.Pop()
+	return result, nil
 }
 
 func evaluateUserFunction(fn *FunctionExpression, params []Expression, session *Session) (Expression, error) {

@@ -1,6 +1,8 @@
 package interpreter
 
 import (
+	"fmt"
+
 	"github.com/danfragoso/milho/parser"
 )
 
@@ -14,7 +16,7 @@ func RunFromSession(nodes []*parser.Node, session *Session) ([]Expression, error
 			return expressions, err
 		}
 
-		expr, err := createExpressionTree(node)
+		expr, err := CreateExpressionTree(node)
 		if err != nil {
 			return nil, err
 		}
@@ -27,7 +29,9 @@ func RunFromSession(nodes []*parser.Node, session *Session) ([]Expression, error
 	for _, expr := range expressions {
 		evaluated, err := evaluate(expr, session)
 		if err != nil {
-			return nil, err
+			stackTrace := session.CallStack.ToString(err)
+			session.CallStack = &CallStack{}
+			return nil, fmt.Errorf(stackTrace)
 		}
 
 		evaluatedExpressions = append(evaluatedExpressions, evaluated)
@@ -52,7 +56,7 @@ func Run(nodes []*parser.Node) ([]Expression, error) {
 			return expressions, err
 		}
 
-		expr, err := createExpressionTree(node)
+		expr, err := CreateExpressionTree(node)
 		if err != nil {
 			return nil, err
 		}
@@ -65,7 +69,9 @@ func Run(nodes []*parser.Node) ([]Expression, error) {
 	for _, expr := range expressions {
 		evaluated, err := evaluate(expr, session)
 		if err != nil {
-			return nil, err
+			stackTrace := session.CallStack.ToString(err)
+			session.CallStack = &CallStack{}
+			return nil, fmt.Errorf(stackTrace)
 		}
 
 		evaluatedExpressions = append(evaluatedExpressions, evaluated)

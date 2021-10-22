@@ -12,12 +12,74 @@ type Session struct {
 	SyntaxTree *parser.Node
 
 	Objects   []*Object
-	CallStack []string
+	CallStack *CallStack
+}
+
+type CallStack struct {
+	expressions [][]Expression
+}
+
+func (s *CallStack) IsEmpty() bool {
+	return len(s.expressions) == 0
+}
+
+func (s *CallStack) Push(params []Expression) {
+	s.expressions = append(s.expressions, params)
+}
+
+func (s *CallStack) Pop() {
+	if s.IsEmpty() {
+		return
+	} else {
+		index := len(s.expressions) - 1
+		s.expressions = s.expressions[:index]
+	}
+}
+
+func spaceMul(space string, mul int) string {
+	fullSpace := space
+	for i := 0; i < mul; i++ {
+		fullSpace += space
+	}
+
+	return fullSpace
+}
+
+func callString(call []Expression) string {
+	callStr := ""
+	for i, expr := range call {
+		callStr += expr.Value()
+		if len(call) != i+1 {
+			callStr += " "
+		}
+	}
+
+	return callStr
+}
+
+func (s *CallStack) ToString(e error) string {
+	callStack := "\n"
+	if len(s.expressions) == 0 {
+		return e.Error()
+	}
+
+	for step, call := range s.expressions {
+		callStack += fmt.Sprintf("|%s (%s ", spaceMul("  ", step), callString(call))
+
+		if len(s.expressions) == (step + 1) {
+			callStack += fmt.Sprintf("\n|%s    Error@%s[%s]%s", spaceMul("  ", step), call[0].Value(), e.Error(), spaceMul(")", step))
+		}
+
+		callStack += "\n"
+	}
+
+	return callStack + "\n"
 }
 
 func CreateSession(node *parser.Node) (*Session, error) {
 	sess := &Session{
 		SyntaxTree: node,
+		CallStack:  &CallStack{},
 	}
 	tokens, _ := tokenizer.Tokenize(builtinInjector + functionInjector)
 	nodes, _ := parser.Parse(tokens)

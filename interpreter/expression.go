@@ -427,10 +427,10 @@ func (e *StringExpression) setParent(parent Expression) {
 }
 
 // Expression Tree
-func createExpressionTree(node *parser.Node) (Expression, error) {
+func CreateExpressionTree(node *parser.Node) (Expression, error) {
 	var expressions []Expression
 	for _, childNode := range node.Nodes {
-		expr, err := createExpressionTree(childNode)
+		expr, err := CreateExpressionTree(childNode)
 		if err != nil {
 			return nil, err
 		}
