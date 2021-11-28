@@ -1,5 +1,0 @@
-"Hello World"
-(def memes "tipos de carinhas")
-(print memes)
-(defn println (x y z) (print x))
-(println "Hello" "World" "!")
