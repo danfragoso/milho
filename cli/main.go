@@ -9,15 +9,7 @@ import (
 )
 
 func main() {
-	if len(os.Args) == 2 && os.Args[1] != "" {
-		file, err := ioutil.ReadFile(os.Args[1])
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		runFile(string(file))
-	} else if len(os.Args) > 2 && os.Args[1] == "-c" {
+	if len(os.Args) > 2 && os.Args[1] == "-c" {
 		file, err := ioutil.ReadFile(os.Args[2])
 		if err != nil {
 			fmt.Println(err)
@@ -25,6 +17,14 @@ func main() {
 		}
 
 		compileMilho(string(file))
+	} else if len(os.Args) >= 2 && os.Args[1] != "" {
+		file, err := ioutil.ReadFile(os.Args[1])
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		runFile(string(file))
 	} else {
 		initREPL()
 	}
