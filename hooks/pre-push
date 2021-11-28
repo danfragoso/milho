@@ -1,0 +1,19 @@
+#!/bin/milho
+
+(defn git-log (fmt)
+    (exec "git" "log" (str "--pretty=\"" fmt "\"") "-n1"))
+
+(def repo "git@github.com:milho-lang/milho-go.git")
+
+(println "milho-lang repo update - git hook")
+
+(def commit-hash (git-log "%H"))
+(def commit-author (git-log "%ae"))
+(def commit-subject (git-log "%s"))
+
+(println (str "Pushing commit " commit-hash))
+(println (str commit-subject " from " commit-author))
+
+(exec "git" "push" repo "--no-verify" "--force")
+
+(println "")
