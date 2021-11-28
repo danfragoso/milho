@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"fmt"
+	"strings"
 )
 
 func evaluate(expr Expression, session *Session) (Expression, error) {
@@ -36,6 +37,10 @@ func findExprObject(expr Expression, identifier string) *Object {
 
 func evaluateSymbol(expr Expression, session *Session) (Expression, error) {
 	symbol := expr.(*SymbolExpression)
+	if strings.HasPrefix(symbol.Identifier, "#!/") && strings.HasSuffix(symbol.Identifier, "milho") {
+		return createNilExpression()
+	}
+
 	obj, err := session.FindObject(symbol.Identifier)
 	if err != nil {
 		nObj := findExprObject(expr, symbol.Identifier)

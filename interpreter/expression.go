@@ -13,7 +13,7 @@ import (
 type ExpressionType int
 
 func (e ExpressionType) String() string {
-	return [...]string{"Nil", "Number", "Boolean", "Symbol", "Socket", "FunctionExpr", "String", "Byte", "List", "ErrorExpr", "BuiltIn"}[e]
+	return [...]string{"Nil", "Number", "Boolean", "Symbol", "Socket", "FunctionExpr", "String", "Byte", "List", "ErrorExpr", "BuiltIn", "StructExpr"}[e]
 }
 
 const (
@@ -28,6 +28,7 @@ const (
 	ListExpr
 	ErrorExpr
 	BuiltInExpr
+	StructExpr
 )
 
 type Expression interface {
@@ -423,6 +424,27 @@ func (e *StringExpression) Parent() Expression {
 }
 
 func (e *StringExpression) setParent(parent Expression) {
+	e.ParentExpr = parent
+}
+
+type StructExpression struct {
+	ParentExpr Expression
+	Val        *Struct
+}
+
+func (e *StructExpression) Type() ExpressionType {
+	return StructExpr
+}
+
+func (e *StructExpression) Value() string {
+	return fmt.Sprintf("\"%s\"", e.Val.String())
+}
+
+func (e *StructExpression) Parent() Expression {
+	return e.ParentExpr
+}
+
+func (e *StructExpression) setParent(parent Expression) {
 	e.ParentExpr = parent
 }
 

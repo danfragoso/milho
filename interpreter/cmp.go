@@ -91,6 +91,7 @@ func __exec(params []Expression, session *Session) (Expression, error) {
 		return nil, fmt.Errorf("Too few args '%d' passed to exec function", len(params))
 	}
 
+	eParams := []Expression{}
 	for _, param := range params {
 		param, err = evaluate(param, session)
 		if err != nil {
@@ -100,10 +101,12 @@ func __exec(params []Expression, session *Session) (Expression, error) {
 		if param.Type() != StringExpr {
 			return nil, fmt.Errorf("Wrong type '%s' passed to exec function, expected String", param.Type())
 		}
+
+		eParams = append(eParams, param)
 	}
 
-	cmd := exec.Command(params[0].(*StringExpression).Val)
-	for _, param := range params[1:] {
+	cmd := exec.Command(eParams[0].(*StringExpression).Val)
+	for _, param := range eParams[1:] {
 		cmd.Args = append(cmd.Args, param.(*StringExpression).Val)
 	}
 

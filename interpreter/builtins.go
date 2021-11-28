@@ -45,6 +45,10 @@ func init() {
 		".__writeSocket":  {"WriteSocket", __writeSocket},
 
 		".__import": {"Import (module:String|Symbol ?namespace:Symbol) -> Nil", __import},
+
+		".__sleep": {"Sleep (ms:Number) -> Nil", __sleep},
+
+		".__range": {"Range (min:Number max:Number) -> Nil", __range},
 	}
 }
 
@@ -75,6 +79,9 @@ var builtinInjector = `
 	(def exec .__exec)
 
 	(def import .__import)
+
+	(def sleep .__sleep)
+	(def range .__range)
 `
 var functionInjector = `
 (defn Number? (n)
