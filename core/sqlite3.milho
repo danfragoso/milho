@@ -1,0 +1,15 @@
+(defn sqlite3.sql (db-name query)
+  (exec "sqlite3" db-name query))
+
+(defn sqlite3.insert (db-name table-name data)
+  (progn
+    (def values (map data (fn (value) (str "\"" value "\""))))
+    (sqlite3.sql db-name (str "INSERT INTO " table-name " VALUES (" (join values ",") ")"))))
+
+(defn sqlite3.select (db-name table-name)
+  (map (split (sqlite3.sql db-name (str "SELECT * FROM " table-name)) "\n")
+    (fn (row) (split row "|"))))
+
+(defn sqlite3.tables (db-name)
+  (exec "sqlite3" db-name ".tables"))
+
