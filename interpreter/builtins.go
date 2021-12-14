@@ -49,6 +49,7 @@ func init() {
 		".__sleep": {"Sleep (ms:Number) -> Nil", __sleep},
 
 		".__range": {"Range (min:Number max:Number) -> Nil", __range},
+		".__exit": {"Exit (?code:Number) -> Nil", __exit},
 	}
 }
 
@@ -65,7 +66,7 @@ var builtinInjector = `
 	(def pr .__pr) (def prn .__prn) (def print .__print) (def println .__println)
 
 	(def str .__str)
-
+	(def exit .__exit)
 	(def Real True)
 	(def Feike False)
 
