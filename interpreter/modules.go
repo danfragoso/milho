@@ -22,6 +22,20 @@ func milhoPath() string {
 	return MILHO_STD_PATH
 }
 
+func __exit(params []Expression, session * Session) (Expression, error) {
+	code := int64(0)
+	if len(params) == 1 {
+		if params[0].Type() != NumberExpr {
+			return nil, fmt.Errorf("optional parameter code must be of type Number")
+		}
+
+		code = params[0].(*NumberExpression).Denominator
+	}
+
+	os.Exit(int(code))
+	return createNilExpression()
+}
+
 func __import(params []Expression, session *Session) (Expression, error) {
 	if len(params) == 0 {
 		return nil, fmt.Errorf("expected at least 1 parameter, got %d, parameters must be the path to a .milho file or a symbol for a relative module or installed at MILHO_STD_PATH", len(params))

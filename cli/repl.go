@@ -14,6 +14,7 @@ func initREPL() {
 	fmt.Printf("Milho REPL 🌽 v.%s\n", milho.Version())
 	fmt.Printf("Danilo Fragoso <danilo.fragoso@gmail.com> - 2021\n\n")
 	fmt.Printf("Type (list) to see all the available definitions!\n")
+	fmt.Println("Use (exit) or ctrl+c to exit\n")
 
 	prompt()
 
