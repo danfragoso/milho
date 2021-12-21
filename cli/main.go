@@ -4,19 +4,26 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/danfragoso/milho"
 )
 
 func main() {
-	if len(os.Args) > 2 && os.Args[1] == "-c" {
+	if len(os.Args) > 2 && strings.HasPrefix(os.Args[1], "-c") {
 		file, err := ioutil.ReadFile(os.Args[2])
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		compileMilho(string(file))
+		target := strings.Split(os.Args[1], "-c")[1]
+		err = compileMilho(string(file), target)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
 	} else if len(os.Args) >= 2 && os.Args[1] != "" {
 		file, err := ioutil.ReadFile(os.Args[1])
 		if err != nil {

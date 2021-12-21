@@ -103,6 +103,30 @@ func TranspileToJS(src string) (string, error) {
 	return combinedSrc, nil
 }
 
+func TranspileToLLVM(src string) (string, error) {
+	tokens, err := tokenizer.Tokenize(src)
+	if err != nil {
+		return "", fmt.Errorf("Tokenization error: %s\n", err)
+	}
+
+	ast, err := parser.Parse(tokens)
+	if err != nil {
+		return "", fmt.Errorf("Parsing error: %s\n", err)
+	}
+
+	var combinedSrc string
+	for _, node := range ast {
+		tree, err := interpreter.CreateExpressionTree(node)
+		if err != nil {
+			return "", err
+		}
+
+		combinedSrc += compiler.TranspileLLVM(tree) + "\n"
+	}
+
+	return combinedSrc, nil
+}
+
 func CreateSession() *interpreter.Session {
 	sess, _ := interpreter.CreateSession(&parser.Node{})
 	return sess
