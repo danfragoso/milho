@@ -2,12 +2,51 @@
 
 Milho is a lisp-ish language created by [@celsobonutti](https://github.com/celsobonutti) and me ([@danfragoso](https://github.com/danfragoso)).
 
-This repo hosts the GO implementation of the Milho interpreter. There's also a Rust implementation at [github.com/celsobonutti/milho](https://github.com/celsobonutti/milho).
+This repo hosts the GO implementation of the Milho interpreter and compiler. There's also [Rust](https://github.com/celsobonutti/milho-rust), [Haskell](https://github.com/celsobonutti/milho-rust) and [OCaml](https://github.com/renatoalencar/milho-ocaml) implementations.
 
-## Try it online
+## Try it online (WebAssembly version)
 [https://milho.fragoso.dev](https://milho.fragoso.dev)
-## Running
-Running the command bellow will compile and run the milho repl.
+
+## How does it work?
+```
+Tokenizer → Parser → MIR
+                      ├ → Interpreter (Linux, BSD, WebAssembly)
+                      │                or anything you manage to run GO on.
+                      │
+                      └ → Compiler/Codegen
+                            ├ → JavaScript source code
+                            └ → LLVM IR code
+```
+
+## Building
+```
+make build
+```
+
+## Installing
+```
+make install
+```
+## Running a milho file
+```
+milho hello.milho
+```
+## Creating scripts
+If you want to run milho files from the command line, you can create a milho script.
+You just need to add ```#!/bin/milho``` to the top of your file and run with ```./script.milho```.
+## Compiling a milho file
+```
+// To JavaScript
+milho -cJS compiler/examples/hello.milho > hello.js
+node hello.js
+```
+```
+// To LLVM IR
+milho -cLLVM compiler/examples/hello.milho > hello.ll
+lli hello.ll
+```
+
+## Running te repl
 ```
 make repl
 ```
