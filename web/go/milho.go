@@ -5,12 +5,12 @@ import (
 	"syscall/js"
 
 	"github.com/danfragoso/milho"
-	"github.com/danfragoso/milho/interpreter"
+	"github.com/danfragoso/milho/mir"
 	"github.com/danfragoso/milho/parser"
 	"github.com/danfragoso/milho/tokenizer"
 )
 
-var session *interpreter.Session
+var session *mir.Session
 
 func createREPLSession(this js.Value, inputs []js.Value) interface{} {
 	session = milho.CreateSession()

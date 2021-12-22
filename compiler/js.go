@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/danfragoso/milho/interpreter"
+	"github.com/danfragoso/milho/mir"
 )
 
 type JSValue interface {
@@ -148,7 +148,7 @@ func (v *JSValue_FunctionCall) String() string {
 	return callStr + ")"
 }
 
-func methodCall(params []interpreter.Expression, methodName string) JSValue {
+func methodCall(params []mir.Expression, methodName string) JSValue {
 	call := &JSValue_FunctionCall{}
 
 	if len(params) != 2 {
@@ -161,18 +161,18 @@ func methodCall(params []interpreter.Expression, methodName string) JSValue {
 	return call
 }
 
-func lambda(params []interpreter.Expression) JSValue {
+func lambda(params []mir.Expression) JSValue {
 	lambda := &JSValue_Lambda{}
 
 	if len(params) != 2 {
 		fmt.Println("wrong params for lambda JS")
 	}
 
-	if params[0].Type() != interpreter.ListExpr {
+	if params[0].Type() != mir.ListExpr {
 		fmt.Println("error js lambda must be symbol")
 	}
 
-	for _, p := range params[0].(*interpreter.ListExpression).Expressions {
+	for _, p := range params[0].(*mir.ListExpression).Expressions {
 		lambda.Params = append(lambda.Params, exprToJSValue(p))
 	}
 
@@ -180,7 +180,7 @@ func lambda(params []interpreter.Expression) JSValue {
 	return lambda
 }
 
-func ifElseBlock(params []interpreter.Expression) JSValue {
+func ifElseBlock(params []mir.Expression) JSValue {
 	ifElse := &JSValue_IfElseBlock{}
 	if len(params) != 3 {
 		fmt.Println("error if else block must have 3 params")
@@ -193,7 +193,7 @@ func ifElseBlock(params []interpreter.Expression) JSValue {
 	return ifElse
 }
 
-func logCall(params []interpreter.Expression) JSValue {
+func logCall(params []mir.Expression) JSValue {
 	call := &JSValue_FunctionCall{}
 	call.Target = "console.log"
 
@@ -204,23 +204,23 @@ func logCall(params []interpreter.Expression) JSValue {
 	return call
 }
 
-func fnDeclaration(params []interpreter.Expression) JSValue {
+func fnDeclaration(params []mir.Expression) JSValue {
 	declaration := &JSValue_FunctionDeclaration{}
 
 	if len(params) != 3 {
 		fmt.Println("wrong params for def JS")
 	}
 
-	if params[0].Type() != interpreter.SymbolExpr {
+	if params[0].Type() != mir.SymbolExpr {
 		fmt.Println("error js defn must be symbol")
 	}
 
-	if params[1].Type() != interpreter.ListExpr {
+	if params[1].Type() != mir.ListExpr {
 		fmt.Println("error js defn params must be list")
 	}
 
 	declaration.Name = params[0].Value()
-	for _, p := range params[1].(*interpreter.ListExpression).Expressions {
+	for _, p := range params[1].(*mir.ListExpression).Expressions {
 		declaration.Params = append(declaration.Params, exprToJSValue(p))
 	}
 
@@ -228,7 +228,7 @@ func fnDeclaration(params []interpreter.Expression) JSValue {
 	return declaration
 }
 
-func objDeclaration(params []interpreter.Expression) JSValue {
+func objDeclaration(params []mir.Expression) JSValue {
 	declaration := &JSValue_Declaration{}
 	declaration.Type = "const"
 
@@ -236,7 +236,7 @@ func objDeclaration(params []interpreter.Expression) JSValue {
 		fmt.Println("wrong params for def JS")
 	}
 
-	if params[0].Type() != interpreter.SymbolExpr {
+	if params[0].Type() != mir.SymbolExpr {
 		fmt.Println("errow js def must be symbol")
 	}
 
@@ -246,36 +246,36 @@ func objDeclaration(params []interpreter.Expression) JSValue {
 	return declaration
 }
 
-func TranspileJS(expr interpreter.Expression) string {
+func TranspileJS(expr mir.Expression) string {
 	return transpileExpr(expr)
 }
 
-func transpileExpr(expr interpreter.Expression) string {
+func transpileExpr(expr mir.Expression) string {
 	switch expr.Type() {
-	case interpreter.ListExpr:
+	case mir.ListExpr:
 		return transpileListExpr(expr).String()
 	}
 
 	return exprToJSValue(expr).String()
 }
 
-func transpileListExpr(expr interpreter.Expression) JSValue {
-	expressions := expr.(*interpreter.ListExpression).Expressions
+func transpileListExpr(expr mir.Expression) JSValue {
+	expressions := expr.(*mir.ListExpression).Expressions
 	if len(expressions) == 0 {
 		return &JSValue_Undefined{}
 	}
 
 	firstExpr := expressions[0]
 	switch firstExpr.Type() {
-	case interpreter.SymbolExpr:
-		sym := firstExpr.(*interpreter.SymbolExpression)
+	case mir.SymbolExpr:
+		sym := firstExpr.(*mir.SymbolExpression)
 		return matchListSymbolExpr(sym, expressions[1:])
 	}
 
 	return &JSValue_String{}
 }
 
-func matchListSymbolExpr(symbol *interpreter.SymbolExpression, params []interpreter.Expression) JSValue {
+func matchListSymbolExpr(symbol *mir.SymbolExpression, params []mir.Expression) JSValue {
 	switch symbol.Identifier {
 	case "def":
 		return objDeclaration(params)
@@ -304,7 +304,7 @@ func matchListSymbolExpr(symbol *interpreter.SymbolExpression, params []interpre
 	return makeFunctionCall(symbol, params)
 }
 
-func makeOperator(operator string, params []interpreter.Expression) JSValue {
+func makeOperator(operator string, params []mir.Expression) JSValue {
 	return &JSValue_Operator{
 		Operator: operator,
 		Left:     exprToJSValue(params[0]),
@@ -312,7 +312,7 @@ func makeOperator(operator string, params []interpreter.Expression) JSValue {
 	}
 }
 
-func makeFunctionCall(symbol *interpreter.SymbolExpression, params []interpreter.Expression) JSValue {
+func makeFunctionCall(symbol *mir.SymbolExpression, params []mir.Expression) JSValue {
 	call := &JSValue_FunctionCall{}
 	call.Target = symbol.Identifier
 
@@ -323,20 +323,20 @@ func makeFunctionCall(symbol *interpreter.SymbolExpression, params []interpreter
 	return call
 }
 
-func exprToJSValue(expr interpreter.Expression) JSValue {
+func exprToJSValue(expr mir.Expression) JSValue {
 	var returnValue JSValue = &JSValue_Undefined{}
 	switch expr.Type() {
-	case interpreter.ListExpr:
+	case mir.ListExpr:
 		returnValue = transpileListExpr(expr)
 
-	case interpreter.StringExpr:
+	case mir.StringExpr:
 		returnValue = &JSValue_String{
-			Value: expr.(*interpreter.StringExpression).Val,
+			Value: expr.(*mir.StringExpression).Val,
 		}
 
-	case interpreter.NumberExpr:
-		numerator := expr.(*interpreter.NumberExpression).Numerator
-		denominator := expr.(*interpreter.NumberExpression).Denominator
+	case mir.NumberExpr:
+		numerator := expr.(*mir.NumberExpression).Numerator
+		denominator := expr.(*mir.NumberExpression).Denominator
 
 		if denominator == 1 {
 			returnValue = &JSValue_Number{
@@ -348,9 +348,9 @@ func exprToJSValue(expr interpreter.Expression) JSValue {
 			}
 		}
 
-	case interpreter.SymbolExpr:
+	case mir.SymbolExpr:
 		returnValue = &JSValue_Identifier{
-			Name: expr.(*interpreter.SymbolExpression).Identifier,
+			Name: expr.(*mir.SymbolExpression).Identifier,
 		}
 	}
 

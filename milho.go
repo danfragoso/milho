@@ -6,6 +6,7 @@ import (
 
 	"github.com/danfragoso/milho/compiler"
 	"github.com/danfragoso/milho/interpreter"
+	"github.com/danfragoso/milho/mir"
 	"github.com/danfragoso/milho/parser"
 	"github.com/danfragoso/milho/tokenizer"
 )
@@ -40,7 +41,7 @@ func Run(src string) string {
 	return ret
 }
 
-func RunSession(src string, sess *interpreter.Session) string {
+func RunSession(src string, sess *mir.Session) string {
 	var ret string
 	tokens, err := tokenizer.Tokenize(src)
 	if err != nil {
@@ -64,7 +65,7 @@ func RunSession(src string, sess *interpreter.Session) string {
 	return ret
 }
 
-func RunRaw(src string) ([]interpreter.Expression, error) {
+func RunRaw(src string) ([]mir.Expression, error) {
 	sess := CreateSession()
 	tokens, err := tokenizer.Tokenize(src)
 	if err != nil {
@@ -92,7 +93,7 @@ func TranspileToJS(src string) (string, error) {
 
 	var combinedSrc string
 	for _, node := range ast {
-		tree, err := interpreter.CreateExpressionTree(node)
+		tree, err := mir.GenerateMIR(node)
 		if err != nil {
 			return "", err
 		}
@@ -116,7 +117,7 @@ func TranspileToLLVM(src string) (string, error) {
 
 	var combinedSrc string
 	for _, node := range ast {
-		tree, err := interpreter.CreateExpressionTree(node)
+		tree, err := mir.GenerateMIR(node)
 		if err != nil {
 			return "", err
 		}
@@ -127,7 +128,7 @@ func TranspileToLLVM(src string) (string, error) {
 	return combinedSrc, nil
 }
 
-func CreateSession() *interpreter.Session {
+func CreateSession() *mir.Session {
 	sess, _ := interpreter.CreateSession(&parser.Node{})
 	return sess
 }

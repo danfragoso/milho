@@ -3,11 +3,12 @@ package interpreter
 import (
 	"fmt"
 
+	"github.com/danfragoso/milho/mir"
 	"github.com/danfragoso/milho/parser"
 )
 
-func RunFromSession(nodes []*parser.Node, session *Session) ([]Expression, error) {
-	var expressions []Expression
+func RunFromSession(nodes []*parser.Node, session *mir.Session) ([]mir.Expression, error) {
+	var expressions []mir.Expression
 	var err error
 
 	for _, node := range nodes {
@@ -16,7 +17,7 @@ func RunFromSession(nodes []*parser.Node, session *Session) ([]Expression, error
 			return expressions, err
 		}
 
-		expr, err := CreateExpressionTree(node)
+		expr, err := mir.GenerateMIR(node)
 		if err != nil {
 			return nil, err
 		}
@@ -25,12 +26,12 @@ func RunFromSession(nodes []*parser.Node, session *Session) ([]Expression, error
 		expressions = append(expressions, expr)
 	}
 
-	var evaluatedExpressions []Expression
+	var evaluatedExpressions []mir.Expression
 	for _, expr := range expressions {
 		evaluated, err := evaluate(expr, session)
 		if err != nil {
 			stackTrace := session.CallStack.ToString(err)
-			session.CallStack = &CallStack{}
+			session.CallStack = &mir.CallStack{}
 			return nil, fmt.Errorf(stackTrace)
 		}
 
@@ -40,9 +41,9 @@ func RunFromSession(nodes []*parser.Node, session *Session) ([]Expression, error
 	return evaluatedExpressions, nil
 }
 
-func Run(nodes []*parser.Node) ([]Expression, error) {
-	var session *Session
-	var expressions []Expression
+func Run(nodes []*parser.Node) ([]mir.Expression, error) {
+	var session *mir.Session
+	var expressions []mir.Expression
 
 	for _, node := range nodes {
 		var err error
@@ -56,7 +57,7 @@ func Run(nodes []*parser.Node) ([]Expression, error) {
 			return expressions, err
 		}
 
-		expr, err := CreateExpressionTree(node)
+		expr, err := mir.GenerateMIR(node)
 		if err != nil {
 			return nil, err
 		}
@@ -65,12 +66,12 @@ func Run(nodes []*parser.Node) ([]Expression, error) {
 		expressions = append(expressions, expr)
 	}
 
-	var evaluatedExpressions []Expression
+	var evaluatedExpressions []mir.Expression
 	for _, expr := range expressions {
 		evaluated, err := evaluate(expr, session)
 		if err != nil {
 			stackTrace := session.CallStack.ToString(err)
-			session.CallStack = &CallStack{}
+			session.CallStack = &mir.CallStack{}
 			return nil, fmt.Errorf(stackTrace)
 		}
 

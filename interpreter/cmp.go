@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+
+	"github.com/danfragoso/milho/mir"
 )
 
-func __eq(params []Expression, session *Session) (Expression, error) {
+func __eq(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	var err error
 	if len(params) == 0 {
 		return nil, errors.New("Wrong number of args '0' passed to cmp:[=] function")
@@ -34,10 +36,10 @@ func __eq(params []Expression, session *Session) (Expression, error) {
 		lastParam = param
 	}
 
-	return createBooleanExpression(result)
+	return mir.CreateBooleanExpression(result)
 }
 
-func __negate(params []Expression, session *Session) (Expression, error) {
+func __negate(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	var err error
 	if len(params) != 1 {
 		return nil, errors.New("Wrong number of args '0' passed to cmp:[!] function")
@@ -49,14 +51,14 @@ func __negate(params []Expression, session *Session) (Expression, error) {
 		return nil, err
 	}
 
-	if param.Type() != BooleanExpr {
+	if param.Type() != mir.BooleanExpr {
 		return nil, fmt.Errorf("Wrong type '%s' passed to cmp:[!] function", param.Type())
 	}
 
-	return createBooleanExpression(!param.(*BooleanExpression).Val)
+	return mir.CreateBooleanExpression(!param.(*mir.BooleanExpression).Val)
 }
 
-func __if(params []Expression, session *Session) (Expression, error) {
+func __if(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	var err error
 
 	if len(params) < 2 {
@@ -71,43 +73,43 @@ func __if(params []Expression, session *Session) (Expression, error) {
 		return nil, err
 	}
 
-	if fParam.Type() == BooleanExpr &&
-		!fParam.(*BooleanExpression).Val {
+	if fParam.Type() == mir.BooleanExpr &&
+		!fParam.(*mir.BooleanExpression).Val {
 
 		if len(params) == 3 {
 			return evaluate(params[2], session)
 		}
 
-		return createNilExpression()
+		return mir.CreateNilExpression()
 	}
 
 	return evaluate(params[1], session)
 }
 
-func __exec(params []Expression, session *Session) (Expression, error) {
+func __exec(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	var err error
 
 	if len(params) < 1 {
 		return nil, fmt.Errorf("Too few args '%d' passed to exec function", len(params))
 	}
 
-	eParams := []Expression{}
+	eParams := []mir.Expression{}
 	for _, param := range params {
 		param, err = evaluate(param, session)
 		if err != nil {
 			return nil, err
 		}
 
-		if param.Type() != StringExpr {
+		if param.Type() != mir.StringExpr {
 			return nil, fmt.Errorf("Wrong type '%s' passed to exec function, expected String", param.Type())
 		}
 
 		eParams = append(eParams, param)
 	}
 
-	cmd := exec.Command(eParams[0].(*StringExpression).Val)
+	cmd := exec.Command(eParams[0].(*mir.StringExpression).Val)
 	for _, param := range eParams[1:] {
-		cmd.Args = append(cmd.Args, param.(*StringExpression).Val)
+		cmd.Args = append(cmd.Args, param.(*mir.StringExpression).Val)
 	}
 
 	out, err := cmd.Output()
@@ -115,5 +117,5 @@ func __exec(params []Expression, session *Session) (Expression, error) {
 		return nil, fmt.Errorf("Error executing command '%s': %s", cmd.Args, err)
 	}
 
-	return createStringExpression(strings.Trim(string(out), "\n"))
+	return mir.CreateStringExpression(strings.Trim(string(out), "\n"))
 }

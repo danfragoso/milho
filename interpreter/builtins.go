@@ -1,9 +1,9 @@
 package interpreter
 
-var BuiltIns = map[string]*BuiltInExpression{}
+import "github.com/danfragoso/milho/mir"
 
 func init() {
-	BuiltIns = map[string]*BuiltInExpression{
+	mir.BuiltIns = map[string]*mir.BuiltInExpression{
 		".__def":   {"Def", __def},
 		".__defn":  {"Defn", __defn},
 		".__quote": {"Quote", __quote},
@@ -41,15 +41,12 @@ func init() {
 
 		".__exec": {"Exec (command:String ?params:...String) -> String", __exec},
 
-		".__createSocket": {"CreateSocket", __createSocket},
-		".__writeSocket":  {"WriteSocket", __writeSocket},
-
 		".__import": {"Import (module:String|Symbol ?namespace:Symbol) -> Nil", __import},
 
 		".__sleep": {"Sleep (ms:Number) -> Nil", __sleep},
 
 		".__range": {"Range (min:Number max:Number) -> Nil", __range},
-		".__exit": {"Exit (?code:Number) -> Nil", __exit},
+		".__exit":  {"Exit (?code:Number) -> Nil", __exit},
 	}
 }
 

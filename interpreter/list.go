@@ -3,9 +3,11 @@ package interpreter
 import (
 	"errors"
 	"fmt"
+
+	"github.com/danfragoso/milho/mir"
 )
 
-func __cdr(params []Expression, session *Session) (Expression, error) {
+func __cdr(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	if len(params) != 1 {
 		return nil, errors.New("Wrong number of args '1' passed to cdr")
 	}
@@ -15,19 +17,19 @@ func __cdr(params []Expression, session *Session) (Expression, error) {
 		return nil, err
 	}
 
-	if ev.Type() != ListExpr {
+	if ev.Type() != mir.ListExpr {
 		return nil, fmt.Errorf("cdr parameter must be a list, instead got %s", ev.Type())
 	}
 
-	exprs := ev.(*ListExpression).Expressions
+	exprs := ev.(*mir.ListExpression).Expressions
 	if len(exprs) <= 1 {
-		return createNilExpression()
+		return mir.CreateNilExpression()
 	}
 
-	return createListExpression(exprs[1:]...)
+	return mir.CreateListExpression(exprs[1:]...)
 }
 
-func __car(params []Expression, session *Session) (Expression, error) {
+func __car(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	if len(params) != 1 {
 		return nil, errors.New("Wrong number of args '1' passed to car")
 	}
@@ -37,35 +39,35 @@ func __car(params []Expression, session *Session) (Expression, error) {
 		return nil, err
 	}
 
-	if ev.Type() != ListExpr {
+	if ev.Type() != mir.ListExpr {
 		return nil, fmt.Errorf("car parameter must be a list, instead got %s", ev.Type())
 	}
 
-	exprs := ev.(*ListExpression).Expressions
+	exprs := ev.(*mir.ListExpression).Expressions
 	if len(exprs) <= 1 {
-		return createNilExpression()
+		return mir.CreateNilExpression()
 	}
 
 	return exprs[0], nil
 }
 
-func __cons(params []Expression, session *Session) (Expression, error) {
+func __cons(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	if len(params) != 2 {
 		return nil, errors.New("Wrong number of args '2' passed to cons")
 	}
 
-	if params[1].Type() != ListExpr {
+	if params[1].Type() != mir.ListExpr {
 		return nil, fmt.Errorf("cons second parameter must be a list, instead got %s", params[1].Type())
 	}
 
-	var exprs []Expression
+	var exprs []mir.Expression
 	exprs = append(exprs, params[0])
-	exprs = append(exprs, params[1].(*ListExpression).Expressions...)
+	exprs = append(exprs, params[1].(*mir.ListExpression).Expressions...)
 
-	return createListExpression(exprs...)
+	return mir.CreateListExpression(exprs...)
 }
 
-func __map(params []Expression, session *Session) (Expression, error) {
+func __map(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	if len(params) != 2 {
 		return nil, errors.New("Wrong number of args '2' passed to map")
 	}
@@ -75,7 +77,7 @@ func __map(params []Expression, session *Session) (Expression, error) {
 		return nil, err
 	}
 
-	if ev.Type() != ListExpr {
+	if ev.Type() != mir.ListExpr {
 		return nil, fmt.Errorf("map first parameter must be a list, instead got %s", ev.Type())
 	}
 
@@ -84,20 +86,20 @@ func __map(params []Expression, session *Session) (Expression, error) {
 		return nil, err
 	}
 
-	if fn.Type() != BuiltInExpr && fn.Type() != FunctionExpr {
+	if fn.Type() != mir.BuiltInExpr && fn.Type() != mir.FunctionExpr {
 		return nil, fmt.Errorf("map second parameter must be a function, instead got %s", fn.Type())
 	}
 
-	exprs := ev.(*ListExpression).Expressions
-	var modExprs []Expression
+	exprs := ev.(*mir.ListExpression).Expressions
+	var modExprs []mir.Expression
 	for _, expr := range exprs {
-		var r Expression
+		var r mir.Expression
 		var e error
 
-		if fn.Type() == BuiltInExpr {
-			r, e = fn.(*BuiltInExpression).Function([]Expression{expr}, session)
+		if fn.Type() == mir.BuiltInExpr {
+			r, e = fn.(*mir.BuiltInExpression).Function([]mir.Expression{expr}, session)
 		} else {
-			r, e = evaluateUserFunction(fn.(*FunctionExpression), []Expression{expr}, session)
+			r, e = evaluateUserFunction(fn.(*mir.FunctionExpression), []mir.Expression{expr}, session)
 		}
 
 		if e != nil {
@@ -107,5 +109,5 @@ func __map(params []Expression, session *Session) (Expression, error) {
 		modExprs = append(modExprs, r)
 	}
 
-	return createListExpression(modExprs...)
+	return mir.CreateListExpression(modExprs...)
 }

@@ -2,41 +2,43 @@ package interpreter
 
 import (
 	"errors"
+
+	"github.com/danfragoso/milho/mir"
 )
 
-func __add(params []Expression, session *Session) (Expression, error) {
+func __add(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	var acc int64
 
 	for _, exp := range params {
 		var err error
-		exp, err = resolveTypedExpression(NumberExpr, exp, session)
+		exp, err = resolveTypedExpression(mir.NumberExpr, exp, session)
 		if err != nil {
 			return nil, err
 		}
 
-		acc += exp.(*NumberExpression).Numerator
+		acc += exp.(*mir.NumberExpression).Numerator
 	}
 
-	return createNumberExpression(acc, 1)
+	return mir.CreateNumberExpression(acc, 1)
 }
 
-func __mul(params []Expression, session *Session) (Expression, error) {
+func __mul(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	var acc int64 = 1
 
 	for _, exp := range params {
 		var err error
-		exp, err = resolveTypedExpression(NumberExpr, exp, session)
+		exp, err = resolveTypedExpression(mir.NumberExpr, exp, session)
 		if err != nil {
 			return nil, err
 		}
 
-		acc *= exp.(*NumberExpression).Numerator
+		acc *= exp.(*mir.NumberExpression).Numerator
 	}
 
-	return createNumberExpression(acc, 1)
+	return mir.CreateNumberExpression(acc, 1)
 }
 
-func __sub(params []Expression, session *Session) (Expression, error) {
+func __sub(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	if len(params) == 0 {
 		return nil, errors.New("Wrong number of args '0' passed to Number:[-] function")
 	}
@@ -50,7 +52,7 @@ func __sub(params []Expression, session *Session) (Expression, error) {
 		return nil, err
 	}
 
-	nB := fExp.(*NumberExpression)
+	nB := fExp.(*mir.NumberExpression)
 	if len(params) == 1 {
 		acc = -nB.Numerator
 	} else {
@@ -61,14 +63,14 @@ func __sub(params []Expression, session *Session) (Expression, error) {
 				return nil, err
 			}
 
-			acc -= n.(*NumberExpression).Numerator
+			acc -= n.(*mir.NumberExpression).Numerator
 		}
 	}
 
-	return createNumberExpression(acc, 1)
+	return mir.CreateNumberExpression(acc, 1)
 }
 
-func __div(params []Expression, session *Session) (Expression, error) {
+func __div(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	if len(params) == 0 {
 		return nil, errors.New("Wrong number of args '0' passed to Number:[-] function")
 	}
@@ -80,9 +82,9 @@ func __div(params []Expression, session *Session) (Expression, error) {
 		return nil, err
 	}
 
-	acc := fExp.(*NumberExpression).Numerator
+	acc := fExp.(*mir.NumberExpression).Numerator
 	if acc == 0 {
-		return createNumberExpression(acc, 1)
+		return mir.CreateNumberExpression(acc, 1)
 	}
 
 	for _, nE := range params[1:] {
@@ -91,7 +93,7 @@ func __div(params []Expression, session *Session) (Expression, error) {
 			return nil, err
 		}
 
-		n := nE.(*NumberExpression).Numerator
+		n := nE.(*mir.NumberExpression).Numerator
 
 		if n == 0 {
 			return nil, errors.New("Divide by zero error")
@@ -100,5 +102,5 @@ func __div(params []Expression, session *Session) (Expression, error) {
 		acc /= n
 	}
 
-	return createNumberExpression(acc, 1)
+	return mir.CreateNumberExpression(acc, 1)
 }

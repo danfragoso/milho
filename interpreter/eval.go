@@ -3,27 +3,29 @@ package interpreter
 import (
 	"fmt"
 	"strings"
+
+	"github.com/danfragoso/milho/mir"
 )
 
-func evaluate(expr Expression, session *Session) (Expression, error) {
+func evaluate(expr mir.Expression, session *mir.Session) (mir.Expression, error) {
 	switch expr.Type() {
-	case ListExpr:
+	case mir.ListExpr:
 		return evaluateList(expr, session)
 
-	case SymbolExpr:
+	case mir.SymbolExpr:
 		return evaluateSymbol(expr, session)
 	}
 
 	return expr, nil
 }
 
-func findExprObject(expr Expression, identifier string) *Object {
+func findExprObject(expr mir.Expression, identifier string) *mir.Object {
 	if expr.Parent() == nil {
 		return nil
 	}
 
-	if expr.Parent().Type() == ListExpr {
-		lst := expr.Parent().(*ListExpression)
+	if expr.Parent().Type() == mir.ListExpr {
+		lst := expr.Parent().(*mir.ListExpression)
 		obj := lst.FindObject(identifier)
 		if obj != nil {
 			return obj
@@ -35,10 +37,10 @@ func findExprObject(expr Expression, identifier string) *Object {
 	return nil
 }
 
-func evaluateSymbol(expr Expression, session *Session) (Expression, error) {
-	symbol := expr.(*SymbolExpression)
+func evaluateSymbol(expr mir.Expression, session *mir.Session) (mir.Expression, error) {
+	symbol := expr.(*mir.SymbolExpression)
 	if strings.HasPrefix(symbol.Identifier, "#!/") && strings.HasSuffix(symbol.Identifier, "milho") {
-		return createNilExpression()
+		return mir.CreateNilExpression()
 	}
 
 	obj, err := session.FindObject(symbol.Identifier)
@@ -48,20 +50,20 @@ func evaluateSymbol(expr Expression, session *Session) (Expression, error) {
 			return nil, err
 		}
 
-		obj = nObj.value
+		obj = nObj.Value()
 	}
 
 	return obj, nil
 }
 
-func evaluateList(expr Expression, session *Session) (Expression, error) {
-	expressions := expr.(*ListExpression).Expressions
+func evaluateList(expr mir.Expression, session *mir.Session) (mir.Expression, error) {
+	expressions := expr.(*mir.ListExpression).Expressions
 	if len(expressions) == 0 {
-		return createNilExpression()
+		return mir.CreateNilExpression()
 	}
 
 	firstExpr := expressions[0]
-	if firstExpr.Type() == ListExpr {
+	if firstExpr.Type() == mir.ListExpr {
 		var err error
 		firstExpr, err = evaluate(firstExpr, session)
 		if err != nil {
@@ -69,23 +71,23 @@ func evaluateList(expr Expression, session *Session) (Expression, error) {
 		}
 	}
 
-	var obj Expression
+	var obj mir.Expression
 	var err error
-	if firstExpr.Type() != FunctionExpr {
+	if firstExpr.Type() != mir.FunctionExpr {
 		obj, err = session.FindObject(firstExpr.Value())
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	var result Expression
+	var result mir.Expression
 	session.CallStack.Push(expressions)
 
 	switch obj.Type() {
-	case BuiltInExpr:
-		result, err = obj.(*BuiltInExpression).Function(expressions[1:], session)
-	case FunctionExpr:
-		result, err = evaluateUserFunction(obj.(*FunctionExpression), expressions[1:], session)
+	case mir.BuiltInExpr:
+		result, err = obj.(*mir.BuiltInExpression).Function(expressions[1:], session)
+	case mir.FunctionExpr:
+		result, err = evaluateUserFunction(obj.(*mir.FunctionExpression), expressions[1:], session)
 	}
 
 	if err != nil {
@@ -96,12 +98,12 @@ func evaluateList(expr Expression, session *Session) (Expression, error) {
 	return result, nil
 }
 
-func evaluateUserFunction(fn *FunctionExpression, params []Expression, session *Session) (Expression, error) {
+func evaluateUserFunction(fn *mir.FunctionExpression, params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	arity := fn.Arities[len(params)]
 	if arity == nil {
-		var sArity *fnArity
+		var sArity *mir.FnArity
 		for _, arity := range fn.Arities {
-			if arity.hasVariadic {
+			if arity.HasVariadic() {
 				sArity = arity
 			}
 		}
@@ -113,24 +115,21 @@ func evaluateUserFunction(fn *FunctionExpression, params []Expression, session *
 		arity = sArity
 	}
 
-	var objs []*Object
-	for i, fnParam := range arity.parameters {
+	var objs []*mir.Object
+	for i, fnParam := range arity.Parameters() {
 		value, err := evaluate(params[i], session)
 		if err != nil {
 			return nil, err
 		}
 
-		objs = append(objs, &Object{
-			identifier: fnParam,
-			value:      value,
-		})
+		objs = append(objs, mir.CreateObject(value, fnParam))
 	}
 
-	switch arity.body.Type() {
-	case SymbolExpr:
-		obj := findObject(objs, arity.body.Value())
+	switch arity.Body().Type() {
+	case mir.SymbolExpr:
+		obj := mir.FindObject(objs, arity.Body().Value())
 		if obj == nil {
-			fObj, err := session.FindObject(arity.body.Value())
+			fObj, err := session.FindObject(arity.Body().Value())
 			if err != nil {
 				return nil, err
 			}
@@ -138,12 +137,12 @@ func evaluateUserFunction(fn *FunctionExpression, params []Expression, session *
 			return fObj, nil
 		}
 
-		return obj.value, nil
+		return obj.Value(), nil
 
-	case ListExpr:
-		listExpr := arity.body.(*ListExpression)
+	case mir.ListExpr:
+		listExpr := arity.Body().(*mir.ListExpression)
 		listExpr.AddObjects(objs...)
 	}
 
-	return evaluate(arity.body, session)
+	return evaluate(arity.Body(), session)
 }

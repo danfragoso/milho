@@ -3,9 +3,11 @@ package interpreter
 import (
 	"fmt"
 	"time"
+
+	"github.com/danfragoso/milho/mir"
 )
 
-func resolveTypedExpression(exprType ExpressionType, expr Expression, session *Session) (Expression, error) {
+func resolveTypedExpression(exprType mir.ExpressionType, expr mir.Expression, session *mir.Session) (mir.Expression, error) {
 	var err error
 	expr, err = evaluate(expr, session)
 	if err != nil {
@@ -19,7 +21,7 @@ func resolveTypedExpression(exprType ExpressionType, expr Expression, session *S
 	return expr, err
 }
 
-func __pr(params []Expression, session *Session) (Expression, error) {
+func __pr(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	var err error
 	for _, param := range params {
 		param, err = evaluate(param, session)
@@ -30,10 +32,10 @@ func __pr(params []Expression, session *Session) (Expression, error) {
 		fmt.Print(param.Value() + " ")
 	}
 
-	return createNilExpression()
+	return mir.CreateNilExpression()
 }
 
-func __prn(params []Expression, session *Session) (Expression, error) {
+func __prn(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	var err error
 	for _, param := range params {
 		param, err = evaluate(param, session)
@@ -45,10 +47,10 @@ func __prn(params []Expression, session *Session) (Expression, error) {
 	}
 
 	fmt.Println("")
-	return createNilExpression()
+	return mir.CreateNilExpression()
 }
 
-func __print(params []Expression, session *Session) (Expression, error) {
+func __print(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	var err error
 	for _, param := range params {
 		param, err = evaluate(param, session)
@@ -56,17 +58,17 @@ func __print(params []Expression, session *Session) (Expression, error) {
 			return nil, err
 		}
 
-		if param.Type() == StringExpr {
+		if param.Type() == mir.StringExpr {
 			fmt.Print(param.Value()[1:len(param.Value())-1] + " ")
 		} else {
 			fmt.Print(param.Value() + " ")
 		}
 	}
 
-	return createNilExpression()
+	return mir.CreateNilExpression()
 }
 
-func __println(params []Expression, session *Session) (Expression, error) {
+func __println(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	var err error
 	for _, param := range params {
 		param, err = evaluate(param, session)
@@ -74,7 +76,7 @@ func __println(params []Expression, session *Session) (Expression, error) {
 			return nil, err
 		}
 
-		if param.Type() == StringExpr {
+		if param.Type() == mir.StringExpr {
 			fmt.Print(param.Value()[1:len(param.Value())-1] + " ")
 		} else {
 			fmt.Print(param.Value() + " ")
@@ -82,18 +84,18 @@ func __println(params []Expression, session *Session) (Expression, error) {
 	}
 
 	fmt.Println("")
-	return createNilExpression()
+	return mir.CreateNilExpression()
 }
 
-func __list(params []Expression, session *Session) (Expression, error) {
+func __list(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	for _, object := range session.Objects {
-		fmt.Printf("%s [%s:%s]\n", object.Identifier(), object.value.Value(), object.value.Type())
+		fmt.Printf("%s [%s:%s]\n", object.Identifier(), object.Value().Value(), object.Value().Type())
 	}
 
-	return createNilExpression()
+	return mir.CreateNilExpression()
 }
 
-func __sleep(params []Expression, session *Session) (Expression, error) {
+func __sleep(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	if len(params) != 1 {
 		return nil, fmt.Errorf("expected 1 parameter, instead got %d", len(params))
 	}
@@ -103,33 +105,33 @@ func __sleep(params []Expression, session *Session) (Expression, error) {
 		return nil, err
 	}
 
-	if duration.Type() != NumberExpr {
+	if duration.Type() != mir.NumberExpr {
 		return nil, fmt.Errorf("expected sleep parameter to be an number, instead got %s", params[0].Type())
 	}
 
-	sleepTime := duration.(*NumberExpression).Numerator
+	sleepTime := duration.(*mir.NumberExpression).Numerator
 	time.Sleep(time.Duration(sleepTime) * time.Millisecond)
 
-	return createNilExpression()
+	return mir.CreateNilExpression()
 }
 
-func __range(params []Expression, session *Session) (Expression, error) {
-	if len(params) != 2 && params[0].Type() != NumberExpr && params[1].Type() != NumberExpr {
+func __range(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	if len(params) != 2 && params[0].Type() != mir.NumberExpr && params[1].Type() != mir.NumberExpr {
 		return nil, fmt.Errorf("expected range parameters to be numbers, instead got %s and %s", params[0].Type(), params[1].Type())
 	}
 
-	min := params[0].(*NumberExpression).Numerator
-	max := params[1].(*NumberExpression).Numerator
+	min := params[0].(*mir.NumberExpression).Numerator
+	max := params[1].(*mir.NumberExpression).Numerator
 
 	if min > max {
 		return nil, fmt.Errorf("expected range min to be less than max, instead got %d and %d", min, max)
 	}
 
-	expressions := []Expression{}
+	expressions := []mir.Expression{}
 	for i := min; i <= max; i++ {
-		expr, _ := createNumberExpression(i, 1)
+		expr, _ := mir.CreateNumberExpression(i, 1)
 		expressions = append(expressions, expr)
 	}
 
-	return createListExpression(expressions...)
+	return mir.CreateListExpression(expressions...)
 }

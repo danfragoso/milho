@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/danfragoso/milho/mir"
 	"github.com/danfragoso/milho/parser"
 	"github.com/danfragoso/milho/tokenizer"
 )
@@ -22,21 +23,21 @@ func milhoPath() string {
 	return MILHO_STD_PATH
 }
 
-func __exit(params []Expression, session * Session) (Expression, error) {
+func __exit(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	code := int64(0)
 	if len(params) == 1 {
-		if params[0].Type() != NumberExpr {
+		if params[0].Type() != mir.NumberExpr {
 			return nil, fmt.Errorf("optional parameter code must be of type Number")
 		}
 
-		code = params[0].(*NumberExpression).Denominator
+		code = params[0].(*mir.NumberExpression).Denominator
 	}
 
 	os.Exit(int(code))
-	return createNilExpression()
+	return mir.CreateNilExpression()
 }
 
-func __import(params []Expression, session *Session) (Expression, error) {
+func __import(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	if len(params) == 0 {
 		return nil, fmt.Errorf("expected at least 1 parameter, got %d, parameters must be the path to a .milho file or a symbol for a relative module or installed at MILHO_STD_PATH", len(params))
 	}
@@ -44,9 +45,9 @@ func __import(params []Expression, session *Session) (Expression, error) {
 	path := params[0]
 	pathStr := ""
 
-	if path.Type() == StringExpr {
+	if path.Type() == mir.StringExpr {
 		pathStr = strings.Trim(path.Value(), "\"")
-	} else if path.Type() == SymbolExpr {
+	} else if path.Type() == mir.SymbolExpr {
 		pathStr = milhoPath() + path.Value() + ".milho"
 	} else {
 		return nil, fmt.Errorf("first param to import must be either a symbol or a string got: %s", path.Value())
@@ -72,5 +73,5 @@ func __import(params []Expression, session *Session) (Expression, error) {
 		return nil, fmt.Errorf("session error for module %s: %s", path.Value(), err)
 	}
 
-	return createNilExpression()
+	return mir.CreateNilExpression()
 }

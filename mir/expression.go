@@ -1,4 +1,4 @@
-package interpreter
+package mir
 
 import (
 	"encoding/hex"
@@ -40,7 +40,7 @@ type Expression interface {
 }
 
 // Nil Expression
-func createNilExpression() (*NilExpression, error) {
+func CreateNilExpression() (*NilExpression, error) {
 	return &NilExpression{}, nil
 }
 
@@ -86,7 +86,7 @@ func (e *BuiltInExpression) setParent(parent Expression) {
 }
 
 // Number Expression
-func createNumberExpression(numerator, denominator int64) (*NumberExpression, error) {
+func CreateNumberExpression(numerator, denominator int64) (*NumberExpression, error) {
 	return &NumberExpression{
 		Numerator:   numerator,
 		Denominator: denominator,
@@ -121,7 +121,7 @@ func (e *NumberExpression) setParent(parent Expression) {
 }
 
 // List Expression
-func createListExpression(expressions ...Expression) (*ListExpression, error) {
+func CreateListExpression(expressions ...Expression) (*ListExpression, error) {
 	listExpression := &ListExpression{
 		Objects:     make(map[string]*Object),
 		Expressions: expressions,
@@ -175,7 +175,7 @@ func (e *ListExpression) Value() string {
 }
 
 // Byte Expression
-func createByteExpression(value byte) (*ByteExpression, error) {
+func CreateByteExpression(value byte) (*ByteExpression, error) {
 	return &ByteExpression{
 		Val: value,
 	}, nil
@@ -203,7 +203,7 @@ func (e *ByteExpression) setParent(parent Expression) {
 }
 
 // Error Expression
-func createErrorExpression(code, message string) (*ErrorExpression, error) {
+func CreateErrorExpression(code, message string) (*ErrorExpression, error) {
 	return &ErrorExpression{
 		Code:    code,
 		Message: message,
@@ -233,7 +233,7 @@ func (e *ErrorExpression) setParent(parent Expression) {
 }
 
 // Boolean Expression
-func createBooleanExpression(value bool) (*BooleanExpression, error) {
+func CreateBooleanExpression(value bool) (*BooleanExpression, error) {
 	return &BooleanExpression{
 		Val: value,
 	}, nil
@@ -266,7 +266,7 @@ func (e *BooleanExpression) setParent(parent Expression) {
 
 // Function Expression
 
-func createFunctionExpression(identifier string, arities map[int]*fnArity) (*FunctionExpression, error) {
+func CreateFunctionExpression(identifier string, arities map[int]*FnArity) (*FunctionExpression, error) {
 	fExpr := &FunctionExpression{
 		Arities: arities,
 		Objects: make(map[string]Expression),
@@ -284,14 +284,34 @@ type FunctionExpression struct {
 	ParentExpr Expression
 	Identifier string
 
-	Arities map[int]*fnArity
+	Arities map[int]*FnArity
 	Objects map[string]Expression
 }
 
-type fnArity struct {
+type FnArity struct {
 	hasVariadic bool
 	body        Expression
 	parameters  []string
+}
+
+func (a *FnArity) HasVariadic() bool {
+	return a.hasVariadic
+}
+
+func (a *FnArity) Body() Expression {
+	return a.body
+}
+
+func (a *FnArity) Parameters() []string {
+	return a.parameters
+}
+
+func CreateFnArity(hasVariadic bool, body Expression, parameters []string) *FnArity {
+	return &FnArity{
+		hasVariadic: hasVariadic,
+		body:        body,
+		parameters:  parameters,
+	}
 }
 
 func (e *FunctionExpression) Type() ExpressionType {
@@ -311,7 +331,7 @@ func (e *FunctionExpression) setParent(parent Expression) {
 }
 
 // Symbol Expression
-func createSymbolExpression(identifier string, expression Expression) (*SymbolExpression, error) {
+func CreateSymbolExpression(identifier string, expression Expression) (*SymbolExpression, error) {
 	return &SymbolExpression{
 		Identifier: identifier,
 		Expression: expression,
@@ -355,7 +375,7 @@ const (
 	UDPSocket socketProtocol = "UDP"
 )
 
-func createSocketExpression(kind socketType, protocol socketProtocol, port int) (*SocketExpression, error) {
+func CreateSocketExpression(kind socketType, protocol socketProtocol, port int) (*SocketExpression, error) {
 	var conn net.Conn
 
 	if kind == ClientSocket {
@@ -400,7 +420,7 @@ func (e *SocketExpression) setParent(parent Expression) {
 }
 
 // String Expression
-func createStringExpression(value string) (*StringExpression, error) {
+func CreateStringExpression(value string) (*StringExpression, error) {
 	return &StringExpression{
 		Val: value,
 	}, nil
@@ -448,11 +468,10 @@ func (e *StructExpression) setParent(parent Expression) {
 	e.ParentExpr = parent
 }
 
-// Expression Tree
-func CreateExpressionTree(node *parser.Node) (Expression, error) {
+func GenerateMIR(node *parser.Node) (Expression, error) {
 	var expressions []Expression
 	for _, childNode := range node.Nodes {
-		expr, err := CreateExpressionTree(childNode)
+		expr, err := GenerateMIR(childNode)
 		if err != nil {
 			return nil, err
 		}
@@ -462,21 +481,21 @@ func CreateExpressionTree(node *parser.Node) (Expression, error) {
 
 	switch node.Type {
 	case parser.Identifier:
-		return createSymbolExpression(node.Identifier, nil)
+		return CreateSymbolExpression(node.Identifier, nil)
 
 	case parser.String:
-		return createStringExpression(node.Identifier)
+		return CreateStringExpression(node.Identifier)
 
 	case parser.Boolean:
 		if node.Identifier == "True" {
-			return createBooleanExpression(true)
+			return CreateBooleanExpression(true)
 		}
 
-		return createBooleanExpression(false)
+		return CreateBooleanExpression(false)
 
 	case parser.Byte:
 		b, _ := hex.DecodeString(node.Identifier[2:])
-		return createByteExpression(b[0])
+		return CreateByteExpression(b[0])
 
 	case parser.Number:
 		numberStr := strings.Split(node.Identifier, "/")
@@ -491,10 +510,10 @@ func CreateExpressionTree(node *parser.Node) (Expression, error) {
 			numerator, denominator = simplifyFraction(numerator, denominator)
 		}
 
-		return createNumberExpression(numerator, denominator)
+		return CreateNumberExpression(numerator, denominator)
 	}
 
-	return createListExpression(expressions...)
+	return CreateListExpression(expressions...)
 }
 
 func simplifyFraction(numerator, denominator int64) (int64, int64) {
@@ -510,7 +529,7 @@ func gcd(a, b int64) int64 {
 	return a
 }
 
-func printExpr(e Expression) {
+func PrintExpr(e Expression) {
 	fmt.Print(sprintExpr(e, "", true), "\n\n")
 }
 

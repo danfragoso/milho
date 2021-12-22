@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/danfragoso/milho/mir"
 	"github.com/danfragoso/milho/parser"
 	"github.com/danfragoso/milho/tokenizer"
 )
@@ -23,13 +24,13 @@ func Test_nil(t *testing.T) {
 	}
 
 	expressions, err := Run(ast)
-	printExpr(expressions[0])
+	mir.PrintExpr(expressions[0])
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	if expressions[0].Type() != NilExpr {
+	if expressions[0].Type() != mir.NilExpr {
 		t.Error(err)
 	}
 }
@@ -49,13 +50,13 @@ func Test_number_slash(t *testing.T) {
 	}
 
 	expressions, err := Run(ast)
-	printExpr(expressions[0])
+	mir.PrintExpr(expressions[0])
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	if expressions[0].Type() != NumberExpr {
+	if expressions[0].Type() != mir.NumberExpr {
 		t.Error(err)
 	}
 
@@ -79,13 +80,13 @@ func Test_number_slash2(t *testing.T) {
 	}
 
 	expressions, err := Run(ast)
-	printExpr(expressions[0])
+	mir.PrintExpr(expressions[0])
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	if expressions[0].Type() != NumberExpr {
+	if expressions[0].Type() != mir.NumberExpr {
 		t.Error(err)
 	}
 
@@ -113,12 +114,12 @@ func Test_add(t *testing.T) {
 		t.Error(err)
 	}
 
-	printExpr(expressions[0])
-	if expressions[0].Type() != NumberExpr {
+	mir.PrintExpr(expressions[0])
+	if expressions[0].Type() != mir.NumberExpr {
 		t.Error(err)
 	}
 
-	number := expressions[0].(*NumberExpression)
+	number := expressions[0].(*mir.NumberExpression)
 
 	if number.Numerator != 6 {
 		t.Errorf("Wrong expression numerator value, expected 6 got %d", number.Numerator)
@@ -148,12 +149,12 @@ func Test_sub(t *testing.T) {
 		t.Error(err)
 	}
 
-	printExpr(expressions[0])
-	if expressions[0].Type() != NumberExpr {
+	mir.PrintExpr(expressions[0])
+	if expressions[0].Type() != mir.NumberExpr {
 		t.Error(err)
 	}
 
-	number := expressions[0].(*NumberExpression)
+	number := expressions[0].(*mir.NumberExpression)
 
 	if number.Numerator != -3 {
 		t.Errorf("Wrong expression numerator value, expected -3 got %d", number.Numerator)
@@ -180,12 +181,12 @@ func Test_sub(t *testing.T) {
 		t.Error(err)
 	}
 
-	printExpr(expressions[0])
-	if expressions[0].Type() != NumberExpr {
+	mir.PrintExpr(expressions[0])
+	if expressions[0].Type() != mir.NumberExpr {
 		t.Error(err)
 	}
 
-	number = expressions[0].(*NumberExpression)
+	number = expressions[0].(*mir.NumberExpression)
 
 	if number.Numerator != -3 {
 		t.Errorf("Wrong expression numerator value, expected -3 got %d", number.Numerator)
@@ -212,12 +213,12 @@ func Test_sub(t *testing.T) {
 		t.Error(err)
 	}
 
-	printExpr(expressions[0])
-	if expressions[0].Type() != NumberExpr {
+	mir.PrintExpr(expressions[0])
+	if expressions[0].Type() != mir.NumberExpr {
 		t.Error(err)
 	}
 
-	number = expressions[0].(*NumberExpression)
+	number = expressions[0].(*mir.NumberExpression)
 
 	if number.Numerator != 7 {
 		t.Errorf("Wrong expression numerator value, expected 7 got %d", number.Numerator)
@@ -246,12 +247,12 @@ func Test_mul(t *testing.T) {
 		t.Error(err)
 	}
 
-	printExpr(expressions[0])
-	if expressions[0].Type() != NumberExpr {
+	mir.PrintExpr(expressions[0])
+	if expressions[0].Type() != mir.NumberExpr {
 		t.Error(err)
 	}
 
-	number := expressions[0].(*NumberExpression)
+	number := expressions[0].(*mir.NumberExpression)
 
 	if number.Numerator != 0 {
 		t.Errorf("Wrong expression numerator value, expected 0 got %d", number.Numerator)
@@ -278,12 +279,12 @@ func Test_mul(t *testing.T) {
 		t.Error(err)
 	}
 
-	printExpr(expressions[0])
-	if expressions[0].Type() != NumberExpr {
+	mir.PrintExpr(expressions[0])
+	if expressions[0].Type() != mir.NumberExpr {
 		t.Error(err)
 	}
 
-	number = expressions[0].(*NumberExpression)
+	number = expressions[0].(*mir.NumberExpression)
 
 	if number.Numerator != 50 {
 		t.Errorf("Wrong expression numerator value, expected -3 got %d", number.Numerator)
@@ -332,12 +333,12 @@ func Test_div(t *testing.T) {
 		t.Error(err)
 	}
 
-	printExpr(expressions[0])
-	if expressions[0].Type() != NumberExpr {
+	mir.PrintExpr(expressions[0])
+	if expressions[0].Type() != mir.NumberExpr {
 		t.Error(err)
 	}
 
-	number := expressions[0].(*NumberExpression)
+	number := expressions[0].(*mir.NumberExpression)
 
 	if number.Numerator != 10 {
 		t.Errorf("Wrong expression numerator value, expected 10 got %d", number.Numerator)
@@ -366,12 +367,12 @@ func Test_cmp(t *testing.T) {
 		t.Error(err)
 	}
 
-	printExpr(expressions[0])
-	if expressions[0].Type() != BooleanExpr {
+	mir.PrintExpr(expressions[0])
+	if expressions[0].Type() != mir.BooleanExpr {
 		t.Error(err)
 	}
 
-	r := expressions[0].(*BooleanExpression)
+	r := expressions[0].(*mir.BooleanExpression)
 
 	if r.Val != false {
 		t.Errorf("Wrong expression value, expected false got true")
@@ -412,12 +413,12 @@ func Test_cmp(t *testing.T) {
 		t.Error(err)
 	}
 
-	printExpr(expressions[0])
-	if expressions[0].Type() != BooleanExpr {
+	mir.PrintExpr(expressions[0])
+	if expressions[0].Type() != mir.BooleanExpr {
 		t.Error(err)
 	}
 
-	r = expressions[0].(*BooleanExpression)
+	r = expressions[0].(*mir.BooleanExpression)
 
 	if r.Val != true {
 		t.Errorf("Wrong expression value, expected true got false")
@@ -458,12 +459,12 @@ func Test_cmp(t *testing.T) {
 		t.Error(err)
 	}
 
-	printExpr(expressions[0])
-	if expressions[0].Type() != NumberExpr {
+	mir.PrintExpr(expressions[0])
+	if expressions[0].Type() != mir.NumberExpr {
 		t.Error(err)
 	}
 
-	n := expressions[0].(*NumberExpression)
+	n := expressions[0].(*mir.NumberExpression)
 
 	if n.Numerator != 10 {
 		t.Errorf("Wrong expression value, expected 10 got %d", n.Numerator)
@@ -491,12 +492,12 @@ func Test_def(t *testing.T) {
 		t.Error(err)
 	}
 
-	expectedExpressions := []Expression{
-		&SymbolExpression{}, &NumberExpression{},
+	expectedExpressions := []mir.Expression{
+		&mir.SymbolExpression{}, &mir.NumberExpression{},
 	}
 
 	for i, expression := range expressions {
-		printExpr(expressions[i])
+		mir.PrintExpr(expressions[i])
 
 		if expectedExpressions[i].Type() != expression.Type() {
 			t.Errorf("Wrong result type found, expected %s got %s", expectedExpressions[i].Type().String(), expression.Type().String())
@@ -525,19 +526,19 @@ func Test_let(t *testing.T) {
 		t.Error(err)
 	}
 
-	expectedExpressions := []Expression{
-		&NumberExpression{
+	expectedExpressions := []mir.Expression{
+		&mir.NumberExpression{
 			Numerator:   4,
 			Denominator: 1,
 		},
-		&NumberExpression{
+		&mir.NumberExpression{
 			Numerator:   8,
 			Denominator: 1,
 		},
 	}
 
 	for i, expression := range expressions {
-		printExpr(expressions[i])
+		mir.PrintExpr(expressions[i])
 
 		if expectedExpressions[i].Type() != expression.Type() {
 			t.Errorf("Wrong result type found, expected %s got %s", expectedExpressions[i].Type().String(), expression.Type().String())
@@ -571,12 +572,12 @@ func Test_string(t *testing.T) {
 		t.Error(err)
 	}
 
-	expectedExpressions := []Expression{
-		&SymbolExpression{}, &SymbolExpression{}, &StringExpression{},
+	expectedExpressions := []mir.Expression{
+		&mir.SymbolExpression{}, &mir.SymbolExpression{}, &mir.StringExpression{},
 	}
 
 	for i, expression := range expressions {
-		printExpr(expressions[i])
+		mir.PrintExpr(expressions[i])
 
 		if expectedExpressions[i].Type() != expression.Type() {
 			t.Errorf("Wrong result type found, expected %s got %s", expectedExpressions[i].Type().String(), expression.Type().String())
@@ -604,12 +605,12 @@ func Test_fn(t *testing.T) {
 		t.Error(err)
 	}
 
-	expectedExpressions := []Expression{
-		&FunctionExpression{},
+	expectedExpressions := []mir.Expression{
+		&mir.FunctionExpression{},
 	}
 
 	for i, expression := range expressions {
-		printExpr(expressions[i])
+		mir.PrintExpr(expressions[i])
 
 		if expectedExpressions[i].Type() != expression.Type() {
 			t.Errorf("Wrong result type found, expected %s got %s", expectedExpressions[i].Type().String(), expression.Type().String())
@@ -637,14 +638,14 @@ func Test_defn(t *testing.T) {
 		t.Error(err)
 	}
 
-	expectedExpressions := []Expression{
-		&FunctionExpression{
+	expectedExpressions := []mir.Expression{
+		&mir.FunctionExpression{
 			Identifier: "square",
 		},
 	}
 
 	for i, expression := range expressions {
-		printExpr(expressions[i])
+		mir.PrintExpr(expressions[i])
 
 		if expectedExpressions[i].Type() != expression.Type() {
 			t.Errorf("Wrong result type found, expected %s got %s", expectedExpressions[i].Type().String(), expression.Type().String())
