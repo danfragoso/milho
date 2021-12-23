@@ -533,25 +533,29 @@ func PrintExpr(e Expression) {
 	fmt.Print(sprintExpr(e, "", true), "\n\n")
 }
 
-func sprintExpr(e Expression, tab string, last bool) string {
+func SprintExpr(e Expression) string {
+	return fmt.Sprint(sprintExpr(e, "", true), "\n\n")
+}
+
+func sprintExpr(e Expression, tab string, first bool) string {
 	var str string
+	tab += "  "
+	if e.Type() == ListExpr {
+		str += "\n" + tab + "List[" + "\n"
 
-	str += fmt.Sprintf("%s*- ", tab)
-
-	str += e.Type().String()
-	str += fmt.Sprintf("#[%s]", e.Value())
-
-	if last {
-		tab += "   "
+		for idx, expr := range e.(*ListExpression).Expressions {
+			str += sprintExpr(expr, tab, idx == 0)
+		}
 	} else {
-		tab += "|  "
+		if first {
+			str += tab
+		}
+
+		str += e.Type().String() + "[" + e.Value() + "] "
 	}
 
-	switch lExpr := e.(type) {
-	case *ListExpression:
-		for idx, expr := range lExpr.Expressions {
-			str += sprintExpr(expr, tab, idx == len(lExpr.Expressions)-1)
-		}
+	if e.Type() == ListExpr {
+		str += "]"
 	}
 
 	return str

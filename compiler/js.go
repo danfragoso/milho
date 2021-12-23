@@ -19,6 +19,19 @@ func (v *JSValue_String) String() string {
 	return fmt.Sprintf("\"%s\"", v.Value)
 }
 
+type JSValue_Array struct {
+	Values []JSValue
+}
+
+func (v *JSValue_Array) String() string {
+	str := "["
+	for _, val := range v.Values {
+		str += val.String() + ", "
+	}
+
+	return str[:len(str)-2] + "]"
+}
+
 type JSValue_Number struct {
 	Value string
 }
@@ -299,9 +312,20 @@ func matchListSymbolExpr(symbol *mir.SymbolExpression, params []mir.Expression) 
 		return methodCall(params, "map")
 	case "join":
 		return methodCall(params, "join")
+	case "quote":
+		return literal(params)
 	}
 
 	return makeFunctionCall(symbol, params)
+}
+
+func literal(params []mir.Expression) JSValue {
+	params = params[0].(*mir.ListExpression).Expressions
+	array := &JSValue_Array{}
+	for _, p := range params {
+		array.Values = append(array.Values, exprToJSValue(p))
+	}
+	return array
 }
 
 func makeOperator(operator string, params []mir.Expression) JSValue {
