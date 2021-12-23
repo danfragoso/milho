@@ -1,3 +1,5 @@
+.PHONY: repl build install www
+
 git_revision != git log -1 --pretty="%h_%ad" --date=short
 ldflags := -ldflags "-X 'github.com/danfragoso/milho.version=$(git_revision)'"
 pwd != pwd
