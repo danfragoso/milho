@@ -7,9 +7,9 @@
     <title>🌽</title>
     <style>
         .main {
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
-            font-family: sans-serif;
+            font-family: JetBrainsMono;
         }
 
         .prompt {
@@ -23,16 +23,26 @@
         }
 
         input[type=text] {
+            font-family: JetBrainsMono;
             width: 100%;
+        }
+        @font-face{
+            font-family: 'JetBrainsMono';
+            src: url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2') format('woff2'),
+                url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff/JetBrainsMono-Regular.woff') format('woff'),
+                url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/ttf/JetBrainsMono-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
         }
 
         #rBox {
-            height: 200px;
+            height: 400px;
             overflow-y: auto;
             word-wrap: break-word;
         }
         
         .b {
+            font-family: JetBrainsMono;
             padding: 10px;
             margin: 10px;
             border-radius: 5px;
@@ -66,33 +76,91 @@
             border: solid 1px #ddd;
         }
 
+        #showAST {
+            border: dashed 2px #0d7777;
+        }
+
+        .astBox {
+            margin: 10px;
+            border: dashed 2px #0d7777;
+            border-radius: 10px;
+            padding: 10px 0;
+        }
+
+        #showMIR {
+            border: dashed 2px coral;
+        }
+
+        .mirBox {
+            margin: 10px;
+            border: dashed 2px coral;
+            border-radius: 10px;
+            padding: 10px 0;
+        }
+
+        #showJS {
+            border: dashed 2px #ffcc4d;
+        }
+
+        .jsBox {
+            margin: 10px;
+            border: dashed 2px #ffcc4d;
+            border-radius: 10px;
+            padding: 10px 0;
+        }
+
         pre {
-            white-space: pre-wrap; 
+            white-space: pre-wrap;
+            margin: 0 24px;
             word-wrap: break-word;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
     <div class="main">
-        <h1>🌽 Milho</h1>
+        <h1>🌽 MILHO</h1>
         <div>
             <h3>What is this?</h3>
-            <p>Milho is a lisp-ish language created by <a href="https://github.com/celsobonutti">@celsobonutti</a> and me (<a href="https://github.com/danfragoso">@danfragoso</a>)</p>
-            <p>There are two main implementations, one written in <a href="https://github.com/danfragoso/milho">go</a> (which is this one) and one written in <a href="https://github.com/celsobonutti/milho">rust</a></p>
-            <p>The language specification can be found <a href="https://github.com/danfragoso/milho/blob/master/lang.md">here</a></p>
-            <h4>You can try milho on the REPL below</h4>
+            Milho is a lisp-ish language created by <a href="https://github.com/celsobonutti">@celsobonutti</a> and me <a href="https://github.com/danfragoso">@danfragoso</a>.
+
+            This is the <a href="https://github.com/danfragoso/milho">GO</a> implementation of the Milho interpreter and compiler. There's also <a href="https://github.com/celsobonutti/milho-rust">Rust</a>, <a href="https://github.com/celsobonutti/milho-rust">Haskell</a> and <a href="https://github.com/renatoalencar/milho-ocaml">OCaml</a> implementations.
+
+
+            <h3>How does it work?</h3>
+<pre>
+Tokenizer ➞ Parser ➞ MIR
+                      ├➞ Interpreter (Linux, BSD, WebAssembly)
+                      │   or anything you manage to run GO on.
+                      │
+                      └➞ Compiler/Codegen
+                            ├➞ JavaScript source code
+                            └➞ LLVM IR code
+</pre>
         </div>
+        <h3>Try it (WASM)</h3>
         <div class="repl">
             <div id="rBox"></div>
             <div class="prompt">
                 <div class="corn">🌽</div>
-                <input id="input" type="text">
+                <input id="input" type="text" value="(map '(1 2 3) (fn (n) (* n n)))" autofocus="autofocus">
             </div>
         </div>
         <div class="options">
             <label id="showAST">
-                Show AST
                 <input type="checkbox">
+
+                Show AST
+            </label>
+            <label id="showMIR">
+                <input type="checkbox">
+
+                Show MIR (Milho IR)
+            </label>
+            <label id="showJS">
+                <input type="checkbox" checked="true">
+
+                Emit JS code ⚠️
             </label>
         </div>
     </div>
@@ -125,6 +193,12 @@
 
         const rBox = document.querySelector("#rBox");
         const astInput = document.querySelector("#showAST input");
+        const mirInput = document.querySelector("#showMIR input");
+        const jsInput = document.querySelector("#showJS input");
+
+        const consoleOut = (outputBuffer) => {
+            rBox.innerHTML+= `<pre>${outputBuffer}</pre>`;
+        };
 
         const input = document.querySelector("#input")
         input.addEventListener('keyup', e => {
@@ -154,22 +228,26 @@
                             replSession = createREPLSession();
                         };
 
-                        rBox.innerHTML+= `🌽 ${e.target.value}`;
-
-                        const response = eval(e.target.value); n++;
-
-                        let consoleOut = "";
-                        if (typeof STDOUT !== "undefined") {
-                            consoleOut+= `<pre>${STDOUT}</pre>`;
-                            STDOUT = undefined;
-                        };
+                        rBox.innerHTML+= `<div style="margin-bottom: 8px;"> 🌽 ${e.target.value} </div>`;
 
                         let astEl = "";
                         if (astInput.checked) {
-                            astEl+= `<pre>${ast(e.target.value)}</pre>`;
+                            astEl+= `<div class="astBox"><pre>${ast(e.target.value)}</pre></div>`;
                         };
 
-                        rBox.innerHTML+= `<div class="b"><b>[${n}] 🍿</b> ${consoleOut} <pre>${response}</pre> ${astEl}</div>`;
+                        if (mirInput.checked) {
+                            astEl+= `<div class="mirBox"><pre>${mir(e.target.value)}</pre></div>`;
+                        };
+
+                        if (jsInput.checked) {
+                            astEl+= `<div class="jsBox"><pre>${js(e.target.value)}</pre></div>`;
+                        };
+
+                        rBox.innerHTML += astEl;
+
+                        const response = evalMilho(e.target.value); n++;
+
+                        rBox.innerHTML+= `<div class="b"><b>[${n}] 🍿</b> ${response}</div>`;
                         rBox.scrollTop = rBox.scrollHeight;
                         e.target.value = "";
                     };

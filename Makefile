@@ -13,8 +13,8 @@ build:
 install:
 	@cp milho /usr/bin/milho
 
-wasm:
-	@GOOS=js GOARCH=wasm go build $(ldflags) -o web/wasm/milho.wasm web/go/milho.go
+www:
+	@GOOS=js GOARCH=wasm go build $(ldflags) -o www/wasm/milho.wasm www/go/milho.go
 
 test_spec:
 	@make build
