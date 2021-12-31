@@ -421,8 +421,19 @@ func (e *SocketExpression) setParent(parent Expression) {
 
 // String Expression
 func CreateStringExpression(value string) (*StringExpression, error) {
+	// @TODO: Also unescape unicode points
+	unescapedString := strings.ReplaceAll(value, "\\a", "\a")
+	unescapedString = strings.ReplaceAll(unescapedString, "\\b", "\b")
+	unescapedString = strings.ReplaceAll(unescapedString, "\\f", "\f")
+	unescapedString = strings.ReplaceAll(unescapedString, "\\n", "\n")
+	unescapedString = strings.ReplaceAll(unescapedString, "\\r", "\r")
+	unescapedString = strings.ReplaceAll(unescapedString, "\\t", "\t")
+	unescapedString = strings.ReplaceAll(unescapedString, "\\v", "\v")
+	unescapedString = strings.ReplaceAll(unescapedString, "\\\"", "\"")
+	unescapedString = strings.ReplaceAll(unescapedString, "\\\\", "\\")
+
 	return &StringExpression{
-		Val: value,
+		Val: unescapedString,
 	}, nil
 }
 

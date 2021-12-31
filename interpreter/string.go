@@ -53,8 +53,6 @@ func __split(params []mir.Expression, session *mir.Session) (mir.Expression, err
 	strValue := strings.Trim(str.Value(), "\"")
 	sepValue := strings.Trim(sep.Value(), "\"")
 
-	sepValue = strings.ReplaceAll(sepValue, "\\n", "\n")
-
 	strs := strings.Split(strValue, sepValue)
 	for _, st := range strs {
 		s, err := mir.CreateStringExpression(st)
