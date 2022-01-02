@@ -45,8 +45,12 @@ node hello.js
 milho -cLLVM compiler/examples/hello.milho > hello.ll
 lli hello.ll
 ```
+## Configuring git hooks
+```
+make hooks
+```
 
-## Running te repl
+## Running the repl
 ```
 make repl
 ```

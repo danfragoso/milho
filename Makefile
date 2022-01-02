@@ -1,4 +1,4 @@
-.PHONY: repl build install www
+.PHONY: repl build install www hooks
 
 git_revision != git log -1 --pretty="%h_%ad" --date=short
 ldflags := -ldflags "-X 'github.com/danfragoso/milho.version=$(git_revision)'"
@@ -17,6 +17,10 @@ install:
 
 www:
 	@GOOS=js GOARCH=wasm go build $(ldflags) -o www/wasm/milho.wasm www/go/milho.go
+
+hooks:
+	@cp ./hooks/pre-push.milho .git/hooks/pre-push
+	@chmod +x .git/hooks/pre-push
 
 test_spec:
 	@make build
