@@ -1,0 +1,4 @@
+; Milho comment test
+(def var1 "Hello") ;; Comment after string
+(print var1) ;; Comment "string here?"
+(print "a")  ; last line comment
