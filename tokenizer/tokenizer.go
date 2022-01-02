@@ -12,17 +12,30 @@ func Tokenize(rawString string) ([]*Token, error) {
 	var tokens []*Token
 
 	var openString bool
+	var openComment bool
 
 	for currentChar != NULL_CHAR {
 		if isParenthesis(currentChar) || isSingleQuote(currentChar) {
 			tokenBuffer = string(currentChar)
 		} else {
-			for openString || !isWhiteSpace(currentChar) {
+			for openComment || openString || !isWhiteSpace(currentChar) {
 				if isDoubleQuote(currentChar) && !isBackslash(s.PreviousChar()) {
 					openString = !openString
 				}
 
+				if isCommentStart(currentChar) {
+					openComment = true
+				}
+
+				if openComment && isNewLine(currentChar) {
+					openComment = false
+				}
+
 				tokenBuffer += string(currentChar)
+
+				if s.PeekNextChar() == NULL_CHAR {
+					break
+				}
 
 				if isParenthesis(s.PeekNextChar()) && !openString {
 					break
@@ -35,7 +48,6 @@ func Tokenize(rawString string) ([]*Token, error) {
 		if tokenBuffer != "" {
 			currentToken, err := generateToken(tokenBuffer)
 			if err != nil {
-				//lint:ignore ST1005 I like my errors to be capitalized
 				return nil, fmt.Errorf("Tokenization error: %s at index %d", err.Error(), s.Index)
 			}
 

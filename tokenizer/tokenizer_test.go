@@ -8,6 +8,7 @@ import (
 
 func Test_number(t *testing.T) {
 	tokens, err := Tokenize("4")
+	fmt.Println(tokens)
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -232,6 +233,34 @@ func Test_string(t *testing.T) {
 			OParen, Symbol, Symbol, OParen, Symbol,
 			Symbol, String, CParen, CParen, OParen,
 			Symbol, Symbol, CParen,
+		}
+
+		for idx, tok := range expectedTokens {
+			if tokens[idx].Type != tok {
+				t.Errorf("Wrong token type, expected %s got %s", tok, tokens[idx].Type)
+			}
+		}
+	}
+}
+
+func Test_comments(t *testing.T) {
+	tokens, err := Tokenize(`
+		; Milho comment test
+		(def var1 "Hello") ;; Comment after string
+		(print var1) ;; Comment "string here?"
+		(print "a")  ; last line comment`)
+
+	for _, tok := range tokens {
+		fmt.Println(tok)
+	}
+
+	if err != nil {
+		t.Error(err)
+	} else {
+		expectedTokens := []TokenType{
+			Comment, OParen, Symbol, Symbol, String, CParen,
+			Comment, OParen, Symbol, Symbol, CParen, Comment,
+			OParen, Symbol, String, CParen, Comment,
 		}
 
 		for idx, tok := range expectedTokens {

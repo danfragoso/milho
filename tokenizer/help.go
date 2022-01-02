@@ -9,6 +9,14 @@ func isWhiteSpace(r rune) bool {
 	return false
 }
 
+func isNewLine(r rune) bool {
+	return r == '\n'
+}
+
+func isCommentStart(r rune) bool {
+	return r == ';'
+}
+
 func isSingleQuote(r rune) bool {
 	return r == '\''
 }

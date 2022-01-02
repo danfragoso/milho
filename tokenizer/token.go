@@ -9,7 +9,7 @@ import (
 type TokenType int
 
 func (t TokenType) String() string {
-	return [...]string{"Invalid", "Whitespace", "Number", "Symbol", "Boolean", "String", "Byte", "OpenParenthesis", "CloseParenthesis", "SingleQuote"}[t]
+	return [...]string{"Invalid", "Whitespace", "Number", "Symbol", "Boolean", "String", "Byte", "OpenParenthesis", "CloseParenthesis", "SingleQuote", "Comment"}[t]
 }
 
 const (
@@ -26,6 +26,7 @@ const (
 	CParen
 
 	SQuote
+	Comment
 )
 
 type Token struct {
@@ -62,6 +63,8 @@ func resolveTokenType(rawToken string) (TokenType, error) {
 		return SQuote, nil
 	case '"':
 		return String, nil
+	case ';':
+		return Comment, nil
 	}
 
 	if isDigit(rune(rawToken[0])) {
