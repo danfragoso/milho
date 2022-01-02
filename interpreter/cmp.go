@@ -113,9 +113,44 @@ func __exec(params []mir.Expression, session *mir.Session) (mir.Expression, erro
 	}
 
 	out, err := cmd.Output()
+
+	stdOut := strings.Trim(string(out), "\n")
+	stdErr := ""
+	exitCode := 0
+
 	if err != nil {
-		return nil, fmt.Errorf("Error executing command '%s': %s", cmd.Args, err)
+		fErr := err.(*exec.ExitError)
+
+		stdErr = strings.Trim(string(fErr.Stderr), "\n")
+		exitCode = fErr.ExitCode()
 	}
 
-	return mir.CreateStringExpression(strings.Trim(string(out), "\n"))
+	exitCodeExpr, _ := mir.CreateNumberExpression(int64(exitCode), 1)
+
+	stdOutExpr, _ := mir.CreateStringExpression(stdOut)
+	stdErrExpr, _ := mir.CreateStringExpression(stdErr)
+
+	return mir.CreateListExpression(exitCodeExpr, stdOutExpr, stdErrExpr)
+}
+
+// @TODO: Fix variadics and implement this in milho
+func __execCode(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	output, _ := __exec(params, session)
+	exprs := output.(*mir.ListExpression).Expressions
+
+	return exprs[0], nil
+}
+
+func __execStdout(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	output, _ := __exec(params, session)
+	exprs := output.(*mir.ListExpression).Expressions
+
+	return exprs[1], nil
+}
+
+func __execStderr(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	output, _ := __exec(params, session)
+	exprs := output.(*mir.ListExpression).Expressions
+
+	return exprs[2], nil
 }

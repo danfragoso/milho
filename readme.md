@@ -39,7 +39,7 @@ You just need to add ```#!/bin/milho``` to the top of your file and run with ```
 #!/bin/milho
 
 (defn getUserName ()
-  (exec "git" "config" "--get" "user.name"))
+  (exec-stdout "git" "config" "--get" "user.name"))
 
 (defn buildHelloString (who)
   (str "Hello " who "! 🌽"))

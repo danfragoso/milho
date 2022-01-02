@@ -41,6 +41,10 @@ func init() {
 
 		".__exec": {"Exec (command:String ?params:...String) -> String", __exec},
 
+		".__exec-code":   {"Exec (command:String ?params:...String) -> String", __execCode},
+		".__exec-stdout": {"Exec (command:String ?params:...String) -> String", __execStdout},
+		".__exec-stderr": {"Exec (command:String ?params:...String) -> String", __execStderr},
+
 		".__import": {"Import (module:String|Symbol ?namespace:Symbol) -> Nil", __import},
 
 		".__sleep": {"Sleep (ms:Number) -> Nil", __sleep},
@@ -66,6 +70,10 @@ var builtinInjector = `
 	(def exit .__exit)
 	(def Real True)
 	(def Feike False)
+
+	(def exec-code .__exec-code)
+	(def exec-stdout .__exec-stdout)
+	(def exec-stderr .__exec-stderr)
 
 	(def Nil ())
 

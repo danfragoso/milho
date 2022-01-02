@@ -1,5 +1,5 @@
 (defn sqlite3.sql (db-name query)
-  (exec "sqlite3" db-name query))
+  (exec-stdout "sqlite3" db-name query))
 
 (defn sqlite3.insert (db-name table-name data)
   (progn
@@ -11,5 +11,5 @@
     (fn (row) (split row "|"))))
 
 (defn sqlite3.tables (db-name)
-  (exec "sqlite3" db-name ".tables"))
+  (exec-stdout "sqlite3" db-name ".tables"))
 
