@@ -34,15 +34,32 @@ milho hello.milho
 ## Creating scripts
 If you want to run milho files from the command line, you can create a milho script.
 You just need to add ```#!/bin/milho``` to the top of your file and run with ```./script.milho```.
+
+```clojure
+#!/bin/milho
+
+(defn getUserName ()
+  (exec "git" "config" "--get" "user.name"))
+
+(defn buildHelloString (who)
+  (str "Hello " who "! 🌽"))
+
+(def userName (getUserName))
+
+(if (! (= userName ""))
+  (println (buildHelloString userName))
+  (exit 1)) ;; Exit with error if no user.name.
+
+```
 ## Compiling a milho file
 ```
 // To JavaScript
-milho -cJS compiler/examples/hello.milho > hello.js
+milho -cJS examples/hello.milho > hello.js
 node hello.js
 ```
 ```
 // To LLVM IR
-milho -cLLVM compiler/examples/hello.milho > hello.ll
+milho -cLLVM examples/hello.milho > hello.ll
 lli hello.ll
 ```
 ## Configuring git hooks

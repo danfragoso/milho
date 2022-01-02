@@ -1,0 +1,13 @@
+#!/bin/milho
+
+(defn getUserName ()
+  (exec "git" "config" "--get" "user.name"))
+
+(defn buildHelloString (who)
+  (str "Hello " who "! 🌽"))
+
+(def userName (getUserName))
+
+(if (! (= userName ""))
+  (println (buildHelloString userName))
+  (exit 1)) ;; Exit with error if no user.name.
