@@ -2,7 +2,7 @@
   (exec-stdout "sqlite3" db-name query))
 
 (defn sqlite3.insert (db-name table-name data)
-  (progn
+  (do
     (def values (map data (fn (value) (str "\"" value "\""))))
     (sqlite3.sql db-name (str "INSERT INTO " table-name " VALUES (" (join values ",") ")"))))
 

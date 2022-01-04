@@ -1,5 +1,5 @@
 (map (range 0 99)
   (fn (i)
-    (progn
+    (do
       (println i)
       (sleep 100))))

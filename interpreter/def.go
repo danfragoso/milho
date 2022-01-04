@@ -206,7 +206,7 @@ func __time(params []mir.Expression, session *mir.Session) (mir.Expression, erro
 	return mir.CreateListExpression(duration, ev)
 }
 
-func __progn(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+func __do(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	var res mir.Expression
 	var err error
 
