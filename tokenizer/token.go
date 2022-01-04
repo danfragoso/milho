@@ -29,16 +29,25 @@ const (
 	Comment
 )
 
+type TokenPosition struct {
+	Line   uint64
+	Column uint64
+}
+
 type Token struct {
-	Type  TokenType
+	Type     TokenType
+	Position TokenPosition
+
 	Value string
 }
 
-func generateToken(rawToken string) (*Token, error) {
+func generateToken(rawToken string, line uint64, column uint64) (*Token, error) {
 	tokenType, err := resolveTokenType(rawToken)
 	if err != nil {
 		return nil, err
 	}
+
+	tokenOffset := uint64(len(rawToken) - 1)
 
 	switch tokenType {
 	case Invalid:
@@ -48,8 +57,12 @@ func generateToken(rawToken string) (*Token, error) {
 	}
 
 	return &Token{
+		Type: tokenType,
+		Position: TokenPosition{
+			Line:   line,
+			Column: column - tokenOffset,
+		},
 		Value: rawToken,
-		Type:  tokenType,
 	}, nil
 }
 

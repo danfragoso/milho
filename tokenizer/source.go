@@ -1,6 +1,7 @@
 package tokenizer
 
 const NULL_CHAR rune = 0
+const NEWLINE_CHAR rune = '\n'
 
 type Source struct {
 	Length int
