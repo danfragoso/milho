@@ -117,12 +117,21 @@ func evaluateUserFunction(fn *mir.FunctionExpression, params []mir.Expression, s
 
 	var objs []*mir.Object
 	for i, fnParam := range arity.Parameters() {
-		value, err := evaluate(params[i], session)
-		if err != nil {
-			return nil, err
-		}
+		if arity.HasVariadic() && i+1 == len(arity.Parameters()) {
+			paramList, err := mir.CreateListExpression(params[i:]...)
+			if err != nil {
+				return nil, err
+			}
 
-		objs = append(objs, mir.CreateObject(value, fnParam))
+			objs = append(objs, mir.CreateObject(paramList, fnParam))
+		} else {
+			value, err := evaluate(params[i], session)
+			if err != nil {
+				return nil, err
+			}
+
+			objs = append(objs, mir.CreateObject(value, fnParam))
+		}
 	}
 
 	switch arity.Body().Type() {
