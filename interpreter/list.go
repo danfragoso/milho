@@ -51,6 +51,22 @@ func __car(params []mir.Expression, session *mir.Session) (mir.Expression, error
 	return exprs[0], nil
 }
 
+func __push(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	if len(params) != 2 {
+		return nil, errors.New("Wrong number of args '2' passed to push")
+	}
+
+	if params[1].Type() != mir.ListExpr {
+		return nil, fmt.Errorf("push second parameter must be a list, instead got %s", params[1].Type())
+	}
+
+	var exprs []mir.Expression
+	exprs = append(exprs, params[0])
+	exprs = append(exprs, params[1].(*mir.ListExpression).Expressions...)
+
+	return mir.CreateListExpression(exprs...)
+}
+
 func __cons(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	if len(params) != 2 {
 		return nil, errors.New("Wrong number of args '2' passed to cons")

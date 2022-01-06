@@ -51,6 +51,14 @@ func init() {
 
 		".__range": {"Range (min:Number max:Number) -> Nil", __range},
 		".__exit":  {"Exit (?code:Number) -> Nil", __exit},
+
+		".__push": {"Push (item:Any list:List) -> List", __push},
+
+		".__map-create": {"MapCreate (?params:...) -> Map", __mapCreate},
+		".__map-get":    {"MapGet (map:Map key:String) -> Any", __mapGet},
+		".__map-set":    {"MapSet (map:Map key:String value:Any) -> Map", __mapSet},
+		".__map-delete": {"MapDelete (map:Map key:String) -> Map", __mapDelete},
+		".__map-keys":   {"MapKeys (map:Map) -> List", __mapKeys},
 	}
 }
 
@@ -66,10 +74,18 @@ var builtinInjector = `
 
 	(def pr .__pr) (def prn .__prn) (def print .__print) (def println .__println)
 
+	(def eval .__eval)
+	(def push .__push)
 	(def str .__str)
 	(def exit .__exit)
 	(def Real True)
 	(def Feike False)
+
+	(def map-create .__map-create)
+	(def map-get .__map-get)
+	(def map-set .__map-set)
+	(def map-delete .__map-delete)
+	(def map-keys .__map-keys)
 
 	(def exec-code .__exec-code)
 	(def exec-stdout .__exec-stdout)

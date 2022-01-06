@@ -233,3 +233,110 @@ func __eval(params []mir.Expression, session *mir.Session) (mir.Expression, erro
 
 	return evaluate(param, session)
 }
+
+func __mapCreate(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	exprMap := map[string]mir.Expression{}
+
+	if len(params) < 1 {
+		return nil, fmt.Errorf("Wrong number of args '%d' passed to mapCreate, needs to be at least 1", len(params))
+	}
+
+	for _, param := range params {
+		if param.Type() != mir.ListExpr {
+			return nil, fmt.Errorf("Wrong type of param '%s' passed to mapCreate, only list is allowed", param.Type())
+		}
+
+		lst := param.(*mir.ListExpression)
+		if len(lst.Expressions) != 2 {
+			return nil, fmt.Errorf("Wrong number of items in list passed to mapCreate, only 2 is allowed")
+		}
+
+		if lst.Expressions[0].Type() != mir.SymbolExpr {
+			return nil, fmt.Errorf("First item of list passed to mapCreate must be a symbol")
+		}
+
+		value, _ := evaluate(lst.Expressions[1], session)
+		exprMap[lst.Expressions[0].Value()] = value
+	}
+
+	return mir.CreateMapExpression(exprMap)
+}
+
+func __mapSet(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	if len(params) != 3 {
+		return nil, fmt.Errorf("Wrong number of args '%d' passed to mapSet, needs to be 3", len(params))
+	}
+
+	mapExpr, _ := evaluate(params[0], session)
+	if mapExpr.Type() != mir.MapExpr {
+		return nil, fmt.Errorf("First argument of mapSet must be a map")
+	}
+
+	keyExpr, _ := evaluate(params[1], session)
+	if keyExpr.Type() != mir.SymbolExpr {
+		return nil, fmt.Errorf("Second argument of mapSet must be a symbol")
+	}
+
+	valueExpr, _ := evaluate(params[2], session)
+
+	mapExpr.(*mir.MapExpression).Values[keyExpr.Value()] = valueExpr
+
+	return mapExpr, nil
+}
+
+func __mapGet(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	if len(params) != 2 {
+		return nil, fmt.Errorf("Wrong number of args '%d' passed to mapGet, needs to be 2", len(params))
+	}
+
+	mapExpr, _ := evaluate(params[0], session)
+	if mapExpr.Type() != mir.MapExpr {
+		return nil, fmt.Errorf("First argument of mapGet must be a map")
+	}
+
+	keyExpr, _ := evaluate(params[1], session)
+	if keyExpr.Type() != mir.SymbolExpr {
+		return nil, fmt.Errorf("Second argument of mapGet must be a symbol")
+	}
+
+	return mapExpr.(*mir.MapExpression).Values[keyExpr.Value()], nil
+}
+
+func __mapDelete(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	if len(params) != 2 {
+		return nil, fmt.Errorf("Wrong number of args '%d' passed to mapDelete, needs to be 2", len(params))
+	}
+
+	mapExpr, _ := evaluate(params[0], session)
+	if mapExpr.Type() != mir.MapExpr {
+		return nil, fmt.Errorf("First argument of mapDelete must be a map")
+	}
+
+	keyExpr, _ := evaluate(params[1], session)
+	if keyExpr.Type() != mir.SymbolExpr {
+		return nil, fmt.Errorf("Second argument of mapDelete must be a symbol")
+	}
+
+	delete(mapExpr.(*mir.MapExpression).Values, keyExpr.Value())
+
+	return mapExpr, nil
+}
+
+func __mapKeys(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	if len(params) != 1 {
+		return nil, fmt.Errorf("Wrong number of args '%d' passed to mapKeys, needs to be 1", len(params))
+	}
+
+	mapExpr, _ := evaluate(params[0], session)
+	if mapExpr.Type() != mir.MapExpr {
+		return nil, fmt.Errorf("First argument of mapKeys must be a map")
+	}
+
+	var keys []mir.Expression
+	for k := range mapExpr.(*mir.MapExpression).Values {
+		key, _ := mir.CreateSymbolExpression(k, &mir.SymbolExpression{})
+		keys = append(keys, key)
+	}
+
+	return mir.CreateListExpression(keys...)
+}

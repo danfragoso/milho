@@ -13,7 +13,7 @@ import (
 type ExpressionType int
 
 func (e ExpressionType) String() string {
-	return [...]string{"Nil", "Number", "Boolean", "Symbol", "Socket", "FunctionExpr", "String", "Byte", "List", "ErrorExpr", "BuiltIn", "StructExpr"}[e]
+	return [...]string{"Nil", "Number", "Boolean", "Symbol", "Socket", "FunctionExpr", "String", "Byte", "List", "ErrorExpr", "BuiltIn", "StructExpr", "Map"}[e]
 }
 
 const (
@@ -29,6 +29,7 @@ const (
 	ErrorExpr
 	BuiltInExpr
 	StructExpr
+	MapExpr
 )
 
 type Expression interface {
@@ -61,6 +62,39 @@ func (e *NilExpression) Parent() Expression {
 }
 
 func (e *NilExpression) setParent(parent Expression) {
+	e.ParentExpr = parent
+}
+
+// Map Expression
+func CreateMapExpression(values map[string]Expression) (*MapExpression, error) {
+	return &MapExpression{
+		Values: values,
+	}, nil
+}
+
+type MapExpression struct {
+	ParentExpr Expression
+	Values     map[string]Expression
+}
+
+func (e *MapExpression) Type() ExpressionType {
+	return MapExpr
+}
+
+func (e *MapExpression) Value() string {
+	mapValues := "("
+	for k, v := range e.Values {
+		mapValues += fmt.Sprintf("%s:%s ", k, v.Value())
+	}
+
+	return "Map" + strings.Trim(mapValues, " ") + ")"
+}
+
+func (e *MapExpression) Parent() Expression {
+	return e.ParentExpr
+}
+
+func (e *MapExpression) setParent(parent Expression) {
 	e.ParentExpr = parent
 }
 
