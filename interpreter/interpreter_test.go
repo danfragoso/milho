@@ -390,10 +390,20 @@ func Test_cmp(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = Run(ast)
-	fmt.Print(err, "\n\n")
-	if err == nil {
-		t.Error("Expected error")
+	expressions, err = Run(ast)
+	if err != nil {
+		t.Error(err)
+	}
+
+	mir.PrintExpr(expressions[0])
+	if expressions[0].Type() != mir.BooleanExpr {
+		t.Error(err)
+	}
+
+	r = expressions[0].(*mir.BooleanExpression)
+
+	if r.Val != false {
+		t.Errorf("Wrong expression value, expected false got true")
 	}
 
 	src = "(= True (= 2 2))"
@@ -436,10 +446,20 @@ func Test_cmp(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = Run(ast)
-	fmt.Print(err, "\n\n")
-	if err == nil {
-		t.Error("Expected error")
+	expressions, err = Run(ast)
+	if err != nil {
+		t.Error(err)
+	}
+
+	mir.PrintExpr(expressions[0])
+	if expressions[0].Type() != mir.BooleanExpr {
+		t.Error(err)
+	}
+
+	r = expressions[0].(*mir.BooleanExpression)
+
+	if r.Val != false {
+		t.Errorf("Wrong expression value, expected false got true")
 	}
 
 	src = "(if (= 2 2) 10 2)"

@@ -70,6 +70,38 @@ func __sub(params []mir.Expression, session *mir.Session) (mir.Expression, error
 	return mir.CreateNumberExpression(acc, 1)
 }
 
+func __lt(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	if len(params) != 2 {
+		return nil, errors.New("Wrong number of args '2' passed to Number:[<] function")
+	}
+
+	var err error
+	fExp := params[0]
+	fExp, err = evaluate(fExp, session)
+	if err != nil {
+		return nil, err
+	}
+
+	if fExp.Type() != mir.NumberExpr {
+		return nil, errors.New("First argument to Number:[<] function must be a number")
+	}
+
+	sExp := params[1]
+	sExp, err = evaluate(sExp, session)
+	if err != nil {
+		return nil, err
+	}
+
+	if sExp.Type() != mir.NumberExpr {
+		return nil, errors.New("Second argument to Number:[<] function must be a number")
+	}
+
+	nA := fExp.(*mir.NumberExpression).Numerator / fExp.(*mir.NumberExpression).Denominator
+	nB := sExp.(*mir.NumberExpression).Numerator / sExp.(*mir.NumberExpression).Denominator
+
+	return mir.CreateBooleanExpression(nA < nB)
+}
+
 func __div(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	if len(params) == 0 {
 		return nil, errors.New("Wrong number of args '0' passed to Number:[-] function")

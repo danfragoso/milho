@@ -18,6 +18,7 @@ func init() {
 		".__mul": {"Mul", __mul},
 		".__sub": {"Sub", __sub},
 		".__div": {"Div", __div},
+		".__lt":  {"Lt", __lt},
 
 		".__eq":     {"Eq", __eq},
 		".__negate": {"Negate", __negate},
@@ -66,7 +67,7 @@ var builtinInjector = `
 	(.__def def .__def) (def defn .__defn) (def quote .__quote) (def type .__type)
 	(def let .__let) (def fn .__fn) (def time .__time) (def do .__do)
 
-	(def + .__add) (def * .__mul) (def - .__sub) (def / .__div)
+	(def + .__add) (def * .__mul) (def - .__sub) (def / .__div) (def < .__lt)
 
 	(def = .__eq) (def ! .__negate) (def if .__if) (def map .__map)
 
