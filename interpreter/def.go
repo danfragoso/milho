@@ -23,12 +23,12 @@ func __def(params []mir.Expression, session *mir.Session) (mir.Expression, error
 		return nil, err
 	}
 
-	symbol, err := mir.CreateSymbolExpression(firstParam.(*mir.SymbolExpression).Identifier, value)
+	symbol, err := mir.CreateSymbolExpression(firstParam.(*mir.SymbolExpression).Identifier)
 	if err != nil {
 		return nil, err
 	}
 
-	err = session.AddObject(symbol.Identifier, symbol.Expression)
+	err = session.AddObject(symbol.Identifier, value)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func __type(params []mir.Expression, session *mir.Session) (mir.Expression, erro
 		return nil, err
 	}
 
-	return mir.CreateSymbolExpression(ev.Type().String(), &mir.SymbolExpression{})
+	return mir.CreateSymbolExpression(ev.Type().String())
 }
 
 func __fn(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
@@ -334,7 +334,7 @@ func __mapKeys(params []mir.Expression, session *mir.Session) (mir.Expression, e
 
 	var keys []mir.Expression
 	for k := range mapExpr.(*mir.MapExpression).Values {
-		key, _ := mir.CreateSymbolExpression(k, &mir.SymbolExpression{})
+		key, _ := mir.CreateSymbolExpression(k)
 		keys = append(keys, key)
 	}
 

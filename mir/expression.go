@@ -365,17 +365,15 @@ func (e *FunctionExpression) setParent(parent Expression) {
 }
 
 // Symbol Expression
-func CreateSymbolExpression(identifier string, expression Expression) (*SymbolExpression, error) {
+func CreateSymbolExpression(identifier string) (*SymbolExpression, error) {
 	return &SymbolExpression{
 		Identifier: identifier,
-		Expression: expression,
 	}, nil
 }
 
 type SymbolExpression struct {
 	ParentExpr Expression
 	Identifier string
-	Expression Expression
 }
 
 func (e *SymbolExpression) Type() ExpressionType {
@@ -526,7 +524,7 @@ func GenerateMIR(node *parser.Node) (Expression, error) {
 
 	switch node.Type {
 	case parser.Identifier:
-		return CreateSymbolExpression(node.Identifier, nil)
+		return CreateSymbolExpression(node.Identifier)
 
 	case parser.String:
 		return CreateStringExpression(node.Identifier)
