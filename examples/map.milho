@@ -1,0 +1,36 @@
+(defn createMeme (mName mYear mScore)
+  ;; map-create takes key, value pairs returns a map.
+  (map-create (name mName) (year mYear) (score mScore)))
+
+(defn getMemeName (m)
+  ;; map-get takes a map and a symbol and returns the value of the key.
+  (map-get m 'name))
+
+(defn getMemeScore (m)
+  (map-get m 'score))
+
+(defn setMemeScore (m s)
+  ;; map-set takes a map, a key and a value and mutates
+  ;; the value of the key in the map.
+  (map-set m 'score s))
+
+
+(defn isMemeTooOld (m)
+  (if (< (map-get m year) 2000)
+    True False))
+
+(def favMeme
+  (createMeme "Me Gusta" 2008 100))
+
+(println (str "The name of the meme is: " (getMemeName favMeme)))
+
+(if (isMemeTooOld favMeme)
+  (println "This meme is too old")
+  (println "This meme is not too old"))
+
+(println (str "The score of the meme is: " (getMemeScore favMeme)))
+
+(setMemeScore favMeme 200)
+
+(println (str "The score of the meme is now: " (getMemeScore favMeme)))
+
