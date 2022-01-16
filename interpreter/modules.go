@@ -75,3 +75,26 @@ func __import(params []mir.Expression, session *mir.Session) (mir.Expression, er
 
 	return mir.CreateNilExpression()
 }
+
+func __read(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	if len(params) != 1 {
+		return nil, fmt.Errorf("expected 1 parameter, got %d", len(params))
+	}
+
+	expr, err := evaluate(params[0], session)
+	if err != nil {
+		return nil, fmt.Errorf("failed to evaluate parameter: %s", err)
+	}
+
+	if expr.Type() != mir.StringExpr {
+		return nil, fmt.Errorf("parameter must be of type string, got: %s", expr.Value())
+	}
+
+	pathStr := expr.(*mir.StringExpression).Val
+	src, err := ioutil.ReadFile(pathStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file %s: %s", pathStr, err)
+	}
+
+	return mir.CreateStringExpression(string(src))
+}

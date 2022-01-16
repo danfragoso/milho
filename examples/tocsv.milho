@@ -1,0 +1,20 @@
+;; [{title, artifact, docID}]
+(def json (read "./docs.json"))
+(def docs (map-from-json json))
+
+(defn build-url (id)
+  (str "https://milho-lang/doc/" id))
+
+(defn get-artifact-type (a)
+  (match a
+    (0 "DOC")
+    (1 "IMG")
+    (_ "NO_ID")))
+
+(println "TITLE, ARTIFACT, URL")
+(map docs (fn (d)
+  (println
+    (str
+      (map-get d title) ","
+      (get-artifact-type (map-get d artifact)) ","
+      (build-url (map-get d docId))))))

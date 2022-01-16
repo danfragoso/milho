@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -320,6 +321,65 @@ func __mapDelete(params []mir.Expression, session *mir.Session) (mir.Expression,
 	delete(mapExpr.(*mir.MapExpression).Values, keyExpr.Value())
 
 	return mapExpr, nil
+}
+
+func __mapFromJSON(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	if len(params) != 1 {
+		return nil, fmt.Errorf("Wrong number of args '%d' passed to mapFromJSON, needs to be 1", len(params))
+	}
+
+	jsonExpr, _ := evaluate(params[0], session)
+	if jsonExpr.Type() != mir.StringExpr {
+		return nil, fmt.Errorf("First argument of mapFromJSON must be a string")
+	}
+
+	jsonValue := jsonExpr.(*mir.StringExpression).Val
+
+	var mp interface{}
+	err := json.Unmarshal([]byte(jsonValue), &mp)
+	if err != nil {
+		return nil, err
+	}
+
+	return resolveExprFromJSON(mp)
+}
+
+func resolveExprFromJSON(mp interface{}) (mir.Expression, error) {
+	var expr mir.Expression
+	switch mp := mp.(type) {
+	case string:
+		expr, _ = mir.CreateStringExpression(mp)
+
+	case float64:
+		expr, _ = mir.CreateNumberExpression(int64(mp), 1)
+
+	case bool:
+		expr, _ = mir.CreateBooleanExpression(mp)
+
+	case map[string]interface{}:
+		expr, _ = mir.CreateMapExpression(map[string]mir.Expression{})
+		for k, v := range mp {
+			exprV, err := resolveExprFromJSON(v)
+			if err != nil {
+				return nil, err
+			}
+
+			expr.(*mir.MapExpression).Values[k] = exprV
+		}
+
+	case []interface{}:
+		expr, _ = mir.CreateListExpression()
+		for _, v := range mp {
+			exprV, err := resolveExprFromJSON(v)
+			if err != nil {
+				return nil, err
+			}
+
+			expr.(*mir.ListExpression).Expressions = append(expr.(*mir.ListExpression).Expressions, exprV)
+		}
+	}
+
+	return expr, nil
 }
 
 func __mapKeys(params []mir.Expression, session *mir.Session) (mir.Expression, error) {

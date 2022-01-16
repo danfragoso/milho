@@ -133,6 +133,58 @@ func __exec(params []mir.Expression, session *mir.Session) (mir.Expression, erro
 	return mir.CreateListExpression(exitCodeExpr, stdOutExpr, stdErrExpr)
 }
 
+func __match(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
+	expr, err := evaluate(params[0], session)
+	if err != nil {
+		return nil, err
+	}
+
+	exprsToMatch := params[1:]
+	for _, exprToMatch := range exprsToMatch {
+		if exprToMatch.Type() != mir.ListExpr {
+			return nil, fmt.Errorf("Wrong match option passed to match function, expected List of pattern and return value")
+		}
+
+		pattern := exprToMatch.(*mir.ListExpression).Expressions[0]
+		matched := matchAlike(pattern, expr, session)
+		if matched {
+			return evaluate(exprToMatch.(*mir.ListExpression).Expressions[1], session)
+		}
+
+	}
+
+	return mir.CreateNilExpression()
+}
+
+func matchAlike(pattern, expr mir.Expression, session *mir.Session) bool {
+	if pattern.Type() == mir.SymbolExpr && pattern.(*mir.SymbolExpression).Identifier == "_" {
+		return true
+	}
+
+	if pattern.Type() == mir.ListExpr && expr.Type() == mir.ListExpr {
+		if len(pattern.(*mir.ListExpression).Expressions) != len(expr.(*mir.ListExpression).Expressions) {
+			return false
+		}
+
+		for i, subPattern := range pattern.(*mir.ListExpression).Expressions {
+			subExpr := expr.(*mir.ListExpression).Expressions[i]
+			subResult := matchAlike(subPattern, subExpr, session)
+
+			if !subResult {
+				return false
+			}
+		}
+
+		return true
+	}
+
+	if pattern.Type() == expr.Type() && pattern.Value() == expr.Value() {
+		return true
+	}
+
+	return false
+}
+
 // @TODO: Fix variadics and implement this in milho
 func __execCode(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
 	output, _ := __exec(params, session)

@@ -1,6 +1,9 @@
 (defn createMeme (mName mYear mScore)
   ;; map-create takes key, value pairs returns a map.
-  (map-create (name mName) (year mYear) (score mScore)))
+  (map-create
+    (name mName)
+    (year mYear)
+    (score mScore)))
 
 (defn getMemeName (m)
   ;; map-get takes a map and a symbol and returns the value of the key.

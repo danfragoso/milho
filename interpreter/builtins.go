@@ -55,11 +55,15 @@ func init() {
 
 		".__push": {"Push (item:Any list:List) -> List", __push},
 
-		".__map-create": {"MapCreate (?params:...) -> Map", __mapCreate},
-		".__map-get":    {"MapGet (map:Map key:String) -> Any", __mapGet},
-		".__map-set":    {"MapSet (map:Map key:String value:Any) -> Map", __mapSet},
-		".__map-delete": {"MapDelete (map:Map key:String) -> Map", __mapDelete},
-		".__map-keys":   {"MapKeys (map:Map) -> List", __mapKeys},
+		".__map-create":    {"MapCreate (?params:...) -> Map", __mapCreate},
+		".__map-get":       {"MapGet (map:Map key:String) -> Any", __mapGet},
+		".__map-set":       {"MapSet (map:Map key:String value:Any) -> Map", __mapSet},
+		".__map-delete":    {"MapDelete (map:Map key:String) -> Map", __mapDelete},
+		".__map-keys":      {"MapKeys (map:Map) -> List", __mapKeys},
+		".__map-from-json": {"MapFromJSON (json:String) -> Map", __mapFromJSON},
+
+		".__read":  {"Read (path:String) -> String", __read},
+		".__match": {"Match (value:Any pattern:Any) -> Any", __match},
 	}
 }
 
@@ -87,7 +91,11 @@ var builtinInjector = `
 	(def map-set .__map-set)
 	(def map-delete .__map-delete)
 	(def map-keys .__map-keys)
+	(def map-from-json .__map-from-json)
 
+	(def match .__match)
+	(def read .__read)
+	
 	(def exec-code .__exec-code)
 	(def exec-stdout .__exec-stdout)
 	(def exec-stderr .__exec-stderr)

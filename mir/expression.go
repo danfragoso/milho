@@ -82,12 +82,12 @@ func (e *MapExpression) Type() ExpressionType {
 }
 
 func (e *MapExpression) Value() string {
-	mapValues := "("
+	mapValues := "{"
 	for k, v := range e.Values {
-		mapValues += fmt.Sprintf("%s:%s ", k, v.Value())
+		mapValues += fmt.Sprintf("%s %s ", k, v.Value())
 	}
 
-	return "Map" + strings.Trim(mapValues, " ") + ")"
+	return strings.Trim(mapValues, " ") + "}"
 }
 
 func (e *MapExpression) Parent() Expression {

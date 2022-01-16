@@ -1,0 +1,33 @@
+(defn validateMilho (m)
+  (match (type m)
+    (String (match m
+      ("milho-rust"    "maybe")
+      ("milho-ocaml"   "?")
+      ("milho-haskell" "yes")
+      ("milho-js"      "wait, what?")
+      ("milho-go"      "yes")
+      ("milho-go"      "YES!")
+      (_               "Doesn't look like a valid milho to me.")))
+    (_  (str "Invalid input type: " (type m) ";\nExpected String"))))
+
+(println (validateMilho 123))
+(println (validateMilho "milho-rust"))
+(println (validateMilho "js"))
+(println (validateMilho "milho-js"))
+(println (validateMilho "milho-go"))
+(println (validateMilho "milho-haskell"))
+
+(defn validateMilhoList (l)
+  (match l
+    ((1 2 3) "Nok")
+    ((1 _ 3) "Ok")
+    ((1 _ ("mene") 3) "LST")
+    ((1 2 4) "Nok2")
+    (_ "Invalid input")))
+
+(println (validateMilhoList '(1 2 3)))
+(println (validateMilhoList '(1 3 3)))
+(println (validateMilhoList '(1 "mene" 3)))
+(println (validateMilhoList '(1 ("mene") 3)))
+(println (validateMilhoList '(1 MENE ("mene") 3)))
+(println (validateMilhoList '(1 3 4)))
