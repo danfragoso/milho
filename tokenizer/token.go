@@ -80,7 +80,7 @@ func resolveTokenType(rawToken string) (TokenType, error) {
 		return Comment, nil
 	}
 
-	if isDigit(rune(rawToken[0])) {
+	if isDigit(rune(rawToken[0])) || rawToken[0] == '-' && len(rawToken) > 1 {
 		if len(rawToken) >= 3 && rawToken[0:2] == "0x" {
 			if len(rawToken) > 4 {
 				return Invalid, fmt.Errorf("Invalid range for byte '%s' only allowed from 0x00 to 0xFF", rawToken)
