@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌽 Docs</title>
+    <link rel="stylesheet" href="../css/index.css">
+</head>
+<body>
+    <div class="main">
+        <h1>🌽 MILHO Docs</h1>
+        <h2 id="expressions">Expressions</h2>
+        <p>Expressions are the base unit of the milho language, and there are some types an expression can be.</p>
+        <ul>
+          <li>
+            <h3>Symbol</h3>
+            <p>The symbol type is simple defined as a sequence of characters that doesn't starts with 
+              <code>(</code>,
+              <code>)</code>,
+              <code>'</code>,
+              <code>;</code>,
+              <code>-</code>,
+              doesn't starts with a digit, is not the word <code>True</code>, not the word <code>False</code>, and
+              doesn't have a white-space.
+            </p>
+            <p>So, things like <code>Menes</code>, <code>mene</code>, <code>mene-123</code>, <code>Number.MAX_INT</code> are valid symbols.</p>
+            <p>And things like <code>-mene</code>, <code>;mksmk</code>, <code>123.mene</code> aren't valid symbols.</p> 
+          </li>
+          <li>
+            <h3>Number</h3>
+            <p>The number is a (single or a sequence) of digits that might be preceded by a <code>-</code> to indicate a negative number and may have a <code>/</code> between the digits when representing a fraction.<p>
+            <p>So <code>-1</code>, <code>2</code>, <code>1/2</code> are valid numbers.</p>
+            <p>And <code>1.2</code> and <code>23-2</code> aren't, we don't have floating point numbers, don't ask why.</p>
+          </li>
+          <li>
+            <h3>String</h3>
+            <p>Strings are expressions that starts with a <code>"</code> and hopefully ends with one too. We can have white-spaces but no new lines, but we might escape it with a \n and other escape sequences.</p>
+            <p><code>"helo"</code>, <code>"nice string \n you have there"</code> are valid.</p>
+            <p><code>123"mene"</code> and <code>mene"123"</code> aren't, but be careful, the last example IS a valid symbol.</p>
+          </li>
+            
+    </div>
+</body>
+</html>

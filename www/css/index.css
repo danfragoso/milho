@@ -1,0 +1,115 @@
+.main {
+  max-width: 700px;
+  margin: 0 auto;
+  font-family: JetBrainsMono;
+}
+
+.prompt {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.corn {
+  padding: 10px;
+}
+
+input[type=text] {
+  font-family: JetBrainsMono;
+  width: 100%;
+}
+@font-face{
+  font-family: 'JetBrainsMono';
+  src: url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff2/JetBrainsMono-Regular.woff2') format('woff2'),
+  url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/web/woff/JetBrainsMono-Regular.woff') format('woff'),
+  url('https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono/ttf/JetBrainsMono-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+#rBox {
+  height: 400px;
+  overflow-y: auto;
+  word-wrap: break-word;
+}
+
+.b {
+  font-family: JetBrainsMono;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 5px;
+  background-color: #eee;
+  scrollbar-width: none;
+}
+
+.b::-webkit-scrollbar {
+  display: none;
+}
+
+.options {
+  margin-top: 5px;
+  display: flex;
+}
+
+label {
+  border-radius: 5px;
+  padding: 10px;
+  margin: 10px;
+  margin-left: 0px;
+  cursor: pointer;
+  background: #efefef;
+  border: solid 1px #ddd;
+}
+
+.repl {
+  background: #fbfbfb;
+  padding: 10px;
+  border-radius: 5px;
+  border: solid 1px #ddd;
+}
+
+#showAST {
+  border: dashed 2px #0d7777;
+}
+
+.astBox {
+  margin: 10px;
+  border: dashed 2px #0d7777;
+  border-radius: 10px;
+  padding: 10px 0;
+}
+
+#showMIR {
+  border: dashed 2px coral;
+}
+
+.mirBox {
+  margin: 10px;
+  border: dashed 2px coral;
+  border-radius: 10px;
+  padding: 10px 0;
+}
+
+#showJS {
+  border: dashed 2px #ffcc4d;
+}
+
+.jsBox {
+  margin: 10px;
+  border: dashed 2px #ffcc4d;
+  border-radius: 10px;
+  padding: 10px 0;
+}
+
+pre {
+  white-space: pre-wrap;
+  margin: 0 24px;
+  word-wrap: break-word;
+  font-size: 12px;
+}
+
+code {
+  background: #efefef;
+  padding: 2px;
+  border-radius: 5px;
+}
