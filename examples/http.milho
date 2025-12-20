@@ -1,0 +1,172 @@
+; HTTP Server Example for Milho
+; Demonstrates HTTP server capabilities with multiple routes
+
+(import "core/http.milho")
+
+; Create a server on port 8080
+(def server (server-create 8080))
+
+; Simple GET route - Hello World
+(route-get server "/hello"
+  (fn (req res)
+    (response-json res (map-create
+      (message "Hello, World!")
+      (timestamp (time))))))
+
+; GET route with query parameters
+(route-get server "/greet"
+  (fn (req res)
+    (do
+      (def query-params (request-query req))
+      (def name-param (map-get query-params 'name))
+      (def name (if (= name-param Nil) "Guest" name-param))
+      (response-json res (map-create
+        (greeting (str "Hello, " name "!"))
+        (query-params (request-query req)))))))
+
+; POST route - Echo body
+(route-post server "/echo"
+  (fn (req res)
+    (do
+      (def body (request-body req))
+      (response-text res (str "You sent: " body)))))
+
+; POST route - JSON echo
+(route-post server "/api/echo"
+  (fn (req res)
+    (do
+      (def body (request-body req))
+      (def headers (request-headers req))
+      (def content-type (map-get headers 'Content-Type))
+      (response-json res (map-create
+        (received body)
+        (content-type content-type)
+        (length (str (split body ""))))))))
+
+; GET route - Return request info
+(route-get server "/info"
+  (fn (req res)
+    (response-json res (map-create
+      (method (request-method req))
+      (path (request-path req))
+      (headers (request-headers req))
+      (query (request-query req))))))
+
+; GET route - HTML response
+(route-get server "/"
+  (fn (req res)
+    (do
+      (def html "<!DOCTYPE html>
+<html>
+<head>
+  <title>Milho HTTP Server</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+    h1 { color: #333; }
+    .endpoint { background: #f4f4f4; padding: 10px; margin: 10px 0; border-radius: 5px; }
+    code { background: #e0e0e0; padding: 2px 5px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>Welcome to Milho HTTP Server!</h1>
+  <p>This server is running on port 8080</p>
+
+  <h2>Available Endpoints:</h2>
+
+  <div class=\"endpoint\">
+    <strong>GET /hello</strong><br>
+    Returns a JSON greeting message
+  </div>
+
+  <div class=\"endpoint\">
+    <strong>GET /greet?name=YourName</strong><br>
+    Returns a personalized greeting with query parameters
+  </div>
+
+  <div class=\"endpoint\">
+    <strong>POST /echo</strong><br>
+    Echoes back the request body as plain text
+  </div>
+
+  <div class=\"endpoint\">
+    <strong>POST /api/echo</strong><br>
+    Returns JSON with information about the posted data
+  </div>
+
+  <div class=\"endpoint\">
+    <strong>GET /info</strong><br>
+    Returns JSON with request information (method, path, headers, query)
+  </div>
+
+  <div class=\"endpoint\">
+    <strong>GET /calculator/add?a=5&b=3</strong><br>
+    Adds two numbers from query parameters
+  </div>
+
+  <div class=\"endpoint\">
+    <strong>POST /api/user</strong><br>
+    Example JSON endpoint - send JSON user data
+  </div>
+
+  <h2>Try it out:</h2>
+  <code>curl http://localhost:8080/hello</code><br>
+  <code>curl http://localhost:8080/greet?name=Milho</code><br>
+  <code>curl -X POST http://localhost:8080/echo -d \"Hello from Milho\"</code><br>
+  <code>curl http://localhost:8080/calculator/add?a=10&b=20</code>
+</body>
+</html>")
+      (response-html res html))))
+
+; GET route - Calculator example
+(route-get server "/calculator/add"
+  (fn (req res)
+    (do
+      (def query-params (request-query req))
+      (def a-str (map-get query-params 'a))
+      (def b-str (map-get query-params 'b))
+
+      ; Simple string to number conversion - showing query parameter usage
+      ; In a real implementation you'd want better parsing
+      (def result (if (= a-str Nil)
+        (response-bad-request res "Missing parameter 'a'")
+        (if (= b-str Nil)
+          (response-bad-request res "Missing parameter 'b'")
+          (response-json res (map-create
+            (operation "add")
+            (operands (map-create (a a-str) (b b-str)))
+            (note "Note: Full number parsing not implemented in this example")))))))))
+
+; POST route - Create user - JSON example
+(route-post server "/api/user"
+  (fn (req res)
+    (do
+      (def body (request-body req))
+      (def user-data (request-body-json req))
+
+      ; Simulate creating a user
+      (def response-data (map-create
+        (status "created")
+        (user user-data)
+        (id 12345)
+        (created-at (time))))
+
+      (response-created res (str response-data)))))
+
+; 404 handler - catch-all
+(route-get server "/404"
+  (fn (req res)
+    (response-not-found res "Not Found")))
+
+; Print startup message
+(println "Starting Milho HTTP Server on http://localhost:8080")
+(println "Press Ctrl+C to stop")
+(println "")
+(println "Try: curl http://localhost:8080/hello")
+(println "     curl http://localhost:8080/greet?name=Milho")
+(println "     curl -X POST http://localhost:8080/echo -d 'Hello'")
+(println "")
+(println "Or open http://localhost:8080 in your browser")
+(println "")
+
+; Start the server - blocking, will run until Ctrl+C
+(server-start server)

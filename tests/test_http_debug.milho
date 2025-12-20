@@ -1,0 +1,16 @@
+(import "core/http.milho")
+
+(println "Creating server...")
+(def server (server-create 8080))
+(println "Server created:" server)
+
+(println "Adding route...")
+(route-get server "/hello"
+  (fn (req res)
+    (do
+      (println "Handler called!")
+      (response-json res (map-create (message "Hello, World!"))))))
+
+(println "Starting server on port 8080...")
+(server-start server)
+(println "Server started")

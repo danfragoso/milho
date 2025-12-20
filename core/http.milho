@@ -1,0 +1,113 @@
+; HTTP Server Module for Milho
+; High-level wrappers around HTTP built-in functions
+
+; Server management functions
+
+(defn server-create (port)
+  (http-server-create port))
+
+(defn server-route (server method path handler)
+  (http-server-route server method path handler))
+
+(defn server-start (server)
+  (http-server-start server))
+
+(defn server-start-async (server)
+  (http-server-start-async server))
+
+(defn server-stop (server)
+  (http-server-stop server))
+
+; Request accessor functions
+
+(defn request-method (req)
+  (http-request-method req))
+
+(defn request-path (req)
+  (http-request-path req))
+
+(defn request-headers (req)
+  (http-request-headers req))
+
+(defn request-header (req key)
+  (map-get (request-headers req) key))
+
+(defn request-body (req)
+  (http-request-body req))
+
+(defn request-query (req)
+  (http-request-query req))
+
+(defn request-query-param (req key)
+  (map-get (request-query req) key))
+
+(defn request-body-json (req)
+  (map-from-json (request-body req)))
+
+; Response builder functions
+
+(defn response-status (res status)
+  (http-response-status res status))
+
+(defn response-header (res key value)
+  (http-response-header res key value))
+
+(defn response-body (res body)
+  (http-response-body res body))
+
+(defn response-json (res data)
+  (http-response-json res data))
+
+(defn response-text (res text)
+  (do
+    (def with-header (response-header res "Content-Type" "text/plain"))
+    (response-body with-header text)))
+
+(defn response-html (res html)
+  (do
+    (def with-header (response-header res "Content-Type" "text/html"))
+    (response-body with-header html)))
+
+; Convenience response builders
+
+(defn response-ok (res body)
+  (do
+    (def with-status (response-status res 200))
+    (response-body with-status body)))
+
+(defn response-created (res body)
+  (do
+    (def with-status (response-status res 201))
+    (response-body with-status body)))
+
+(defn response-bad-request (res body)
+  (do
+    (def with-status (response-status res 400))
+    (response-body with-status body)))
+
+(defn response-not-found (res body)
+  (do
+    (def with-status (response-status res 404))
+    (response-body with-status body)))
+
+(defn response-error (res body)
+  (do
+    (def with-status (response-status res 500))
+    (response-body with-status body)))
+
+; Route helper functions
+
+(defn route-get (server path handler)
+  (server-route server "GET" path handler))
+
+(defn route-post (server path handler)
+  (server-route server "POST" path handler))
+
+(defn route-put (server path handler)
+  (server-route server "PUT" path handler))
+
+(defn route-delete (server path handler)
+  (server-route server "DELETE" path handler))
+
+(defn route-patch (server path handler)
+  (server-route server "PATCH" path handler))

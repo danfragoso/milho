@@ -1,0 +1,10 @@
+(import "core/http.milho")
+
+(def server (server-create 8080))
+
+(route-get server "/hello"
+  (fn (req res)
+    (response-json res (map-create (message "Hello, World!")))))
+
+(println "Starting test server on port 8080...")
+(server-start server)

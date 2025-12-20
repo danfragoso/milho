@@ -56,14 +56,25 @@ func __push(params []mir.Expression, session *mir.Session) (mir.Expression, erro
 		return nil, errors.New("Wrong number of args '2' passed to push")
 	}
 
-	if params[1].Type() != mir.ListExpr {
-		return nil, fmt.Errorf("push second parameter must be a list, instead got %s", params[1].Type())
+	var exprs []mir.Expression
+
+	ev, err := evaluate(params[0], session)
+	if err != nil {
+		return nil, err
 	}
 
-	var exprs []mir.Expression
-	exprs = append(exprs, params[0])
-	exprs = append(exprs, params[1].(*mir.ListExpression).Expressions...)
+	exprs = append(exprs, ev)
 
+	evn, err := evaluate(params[1], session)
+	if err != nil {
+		return nil, err
+	}
+
+	if evn.Type() != mir.ListExpr {
+		return nil, fmt.Errorf("push second parameter must be a list, instead got %s", evn.Type())
+	}
+
+	exprs = append(exprs, evn.(*mir.ListExpression).Expressions...)
 	return mir.CreateListExpression(exprs...)
 }
 

@@ -64,6 +64,23 @@ func init() {
 
 		".__read":  {"Read (path:String) -> String", __read},
 		".__match": {"Match (value:Any pattern:Any) -> Any", __match},
+
+		".__http-server-create":      {"HttpServerCreate (port:Number) -> Number", __httpServerCreate},
+		".__http-server-route":       {"HttpServerRoute (serverID:Number method:String path:String handler:Function) -> Nil", __httpServerRoute},
+		".__http-server-start":       {"HttpServerStart (serverID:Number) -> Nil", __httpServerStart},
+		".__http-server-start-async": {"HttpServerStartAsync (serverID:Number) -> Nil", __httpServerStartAsync},
+		".__http-server-stop":        {"HttpServerStop (serverID:Number) -> Nil", __httpServerStop},
+
+		".__http-request-method":  {"HttpRequestMethod (request:Map) -> String", __httpRequestMethod},
+		".__http-request-path":    {"HttpRequestPath (request:Map) -> String", __httpRequestPath},
+		".__http-request-headers": {"HttpRequestHeaders (request:Map) -> Map", __httpRequestHeaders},
+		".__http-request-body":    {"HttpRequestBody (request:Map) -> String", __httpRequestBody},
+		".__http-request-query":   {"HttpRequestQuery (request:Map) -> Map", __httpRequestQuery},
+
+		".__http-response-status": {"HttpResponseStatus (response:Map status:Number) -> Map", __httpResponseStatus},
+		".__http-response-header": {"HttpResponseHeader (response:Map key:String value:String) -> Map", __httpResponseHeader},
+		".__http-response-body":   {"HttpResponseBody (response:Map body:String) -> Map", __httpResponseBody},
+		".__http-response-json":   {"HttpResponseJson (response:Map jsonData:String|Map) -> Map", __httpResponseJson},
 	}
 }
 
@@ -113,6 +130,23 @@ var builtinInjector = `
 
 	(def sleep .__sleep)
 	(def range .__range)
+
+	(def http-server-create .__http-server-create)
+	(def http-server-route .__http-server-route)
+	(def http-server-start .__http-server-start)
+	(def http-server-start-async .__http-server-start-async)
+	(def http-server-stop .__http-server-stop)
+
+	(def http-request-method .__http-request-method)
+	(def http-request-path .__http-request-path)
+	(def http-request-headers .__http-request-headers)
+	(def http-request-body .__http-request-body)
+	(def http-request-query .__http-request-query)
+
+	(def http-response-status .__http-response-status)
+	(def http-response-header .__http-response-header)
+	(def http-response-body .__http-response-body)
+	(def http-response-json .__http-response-json)
 `
 var functionInjector = `
 (defn Number? (n)
