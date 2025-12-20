@@ -1,4 +1,4 @@
-#!/bin/milho
+#!/usr/local/bin/milho
 
 (defn git-log (fmt)
     (exec-stdout "git" "log" (str "--pretty=\"" fmt "\"") "-n1"))
