@@ -1,0 +1,87 @@
+; Milho Guestbook - API with Database
+
+(import "core/http.milho")
+(import "core/pizzakv.milho")
+
+(kv-connect)
+(def server (server-create 8080))
+
+; Helper: Extract value from URL-encoded form data
+(defn get-form-value (form-data key)
+  (do
+    (def search-key (str key "="))
+    (if (contains form-data search-key)
+      (do
+        (def start-idx (+ (index-of form-data search-key) (+ (index-of search-key "=") 1)))
+        (def remaining (substring form-data start-idx))
+        (def end-idx (index-of remaining "&"))
+        (def value (if (< end-idx 0)
+          remaining
+          (substring remaining 0 end-idx)))
+        (def decoded (replace value "%20" " "))
+        (def decoded2 (replace decoded "%21" "!"))
+        (def decoded3 (replace decoded2 "%3F" "?"))
+        (def decoded4 (replace decoded3 "%2C" ","))
+        (def decoded5 (replace decoded4 "%2B" "+"))
+        (def decoded6 (replace decoded5 "%3D" "="))
+        decoded6)
+      "")))
+
+; Helper: Create and save a guestbook entry
+(defn create-and-save-entry (name message)
+  (do
+    (def id (str "entry_" (random-string 8)))
+    (def ts (timestamp))
+    (def entry (str name "|" ts "|" message))
+    (kv-write id entry)
+    (def curr (kv-read "guestbook_entries"))
+    (kv-write "guestbook_entries"
+      (if (= curr Nil)
+        id
+        (str curr "|" id)))
+    (str id "|" entry)))
+
+; Helper: Get all entries as text
+(defn get-all-entries ()
+  (do
+    (def ids-str (kv-read "guestbook_entries"))
+    (if (= ids-str Nil)
+      ""
+      (do
+        (def ids (split ids-str "|"))
+        (def entries-list (map ids
+          (fn (id)
+            (do
+              (def data (kv-read id))
+              (if (= data Nil)
+                ""
+                (str id "|" data))))))
+        (join entries-list "\n")))))
+
+; GET / - Hello World
+(route-get server "/"
+  (fn (req res)
+    (response-text res "Hello, World! Guestbook API is running.")))
+
+; GET /entries - Return all guestbook entries
+(route-get server "/entries"
+  (fn (req res)
+    (response-text res (get-all-entries))))
+
+; POST /create_entry - Create a new guestbook entry
+(route-post server "/create_entry"
+  (fn (req res)
+    (response-text res
+      (create-and-save-entry
+        (get-form-value (request-body req) "name")
+        (get-form-value (request-body req) "message")))))
+
+(println "🍕 Milho Guestbook API")
+(println "http://localhost:8080")
+(println "")
+(println "Endpoints:")
+(println "  GET  /              - Hello World")
+(println "  GET  /entries       - Get all entries")
+(println "  POST /create_entry  - Create entry (form data: name, message)")
+(println "")
+(server-start server)

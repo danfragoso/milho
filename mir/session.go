@@ -112,3 +112,21 @@ func addObjectToSession(objects []*Object, obj *Object) []*Object {
 
 	return objects
 }
+
+// Clone creates a deep copy of the session with a fresh Objects array
+// while sharing the same ExprTree and SyntaxTree.
+// This is useful for HTTP handlers to avoid session state contamination.
+func (s *Session) Clone() *Session {
+	// Deep copy the Objects slice - create new Object instances
+	objectsCopy := make([]*Object, len(s.Objects))
+	for i, obj := range s.Objects {
+		objectsCopy[i] = CreateObject(obj.Value(), obj.Identifier())
+	}
+
+	return &Session{
+		ExprTree:   s.ExprTree,
+		SyntaxTree: s.SyntaxTree,
+		Objects:    objectsCopy,
+		CallStack:  &CallStack{expressions: [][]Expression{}},
+	}
+}

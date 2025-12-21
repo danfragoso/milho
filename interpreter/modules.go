@@ -11,16 +11,21 @@ import (
 	"github.com/danfragoso/milho/tokenizer"
 )
 
-var MILHO_STD_PATH = "/opt/milho/core/"
-
 func milhoPath() string {
 	envPath := os.Getenv("MILHO_STD_PATH")
 	if envPath != "" {
 		return envPath
 	}
 
-	fmt.Printf("Warning, MILHO_STD_PATH is not defined, using default location %s\n", MILHO_STD_PATH)
-	return MILHO_STD_PATH
+	// Default to ~/.milho/core/ (cross-platform, user-writable)
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Printf("Warning: could not determine home directory, using ./core/\n")
+		return "./core/"
+	}
+
+	defaultPath := homeDir + "/.milho/core/"
+	return defaultPath
 }
 
 func __exit(params []mir.Expression, session *mir.Session) (mir.Expression, error) {
@@ -53,7 +58,22 @@ func __import(params []mir.Expression, session *mir.Session) (mir.Expression, er
 		return nil, fmt.Errorf("first param to import must be either a symbol or a string got: %s", path.Value())
 	}
 
+	// Try reading the file at the given path
 	src, err := ioutil.ReadFile(pathStr)
+
+	// If string import failed and path doesn't start with /, try MILHO_STD_PATH as fallback
+	if err != nil && path.Type() == mir.StringExpr && !strings.HasPrefix(pathStr, "/") {
+		// Extract just the filename from the path (e.g., "core/pizzakv.milho" -> "pizzakv.milho")
+		parts := strings.Split(pathStr, "/")
+		filename := parts[len(parts)-1]
+		fallbackPath := milhoPath() + filename
+
+		src, err = ioutil.ReadFile(fallbackPath)
+		if err == nil {
+			pathStr = fallbackPath // Update pathStr for error messages
+		}
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to import module %s: %s", path.Value(), err)
 	}

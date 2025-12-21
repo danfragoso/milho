@@ -1,0 +1,25 @@
+; TCP Client Module for Milho
+; High-level wrappers around TCP built-in functions
+
+; Connection management
+
+(defn connect (host port)
+  (tcp-connect host port))
+
+(defn write (socket data)
+  (tcp-write socket data))
+
+(defn read (socket delimiter)
+  (tcp-read socket delimiter))
+
+(defn read-line (socket)
+  (tcp-read-line socket))
+
+(defn close (socket)
+  (tcp-close socket))
+
+; Helper: send command and read response
+(defn send-command (socket command)
+  (do
+    (write socket command)
+    (read-line socket)))

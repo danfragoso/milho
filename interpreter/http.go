@@ -19,13 +19,15 @@ var (
 )
 
 type httpServerInstance struct {
-	ID       int64
-	Port     int64
-	Server   *http.Server
-	Mux      *http.ServeMux
-	Routes   map[string]*routeHandler
-	Session  *mir.Session
-	stopChan chan struct{}
+	ID            int64
+	Port          int64
+	Server        *http.Server
+	Mux           *http.ServeMux
+	Routes        map[string]*routeHandler // method:path -> handler
+	PathHandlers  map[string]map[string]mir.Expression // path -> method -> handler
+	RegisteredPaths map[string]bool // tracks which paths are registered with mux
+	Session       *mir.Session
+	stopChan      chan struct{}
 }
 
 type routeHandler struct {
@@ -62,13 +64,15 @@ func __httpServerCreate(params []mir.Expression, session *mir.Session) (mir.Expr
 	}
 
 	instance := &httpServerInstance{
-		ID:       serverID,
-		Port:     port,
-		Server:   server,
-		Mux:      mux,
-		Routes:   make(map[string]*routeHandler),
-		Session:  session,
-		stopChan: make(chan struct{}),
+		ID:              serverID,
+		Port:            port,
+		Server:          server,
+		Mux:             mux,
+		Routes:          make(map[string]*routeHandler),
+		PathHandlers:    make(map[string]map[string]mir.Expression),
+		RegisteredPaths: make(map[string]bool),
+		Session:         session,
+		stopChan:        make(chan struct{}),
 	}
 
 	httpServers[serverID] = instance
@@ -132,52 +136,78 @@ func __httpServerRoute(params []mir.Expression, session *mir.Session) (mir.Expre
 		return nil, fmt.Errorf("http-server-route: server %d not found", serverID)
 	}
 
+	// Store handler in path -> method map
+	if instance.PathHandlers[path] == nil {
+		instance.PathHandlers[path] = make(map[string]mir.Expression)
+	}
+	instance.PathHandlers[path][method] = handlerExpr
+
+	// Also store in legacy Routes map for compatibility
 	routeKey := method + ":" + path
 	route := &routeHandler{
 		Method:  method,
 		Path:    path,
 		Handler: handlerExpr,
 	}
-
 	instance.Routes[routeKey] = route
 
-	// Register the route with the mux
-	instance.Mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != method {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
+	// Register the path with mux only if not already registered
+	if !instance.RegisteredPaths[path] {
+		instance.RegisteredPaths[path] = true
 
-		// Create request map
-		reqMap, err := createRequestMap(r)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Error creating request: %s", err), http.StatusInternalServerError)
-			return
-		}
+		// Register a dispatcher that handles all methods for this path
+		instance.Mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+			// Look up the handler for this method
+			httpServerMutex.RLock()
+			methodHandlers, pathExists := instance.PathHandlers[path]
+			if !pathExists {
+				httpServerMutex.RUnlock()
+				http.Error(w, "Not found", http.StatusNotFound)
+				return
+			}
 
-		// Create response map
-		resMap, err := createResponseMap()
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Error creating response: %s", err), http.StatusInternalServerError)
-			return
-		}
+			handlerExpr, methodExists := methodHandlers[r.Method]
+			if !methodExists {
+				httpServerMutex.RUnlock()
+				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+				return
+			}
+			httpServerMutex.RUnlock()
 
-		// Call the handler function
-		handlerParams := []mir.Expression{reqMap, resMap}
-		resultExpr, err := callFunction(handlerExpr.(*mir.FunctionExpression), handlerParams, instance.Session)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Handler error: %s", err), http.StatusInternalServerError)
-			return
-		}
+			// Create request map
+			reqMap, err := createRequestMap(r)
+			if err != nil {
+				http.Error(w, fmt.Sprintf("Error creating request: %s", err), http.StatusInternalServerError)
+				return
+			}
 
-		// Extract response from result (should be the modified response map)
-		if resultExpr.Type() == mir.MapExpr {
-			resMap = resultExpr.(*mir.MapExpression)
-		}
+			// Create response map
+			resMap, err := createResponseMap()
+			if err != nil {
+				http.Error(w, fmt.Sprintf("Error creating response: %s", err), http.StatusInternalServerError)
+				return
+			}
 
-		// Write response
-		writeResponse(w, resMap)
-	})
+			// Clone the session for this request to avoid state contamination
+			requestSession := instance.Session.Clone()
+
+			// Call the handler function
+			handlerParams := []mir.Expression{reqMap, resMap}
+			resultExpr, err := callFunction(handlerExpr.(*mir.FunctionExpression), handlerParams, requestSession)
+			if err != nil {
+				http.Error(w, fmt.Sprintf("Handler error: %s", err), http.StatusInternalServerError)
+				return
+			}
+
+			// Extract response from result (should be the modified response map)
+			if resultExpr.Type() == mir.MapExpr {
+				resMap = resultExpr.(*mir.MapExpression)
+			}
+
+			// Write response
+			writeResponse(w, resMap)
+		})
+	}
 
 	httpServerMutex.Unlock()
 
@@ -708,6 +738,35 @@ func mapExpressionToGoMap(mapExpr *mir.MapExpression) map[string]interface{} {
 			result[key] = expr.(*mir.BooleanExpression).Val
 		case mir.MapExpr:
 			result[key] = mapExpressionToGoMap(expr.(*mir.MapExpression))
+		case mir.ListExpr:
+			listExpr := expr.(*mir.ListExpression)
+			listResult := make([]interface{}, 0)
+			for _, item := range listExpr.Expressions {
+				if item == nil {
+					listResult = append(listResult, nil)
+					continue
+				}
+				switch item.Type() {
+				case mir.NilExpr:
+					listResult = append(listResult, nil)
+				case mir.StringExpr:
+					listResult = append(listResult, item.(*mir.StringExpression).Val)
+				case mir.NumberExpr:
+					numExpr := item.(*mir.NumberExpression)
+					if numExpr.Denominator == 1 {
+						listResult = append(listResult, numExpr.Numerator)
+					} else {
+						listResult = append(listResult, float64(numExpr.Numerator)/float64(numExpr.Denominator))
+					}
+				case mir.BooleanExpr:
+					listResult = append(listResult, item.(*mir.BooleanExpression).Val)
+				case mir.MapExpr:
+					listResult = append(listResult, mapExpressionToGoMap(item.(*mir.MapExpression)))
+				default:
+					listResult = append(listResult, nil)
+				}
+			}
+			result[key] = listResult
 		default:
 			result[key] = expr.Value()
 		}

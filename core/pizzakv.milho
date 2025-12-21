@@ -1,0 +1,63 @@
+; PizzaKV Client Module for Milho
+; Implements Pizzaria Protocol - backslash-r delimited commands
+
+; Connection settings
+(def kv-host "localhost")
+(def kv-port 8085)
+
+; Helper: Execute a command with a fresh connection
+(defn kv-exec (command)
+  (do
+    (def conn (tcp-connect kv-host kv-port))
+    (tcp-write conn command)
+    (def response (tcp-read conn "\r"))
+    (tcp-close conn)
+    (def trimmed-list (split response "\r"))
+    (car trimmed-list)))
+
+; Write a key-value pair
+; Protocol: write key|value\r
+(defn kv-write (key value)
+  (do
+    (def command (str "write " key "|" value "\r"))
+    (kv-exec command)))
+
+; Read a value by key
+; Protocol: read key\r
+(defn kv-read (key)
+  (do
+    (def command (str "read " key "\r"))
+    (kv-exec command)))
+
+; Delete a key
+; Protocol: delete key\r
+(defn kv-delete (key)
+  (do
+    (def command (str "delete " key "\r"))
+    (kv-exec command)))
+
+; Get all keys
+; Protocol: keys\r
+(defn kv-keys ()
+  (do
+    (def response (kv-exec "keys\r"))
+    (if (= response Nil)
+      '()
+      (split response "\n"))))
+
+; Get all values for keys matching a prefix
+; Protocol: reads prefix\r
+(defn kv-reads (prefix)
+  (do
+    (def command (str "reads " prefix "\r"))
+    (def response (kv-exec command))
+    (if (= response Nil)
+      '()
+      (split response "\n"))))
+
+; Connect function for compatibility
+(defn kv-connect ()
+  (do
+    (def test-conn (tcp-connect kv-host kv-port))
+    (tcp-close test-conn)
+    test-conn))

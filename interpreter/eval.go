@@ -43,20 +43,22 @@ func evaluateSymbol(expr mir.Expression, session *mir.Session) (mir.Expression, 
 		return mir.CreateNilExpression()
 	}
 
+	// Check expression-local scope FIRST (function parameters, local bindings)
+	nObj := findExprObject(expr, symbol.Identifier)
+	if nObj != nil {
+		return nObj.Value(), nil
+	}
+
+	// Then check session scope (global definitions)
 	obj, err := session.FindObject(symbol.Identifier)
 	if err != nil {
-		nObj := findExprObject(expr, symbol.Identifier)
-		if nObj == nil {
-			/*
-				Intead of breaking when a symbol is not found, just return the symbol itself
-				and let the caller error out if a symbol is not expected.
-				This may solve the problem of using a symbol that is not a variable
-				and not knowing when to use 'sym vs sym.
-			*/
-			return symbol, nil
-		}
-
-		obj = nObj.Value()
+		/*
+			Intead of breaking when a symbol is not found, just return the symbol itself
+			and let the caller error out if a symbol is not expected.
+			This may solve the problem of using a symbol that is not a variable
+			and not knowing when to use 'sym vs sym.
+		*/
+		return symbol, nil
 	}
 
 	return obj, nil

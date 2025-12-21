@@ -1,19 +1,34 @@
-.PHONY: repl build install www hooks
+.PHONY: repl build install install-std www hooks
 
 git_revision != git log -1 --pretty="%h_%ad" --date=short
 ldflags := -ldflags "-X 'github.com/danfragoso/milho.version=$(git_revision)'"
 pwd != pwd
+home_dir := $(HOME)
+std_path := $(home_dir)/.milho/core
 
 all: test
 
-repl: 
+repl:
 	@go run $(ldflags) ./cli/*.go $(f)
 
 build:
 	@go build $(ldflags) -o milho ./cli/*.go
 
 install:
-	@cp milho /usr/bin/milho
+	@cp milho /usr/local/bin/milho
+	@echo "Milho installed to /usr/local/bin/milho"
+
+install-std:
+	@echo "Installing Milho standard library to $(std_path)..."
+	@mkdir -p $(std_path)
+	@cp core/*.milho $(std_path)/
+	@echo ""
+	@echo "✓ Standard library installed to $(std_path)"
+	@echo ""
+	@echo "Add this to your ~/.zshrc or ~/.bashrc:"
+	@echo "  export MILHO_STD_PATH=$(std_path)"
+	@echo ""
+	@echo "Then imports like (import \"core/http.milho\") will work from anywhere!"
 
 www:
 	@GOOS=js GOARCH=wasm go build $(ldflags) -o www/wasm/milho.wasm www/go/milho.go

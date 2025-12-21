@@ -36,9 +36,15 @@ func init() {
 		".__cons": {"Cons", __cons},
 		".__map":  {"Map", __map},
 
-		".__split": {"Split", __split},
-		".__join":  {"Join (stringList:(String) joiner:String) -> String", __join},
-		".__str":   {"Str (?params:...) -> String", __str},
+		".__split":         {"Split", __split},
+		".__join":          {"Join (stringList:(String) joiner:String) -> String", __join},
+		".__str":           {"Str (?params:...) -> String", __str},
+		".__random-string": {"RandomString (length:Number) -> String", __randomString},
+		".__timestamp":     {"Timestamp () -> Number", __timestamp},
+		".__substring":     {"Substring (str:String start:Number ?end:Number) -> String", __substring},
+		".__replace":       {"Replace (str:String old:String new:String) -> String", __replace},
+		".__index-of":      {"IndexOf (str:String substr:String) -> Number", __indexOf},
+		".__contains":      {"Contains (str:String substr:String) -> Boolean", __contains},
 
 		".__exec": {"Exec (command:String ?params:...String) -> String", __exec},
 
@@ -81,6 +87,12 @@ func init() {
 		".__http-response-header": {"HttpResponseHeader (response:Map key:String value:String) -> Map", __httpResponseHeader},
 		".__http-response-body":   {"HttpResponseBody (response:Map body:String) -> Map", __httpResponseBody},
 		".__http-response-json":   {"HttpResponseJson (response:Map jsonData:String|Map) -> Map", __httpResponseJson},
+
+		".__tcp-connect":   {"TcpConnect (host:String port:Number) -> Number", __tcpConnect},
+		".__tcp-write":     {"TcpWrite (socketID:Number data:String) -> Nil", __tcpWrite},
+		".__tcp-read":      {"TcpRead (socketID:Number ?delimiter:String) -> String", __tcpRead},
+		".__tcp-read-line": {"TcpReadLine (socketID:Number) -> String", __tcpReadLine},
+		".__tcp-close":     {"TcpClose (socketID:Number) -> Nil", __tcpClose},
 	}
 }
 
@@ -123,6 +135,12 @@ var builtinInjector = `
 
 	(def split .__split)
 	(def join .__join)
+	(def random-string .__random-string)
+	(def timestamp .__timestamp)
+	(def substring .__substring)
+	(def replace .__replace)
+	(def index-of .__index-of)
+	(def contains .__contains)
 
 	(def exec .__exec)
 
@@ -147,6 +165,12 @@ var builtinInjector = `
 	(def http-response-header .__http-response-header)
 	(def http-response-body .__http-response-body)
 	(def http-response-json .__http-response-json)
+
+	(def tcp-connect .__tcp-connect)
+	(def tcp-write .__tcp-write)
+	(def tcp-read .__tcp-read)
+	(def tcp-read-line .__tcp-read-line)
+	(def tcp-close .__tcp-close)
 `
 var functionInjector = `
 (defn Number? (n)
